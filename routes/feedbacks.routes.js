@@ -1,0 +1,13 @@
+// route for /feedbacks requests
+const express = require('express');
+const router = express.Router();
+
+// controller functions
+const feedback_controller = require("../controllers/feedbacks.controller.js");
+
+router.get("/", feedback_controller.getAllFeedbacks);
+router.get("/:id", feedback_controller.getFeedbackById);
+
+router.post("/", feedback_controller.validateBodyData, feedback_controller.addFeedback);
+
+module.exports = router;
