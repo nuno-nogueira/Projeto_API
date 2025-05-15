@@ -1,160 +1,192 @@
-// Import the collection points data model
-const collection_points = require("../models/collection-points.model.js");
+//Import the users data model
+const db = require('../models/db.js'); // Import the database connection
+const Collection_Point = db.Collection_Point; // Import the User model from the database connection
+const { Op } = require('sequelize'); // necessary operators for Sequelize 
 
-//??
-let getAllPoints = (req, res) => {
-    /**COLOCAR A ACCESS TOKEN */
-    res.json(collection_points)
+const { ErrorHandler } = require("../utils/error.js"); // Import the ErrorHandler class for error handling
+
+let getAllPoints = async (req, res, next) => {
+    /**
+     * Get all collection points in the DB
+     */
+    try {
+        //Pagination - 6 Collection Points per page
+        let {page = 1, limit = 6} = req.query;
+
+        // validate page and limit values
+        if (isNaN(page) || page < 1) 
+            throw new ErrorHandler(400, `Invalid value for page: ${page}. It should be a positive integer.`);
+        
+        if (isNaN(limit) || limit < 1) 
+            throw new ErrorHandler(400, `Invalid value for limit: ${limit}. It should be a positive integer.`);
+
+        //Find all collection points
+        let collection_points = await Collection_Point.findAndCountAll({
+            limit: +limit
+        })
+        
+        //Iterate through all collection points to put all links
+        collection_points.rows.forEach(collection_point => {
+            collection_point.links = [
+                {rel: "delete", href: `/collection_points/${collection_point.idponto_recolha}, method: "DELETE`},
+                {rel: "modify", href: `/collection_points/${collection_point.idponto_recolha}, method: "PUT`}
+            ]
+        });
+
+        return res.status(200).json({
+            totalPages: Math.ceil(collection_points.count / limit),
+            currentPage: page ? page : 0,
+            total: collection_points.count,
+            data: collection_points.rows,
+            links: [
+                { "rel": "add-collection-point", "href": `/collection-points`, "method": "POST" },
+                // only add the previous page link if the current page is greater than 1
+                ...(page > 1 ? [{ "rel": "previous-page", "href": `/collection-points?limit=${limit}&page=${page - 1}`, "method": "GET" }] : []),
+                // only add the next page link if there are more pages to show
+                ...(collection_points.count > page * limit ? [{ "rel": "next-page", "href": `/collection-points?limit=${limit}&page=${+page + 1}`, "method": "GET" }] : [])
+            ]
+        });
+    } catch (error) {
+        console.error(error);
+        
+        next(error);
+    }
 }
 
-let getPointById = (req, res) => {
-    // Find the collection point with the given id
-    /**COLOCAR A ACCESS TOKEN */
-    const collection_point = collection_points.find(point => point.id == req.params.id);
+let getPointById = async (req, res, next) => {
+    /**
+     * Get a collection point by its ID (Interactive Map)
+     */
+    try {
+        //Find by its PK
+        let collection_point = await Collection_Point.findByPk(req.params.id, {
+            attributes: ['tipo_ponto', 'rua', 'cod_postal', 'horario_funcionamento']
+        });
 
-    //404 Error - If collection point is not found
-    if (!collection_point) {
-        return res.status(404).json({errorMessage: "Collection Point not found"})
+        //If not found
+        if (!collection_point) {
+            throw new ErrorHandler(404, `Cannot find any COLLECTION POINT with ID ${req.params.id}.`);
+        }
+
+        //convert the user to a plain object
+        collection_point = collection_point.toJSON();
+        res.status(200).json(collection_point);
+    } catch (error) {
+        next(error);
     }
+}
 
-    /**COLOCAR ERRO 401 (UNAUTHORIZED) */
+let addPoint = async (req, res, next) => {
+    /**
+     * Add a new Collection Point
+     */
+    try {
+        //Gather all parameters
+        const {idponto_recolha, tipo_ponto, cod_postal, horario_funcionamento, coordenadas_geograficas, rua, numero_porta, rota} = req.body;
 
-    res.json(collection_point) // Return the found collection point
+        // sequelize update method allows PARTIAL updates, so we NEED to check for missing fields    
+        let missingFields = [];
+        if (idponto_recolha === undefined) missingFields.push('Collection Point ID');
+        if (tipo_ponto === undefined) missingFields.push('Collection Point type');
+        if (coordenadas_geograficas === undefined) missingFields.push('Geographical coordinates');
+        if (horario_funcionamento === undefined) missingFields.push('Schedule');
+        if (rua === undefined) missingFields.push('Address');
+        if (cod_postal === undefined) missingFields.push('Postal Code');
+        if (numero_porta === undefined) missingFields.push('Door Number');
+        if (rota === undefined) missingFields.push('Route');
+
+        if (missingFields.length > 0) 
+            throw new ErrorHandler(400, `Missing required fields: ${missingFields.join(', ')}`);
+
+        //INSERT QUERY
+        const collection_point = await Collection_Point.create(req.body);
+
+        res.status(201).json({
+            msg: "Collection Point sucessfully created.",
+            links: [
+                {rel: "self", href: `/collection-points/${collection_point.idponto_recolha}}`, method: "GET"}
+            ]
+        })
+    } catch (error) {
+        next (error);
+    }
+}
+
+let updateCollectionPoint = async (req, res, next) => {
+    /**
+     * Update a Collection Point
+     */
+    try {
+        // if (!req.user || req.user.tipo_utilizador !== req.params.tipo_utilizador) {
+        //     throw new ErrorHandler(403, "You aren't allowed to modify another user's data")
+        // }
+        //Only admins can update Collection Point details ^^^
+
+        //Gather info
+        const {tipo_ponto, coordenadas_geograficas, horario_funcionamento, rua, cod_postal, numero_porta, rota} = req.body;
+
+        const collection_point = await Collection_Point.findByPk(req.params.id);
+        if (!collection_point) {
+            throw new ErrorHandler(404, `Collection Point with ID ${req.params.id} wasn't found!`)
+        }
+
+        // sequelize update method allows PARTIAL updates, so we NEED to check for missing fields    
+        let missingFields = [];
+        if (tipo_ponto === undefined) missingFields.push('Collection Point type');
+        if (coordenadas_geograficas === undefined) missingFields.push('Geographical coordinates');
+        if (horario_funcionamento === undefined) missingFields.push('Schedule');
+        if (rua === undefined) missingFields.push('Address');
+        if (cod_postal === undefined) missingFields.push('Postal Code');
+        if (numero_porta === undefined) missingFields.push('Door Number');
+        if (rota === undefined) missingFields.push('Route');
+
+        if (missingFields.length > 0) 
+            throw new ErrorHandler(400, `Missing required fields: ${missingFields.join(', ')}`);
+
+        const updates = {
+            tipo_ponto, coordenadas_geograficas, horario_funcionamento, rua,
+            cod_postal, numero_porta, rota
+        }
+
+        await collection_point.update(updates);
+
+        const result = collection_point.toJSON();
+        return res.status(200).json({
+            msg: "Collection Point updated sucessfully",
+            data: result
+        })
+    } catch (error) {
+        console.error(error);
+        
+        next(error);
+    }
 }
 
 
-let validateBodyData = (req, res, next) => {
-    // Validate the request body
-    if (!req.body) {
-        return res.status(400).json({errorMessage: "Request body is required"})
+let deletePoint = async (req, res, next) => {
+    /**
+     * Delete a Collection Point
+     */
+    try {
+        //403 Forbidden Error later
+
+        //delete an user in DB given its id
+        let result = await Collection_Point.destroy({where: {idponto_recolha: req.params.id}});
+        // the promise returns the number of deleted rows
+        if (result === 0) {
+            throw new ErrorHandler(404,`Cannot find any COLLECTION POINT with ID ${req.params.id}.`);
+        }
+
+        // send 204 No Content response
+        res.status(204).json();
+    } catch (error) {
+        next(error)
     }
-
-    // Destructure the request body 
-    let {id, point_type, geographical_coordinates, schedule, address, postal_code, door_number, route, residual_type} = req.body;
-
-    // 400 Error - Field Required
-    if (!point_type) {
-        return res.status(400).json({errorMessage: "Collection Point type field is required"})
-    } else if (!geographical_coordinates) {
-        return res.status(400).json({errorMessage: "Geographical coordinates field is required"})
-    } else if (!schedule) {
-        return res.status(400).json({errorMessage: "Schedule field is required"})
-    } else if (!address) {
-        return res.status(400).json({errorMessage: "Address field is required"})
-    } else if (!postal_code) {
-        return res.status(400).json({errorMessage: "Postal Code field is required"})
-    } else if (!door_number) {
-        return res.status(400).json({errorMessage: "Door Number field is required"})
-    } else if (!route) {
-        return res.status(400).json({errorMessage: "Route field is required"})
-    } else if (!residual_type) {
-        return res.status(400).json({errorMessage: "Residual type field is required"})
-    }
-
-
-    // 400 Error - Can't be empty
-    if (typeof point_type !== "string") {
-        return res.status(400).json({errorMessage: "Point Type field cannot be empty"})
-    } else if (typeof geographical_coordinates !== "string") {
-        return res.status(400).json({errorMessage: "Geographical Coordinates field cannot be empty"})
-    } else if (typeof schedule !== "string") {
-        return res.status(400).json({errorMessage: "Schedule field cannot be empty"})
-    } else if (typeof address !== "string") {
-        return res.status(400).json({errorMessage: "Address field cannot be empty"})
-    } else if (typeof postal_code !== "string") {
-        return res.status(400).json({errorMessage: "Postal Code field cannot be empty"})
-    } else if (typeof door_number !== "number") {
-        return res.status(400).json({errorMessage: "Door Number field cannot be empty"})
-    } else if (typeof residual_type !== "object") {
-        return res.status(400).json({errorMessage: "Residual Type field cannot be empty"})
-    }
-    
-
-    /**COLOCAR ERRO 401 (UNAUTHORIZED) */
-    
-    
-    // 405 Error - Two points cannot have the same address
-    if (collection_points.find(point => point.address === address)) {
-        return res.status(400).json({errorMessage: "You cannot put this location because it's already being used in another collection point"})
-    }
-
-    // Call the next middleware function
-    next();
-
-}
-
-
-let addCollectionPoint = (req, res) => {
-    // Destructure the request body
-    const {point_type, geographical_coordinates, schedule, address, postal_code, door_number, route, residual_type} = req.body;
-
-    // Create a new collection point object with the next id
-    const newPoint = {
-        id: collection_points.length + 1,
-        point_type, 
-        geographical_coordinates,
-        schedule,
-        address,
-        postal_code,
-        door_number,
-        route,
-        residual_type
-    };
-    
-    // Add a new point to the collection points array
-    collection_points.push(newPoint);
-
-    // 201 Status - Created a new collection point sucessfully!
-    res.status(201).json({ location: `/collection-points/${newPoint.id}`});
-}
-
-
-let updatePointInfo = (req, res) => {
-    // Find the collection point with the given id
-    const point = collection_points.find(point => point.id == req.params.id);
-
-    /**COLOCAR ERRO 403 - FORBIDDEN && ERRO 405 CONFLICT*/
-    
-    // 404 Error - If collection point couldnt be found :(
-    if (!point) {
-        return res.status(404).json({errorMessage: "Collection Point not found"})
-    }
-
-    // Update the collection point with the new data
-    point.point_type = req.body.point_type;
-    point.geographical_coordinates = req.body.geographical_coordinates;
-    point.schedule = req.body.schedule;
-    point.address = req.body.address;
-    point.postal_code = req.body.postal_code;
-    point.door_number = req.body.door_number;
-    point.route = req.body.route;
-    point.residual_type = req.body.residual_type;
-
-    // 204 Status - No Content 
-    res.status(204).json();
-}
-
-
-let deletePoint = (req, res) => {
-    // Delete the collection point with the id given
-    const pointIndex = collection_points.findIndex (point => point.id == req.params.id);
-
-    // 404 Error - Not Found
-    if (pointIndex === -1) {
-        return res.status(404).json({errorMessage: "Collection Point not found"})
-    }
-
-    // Remove collection point from the array
-    collection_points.splice(pointIndex, 1);
-
-    // 204 Status - No Content
-    res.status(204).json();
 }
 
 module.exports = {
     getAllPoints, getPointById,
-    validateBodyData,
-    addCollectionPoint,
-    updatePointInfo,
+    addPoint,
+    updateCollectionPoint,
     deletePoint
 }

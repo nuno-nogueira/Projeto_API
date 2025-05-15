@@ -1,39 +1,53 @@
-//placeholder for now
-let collection_points = [
-    {
-        id: 1,
-        point_type: "residential",
-        geographical_coordinates: "39-40-33, 8-08-38",
-        schedule: "11h00-20h00",
-        address: "Rua 1",
-        postal_code: "1234-567",
-        door_number: 1,
-        route: 1,
-        residual_type: ["paper","plastic"]
-    },
-    {
-        id: 2,
-        point_type: "street",
-        geographical_coordinates: "39-40-33, 8-08-38",
-        schedule: "11h00-20h00",
-        address: "Rua 2",
-        postal_code: "1234-567",
-        door_number: 2,
-        route: 2,
-        residual_type: ["paper","glass"]
-    },
-    {
-        id: 3,
-        point_type: "residential",
-        geographical_coordinates: "39-40-33, 8-08-38",
-        schedule: "11h00-20h00",
-        address: "Rua 3",
-        postal_code: "1234-567",
-        door_number: 3,
-        route: 2,
-        residual_type: ["glass","plastic"]
-    }
-]
+module.exports = (sequelize, DataTypes) => {
+    const Collection_Point = sequelize.define("ponto_recolha", {
+        idponto_recolha: { 
+            type: DataTypes.INTEGER, 
+            primaryKey: true, 
+            allowNull: false, 
+            autoIncrement: true, 
+            unique: {
+                args: true,
+                msg: "ID already exists"
+            }},
+        tipo_ponto: { 
+            type: DataTypes.ENUM("ecocentro", "ecoponto", "moradia"), 
+            allowNull: false, 
+            defaultValue: "ecoponto",
+            // validate if its one of the parameters above
+            validate: {
+                isIn: {
+                    args: [['ecocentro', 'ecoponto', 'moradia']],
+                    msg: "Collection Point type must be one of the following: ecocentro, ecoponto, moradia"
+                }
+            }
+            },
+        coordenadas_geograficas: { 
+            type: DataTypes.STRING(45), 
+            allowNull: false},
+        horario_funcionamento: { 
+            type: DataTypes.STRING(45), 
+            defaultValue: null},
+        rua: { 
+            type: DataTypes.STRING(100), 
+            allowNull: false},
+        cod_postal: { 
+            type: DataTypes.STRING(10), 
+            allowNull: false},
+        numero_porta: { 
+            type: DataTypes.STRING(10), 
+            defaultValue: null},
+        rota: { 
+            type: DataTypes.INTEGER, 
+            // references:{
+            // model: Route,
+            // key: "idrota"}
+            defaultValue: null,
+            allowNull: false
+        }
+    }, {
+        freezeTableName: true,
+        timestamps: false,
+    });
 
-// Data will go here
-module.exports = collection_points
+    return Collection_Point;
+}

@@ -1,113 +1,86 @@
-//placeholder for now
-let users = [
-    //admins
-    {
-       id: 1,
-       full_name: "Ken Lukau",
-       tin: 123456789,
-       user_number: 1,
-       password: "water",
-       email_contact: "ken_lukau@gmail.com",
-       phone_contact: "911234567",
-       user_type: "admin",
-       DtD_service: false,
-       postal_code: "1234-567",
-       address: "Casa"
-    },
-    {
-       id: 2,
-       full_name: "Nuno Nogueira",
-       tin: 987654321,
-       user_number: 2,
-       password: "wine",
-       email_contact: "nuno_nogueira@gmail.com",
-       phone_contact: 917654321,
-       user_type: "admin",
-       DtD_service: true,
-       postal_code: "1234-567",
-       address: "Casa"
-    },
-    {
-       id: 3,
-       full_name: "Sandra Moreira",
-       tin: 234567890,
-       user_number: 3,
-       password: "juice",
-       email_contact: "sandra_moreira@gmail.com",
-       phone_contact: 910123456,
-       user_type: "admin",
-       DtD_service: true,
-       postal_code: "1234-567",
-       address: "Casa"
-    },
-    //drivers
-    {
-        id: 4,
-        full_name: "Carlitos Carlos",
-        tin: 182739201,
-        user_number: 4,
-        password: "pass123",
-        email_contact: "carlitos@gmail.com",
-        phone_contact: 910293821,
-        user_type: "driver",
-        DtD_service: false,
-        postal_code: "1234-567",
-        address: "Casa"
-     },
-     {
-        id: 5,
-        full_name: "Marta Martinha",
-        tin: 192837461,
-        user_number: 5,
-        password: "123pass",
-        email_contact: "martinha@gmail.com",
-        phone_contact: 912837481,
-        user_type: "driver",
-        DtD_service: false,
-        postal_code: "1234-567",
-        address: "Casa"
-     },
-     //users
-     {
-        id: 6,
-        full_name: "Antonieta Antoninha",
-        tin: 182739201,
-        user_number: 6,
-        password: "lixo",
-        email_contact: "antonieta@gmail.com",
-        phone_contact: 127384611,
-        user_type: "user",
-        DtD_service: true,
-        postal_code: "1234-567",
-        address: "Casa"
-     },
-     {
-        id: 7,
-        full_name: "Daniel Danilo",
-        tin: 182938473,
-        user_number: 7,
-        password: "reciclagem",
-        email_contact: "daniel@gmail.com",
-        phone_contact: 912839281,
-        user_type: "user",
-        DtD_service: false,
-        postal_code: "1234-567",
-        address: "Casa"
-     },
-     {
-        id: 8,
-        full_name: "Ricardo Ricardinho",
-        tin: 182938743,
-        user_number: 8,
-        password: "dormir",
-        email_contact: "ricardo@gmail.com",
-        phone_contact: 912836732,
-        user_type: "user",
-        DtD_service: false,
-        postal_code: "1234-567",
-        address: "Casa"
-     },
-];
- 
-//Data will go here
-module.exports = users
+module.exports = (sequelize, DataTypes, Collection_Point) => {
+   const User = sequelize.define("utilizador", {
+       id_utilizador:{ type: DataTypes.INTEGER, 
+        primaryKey: true, 
+        autoIncrement: true, 
+        allowNull: false, 
+        //if a column has to be unique
+        unique: {
+            args: true,
+            msg: "ID already exists"
+        }},
+       nome:{
+        type: DataTypes.STRING(50), 
+        allowNull: false
+        },
+       nif:{
+        type: DataTypes.TEXT, 
+        allowNull: false, 
+        unique: {
+            args: true,
+            msg: "TIN already exists"
+        },
+        //validate if its numeric
+        validate: {isNumeric: true}},
+       num_utilizador:{
+        type: DataTypes.STRING(50), 
+        defaultValue: null,
+        unique: {
+            args: true,
+            msg: "User Number already exists"
+        },
+        validate: {isNumeric: true}},
+       password:{
+        type: DataTypes.STRING(20), 
+        allowNull: false},
+       contacto_email:{
+        type:DataTypes.STRING(50), 
+        unique: {
+            args: true,
+            msg: "Email already exists"
+        }, 
+        //validate if its an email
+        validate: {isEmail: true}},
+       contacto_telefone:{
+        type:DataTypes.STRING(20), 
+        unique: {
+            args: true,
+            msg: "Phone Number already exists"
+        },
+        validate: {isNumeric: true}},
+       tipo_utilizador:{
+        type:DataTypes.ENUM('admin', 'motorista', 'morador'), 
+        allowNull: false, 
+        defaultValue: null,
+        //validate if its one of the parameters above
+        validate: {
+            isIn: {
+                args: [['admin', 'motorista', 'morador']],
+                msg: "User type must be one of the following: admin, driver, or citizen"
+            }
+        }},
+       servico_porta_porta:{
+        type:DataTypes.ENUM("sim","não"), 
+        defaultValue: null,
+        //validate if its one of the parameters above
+        validate: {
+            isIn: {
+                args: [['sim','não']],
+                msg: "Option must be yes or no"
+            }
+        }},
+       idponto_moradia:{type:DataTypes.INTEGER,
+            defaultValue: null, 
+            //reference a column when its a foreign key (REFERENCE MODEL NAME IN EXPORT PARAMETERS)
+           references: {
+               model: Collection_Point,
+               key: 'idponto_recolha'
+           }
+       }
+   }, {
+       freezeTableName: true, //o nome da tabela é igual ao nome do modelo
+       timestamps: false,
+   });
+
+   return User;
+}

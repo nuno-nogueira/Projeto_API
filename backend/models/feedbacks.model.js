@@ -1,26 +1,52 @@
-let feedbacks = [
-    {
-        id: 1,
-        description: "A very good service! 10/10!!",
-        feedback_type: "comment",
-        collection_point_id: 1,
-        user_id: 1
-    },
-    {
-        id: 2,
-        description: "average",
-        feedback_type: "comment",
-        collection_point_id: 1,
-        user_id: 2
-    },
-    {
-        id: 3,
-        description: "it was full of raccoons!! disgusting!!",
-        feedback_type: "comment",
-        collection_point_id: 2,
-        user_id: 3
+module.exports = (sequelize, DataTypes, Collection_Point, User) => {
+    const Feedback = sequelize.define("feedback", {
+        idfeedback: { 
+            type: DataTypes.INTEGER, 
+            primaryKey: true, 
+            autoIncrement: true, 
+            allowNull: false, 
+            unique: {
+                args: true,
+                msg: "ID already exists"
+            }},
+        descricao: { 
+            type: DataTypes.TEXT, 
+            allowNull: false},
+        Tipo_feedback: { 
+            type: DataTypes.ENUM("conservação", "recolha", "outro"), 
+            defaultValue: "outro", 
+            allowNull: false,
+            validate: {
+                isIn: {
+                    args: [['conservação', 'recolha', 'outro']],
+                    msg: "Feedback type must be one of the following: conservation, collection, or other"
+                }
+            }},
+        id_ponto_recolha: { 
+            type: DataTypes.INTEGER, 
+            references: {
+            model: Collection_Point,
+            key: "idponto_recolha"
+        }, 
+        allowNull: false, 
+        id_utilizador: { 
+            type: DataTypes.INTEGER, 
+            references: {
+            model: User,
+            key: "id_utilizador"
+        }, 
+        allowNull: false, 
+        defaultValue: null
+        },
+        date_time: { 
+            type: DataTypes.DATE, 
+            defaultValue: DataTypes.NOW
+        }
     }
-]
+}, {
+        freezeTableName: true,
+        timestamps: false
+    });
 
-// Data will go here
-module.exports = feedbacks
+    return Feedback;
+}

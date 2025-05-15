@@ -1,98 +1,124 @@
-// Import the feedbacks data model
-const feedbacks = require("../models/feedbacks.model.js");
+//Import the users data model
+const db = require('../models/db.js'); // Import the database connection
+const User = db.User; // Import the User model from the database connection
+const Collection_Point = db.Collection_Point;
+const Feedback = db.Feedback;
+const { Op } = require('sequelize'); // necessary operators for Sequelize
 
-//??
-let getAllFeedbacks = (req, res) => {
-    /**COLOCAR A ACCESS TOKEN */
-    res.json(feedbacks)
+const { ErrorHandler } = require("../utils/error.js"); // Import the ErrorHandler class for error handling
+
+
+let getAllFeedbacks = async (req, res, next) => {
+    /**
+     * Get all feedbacks
+     */
+    try {
+        const {sort, order} = req.query;
+
+        //validate sort and order values
+        if (sort && sort !== "tipo_feedback") {
+            throw new ErrorHandler(400, `Invalid value for sort: ${sort}. It should be 'tipo_feedback'.`);
+        }
+
+        if (order && order !== "asc" && order !== "desc") {
+            throw new ErrorHandler(400, `Invalid value for order: ${order}. It should be either 'asc' or 'desc'.`);
+        }
+
+        //sort & order options must be passed together!!
+        if ((sort && !order) || (!sort && order)) {
+            throw new ErrorHandler(400, `Both sort and order must be provided together.`);
+        }
+
+        //ordering by feedback type and date
+        const sortField = sort === "date_time" ? "date_time" : "idFeedback"
+        const sortOrder = order === "desc" ? "DESC" : "ASC";
+
+        let feedbacks = await Feedback.findAndCountAll({
+            order: [[sortField, sortOrder]],
+            raw: false,
+        })
+
+        feedbacks.rows.forEach(feedback => {
+            feedbacks.links = [
+                {rel: "self", href: `/feedbacks/${feedback.id}`, method: "GET"}
+            ]
+        });
+
+        return res.status(200).json({
+            total: feedbacks.count,
+            data: feedbacks.rows
+        });
+    } catch (error) {
+        console.error(error);
+        
+        next(error);
+    }
 }
 
 
-let getFeedbackById = (req, res) => {
-    // Find the feedback with the given id
-    /**COLOCAR A ACCESS TOKEN */
-    const feedback = feedbacks.find(feedback => feedback.id == req.params.id);
+let getFeedbackById = async (req, res, next) => {
+    /**Get feedback by ID */
+    try {
+        //Gather the feedback's info, as well as who posted it, and from what collection point its from
+        let feedback = await Feedback.findByPk(req.params.id, {
+            attributes: ['descricao', 'Tipo_feedback', 'date_time', 'id_ponto_recolha'],
+            include: [
+                {
+                    model: User,
+                    attributes: ["nome"]
+                },
+                {
+                    model: Collection_Point,
+                    attributes: ["rua", "cod_postal"]
+                }
+            ]
+        });
 
-    //404 Error - If user is not found
-    if (!feedback) {
-        return res.status(404).json({errorMessage: "Feedback not found"})
+        if (!feedback) {
+            throw new ErrorHandler(404, `Feedback with ID ${id} not found`);
+        }
+
+        const result = feedback.toJSON();
+
+        return res.status(200).json(result);
+    } catch (error) {
+        next(error)
     }
-
-    /**COLOCAR ERRO 401 (UNAUTHORIZED) */
-
-    /**COLOCAR ERRO 400 (BAD REQUEST) */
-
-    res.json(feedback) // Return the found feedback
 }
 
+let addFeedback = async (req, res, next) => {
+    /**
+     * Add a new feedback
+     */
+    try {
+        const {idfeedback, descricao, Tipo_feedback, id_ponto_recolha, id_utilizador, date_time} = req.body;
 
-/**Na rota, como diferenciar entre um id e um user ID */
+        // sequelize update method allows PARTIAL updates, so we NEED to check for missing fields    
+        let missingFields = [];
+        if (idfeedback === undefined) missingFields.push('Feedback ID');
+        if (descricao === undefined) missingFields.push('Description');
+        if (Tipo_feedback === undefined) missingFields.push('Feedback type');
+        if (id_ponto_recolha === undefined) missingFields.push('Collection Point ID');
+        if (id_utilizador === undefined) missingFields.push('User ID');
+        if (date_time === undefined) missingFields.push('Time');
 
+        if (missingFields.length > 0) 
+            throw new ErrorHandler(400, `Missing required fields: ${missingFields.join(', ')}`);
 
-// let getFeedbackByUser = (req, res) => {
-//     // Find the feedbacks from a user with the user's given id
-//     /**COLOCAR A ACCESS TOKEN */
-//     const userFeedbacks = feedbacks.find(feedback => feedback.user_id == req.params.user_id);
+        await Feedback.create(req.body);
 
-//     //404 Error - If user is not found
-//     if (!userFeedbacks) {
-//         return res.status(404).json({errorMessage: "Feedbacks from this user not found"})
-//     }
+        res.status(201).json({
+            msg: "Feedback was sucessfully created!",
+        })
 
-//     /**COLOCAR ERRO 401 (UNAUTHORIZED) */
-
-//     /**COLOCAR ERRO 400 (BAD REQUEST) */
-//     res.json(userFeedbacks) // Return the found feedback(s)
-// }
-
-
-
-let validateBodyData = (req, res, next) => {
-    // Validate the request body
-    if (!req.body) {
-        return res.status(400).json({errorMessage: "Request body is required"});
+    } catch (error) {
+        console.error(error);
+        
+        next(error);
     }
-
-    // Destructure the request body
-    let {id, description, feedback_type, collection_point_id, user_id} = req.body;
-
-    /// 400 Error - Field Required
-    if (!description) {
-        return res.status(400).json({errorMessage: "Description field is required!"})
-    }
-    
-    // 400 Error - Can't be empty
-    if (typeof description !== "string") {
-        return res.status(400).json({errorMessage: "Description field cannot be empty"})
-    }
-
-    /**COLOCAR ERRO 401 (UNAUTHORIZED) */
-
-     // Call the next middleware function
-     next();
-}
-
-
-let addFeedback = (req, res) => {
-    // Destructure the request body
-    const  {id, description, feedback_type, collection_point_id, user_id} = req.body;
-
-    // Create a new feedback object with the next id
-    const newFeedback = {
-        id: feedbacks.length + 1,
-        description, 
-        feedback_type, collection_point_id, user_id
-    };
-
-    // Add a new feedback to the feedbacks array
-    feedbacks.push(newFeedback);
-
-    // 201 Status - Created a new feedback sucessfully!
-    res.status(201).json({ location: `/feedbacks/${newFeedback.id}`});
 }
 
 module.exports = {
     getAllFeedbacks, getFeedbackById,
-    validateBodyData,
     addFeedback
 }
