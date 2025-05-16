@@ -1,7 +1,7 @@
  const { Sequelize, DataTypes } = require('sequelize');
 
  //database connection properties
- const sequelize = new Sequelize('Grupo03', 'g03', 'Pv>ncWJ6St', 
+ const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, 
 {
   host: '172.22.0.201',
   dialect: 'mysql',
