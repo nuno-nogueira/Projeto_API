@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes, Collection_Point) => {
-   const User = sequelize.define("utilizador", {
-       id_utilizador:{ type: DataTypes.INTEGER, 
+   const User = sequelize.define("user", {
+       user_id:{ type: DataTypes.INTEGER, 
         primaryKey: true, 
         autoIncrement: true, 
         allowNull: false, 
@@ -9,11 +9,11 @@ module.exports = (sequelize, DataTypes, Collection_Point) => {
             args: true,
             msg: "ID already exists"
         }},
-       nome:{
+       name:{
         type: DataTypes.STRING(50), 
         allowNull: false
         },
-       nif:{
+       tin:{
         type: DataTypes.TEXT, 
         allowNull: false, 
         unique: {
@@ -22,7 +22,7 @@ module.exports = (sequelize, DataTypes, Collection_Point) => {
         },
         //validate if its numeric
         validate: {isNumeric: true}},
-       num_utilizador:{
+       user_number:{
         type: DataTypes.STRING(50), 
         defaultValue: null,
         unique: {
@@ -33,7 +33,7 @@ module.exports = (sequelize, DataTypes, Collection_Point) => {
        password:{
         type: DataTypes.STRING(20), 
         allowNull: false},
-       contacto_email:{
+       email:{
         type:DataTypes.STRING(50), 
         unique: {
             args: true,
@@ -41,25 +41,25 @@ module.exports = (sequelize, DataTypes, Collection_Point) => {
         }, 
         //validate if its an email
         validate: {isEmail: true}},
-       contacto_telefone:{
+       phone_number:{
         type:DataTypes.STRING(20), 
         unique: {
             args: true,
             msg: "Phone Number already exists"
         },
         validate: {isNumeric: true}},
-       tipo_utilizador:{
-        type:DataTypes.ENUM('admin', 'motorista', 'morador'), 
+       user_type:{
+        type:DataTypes.ENUM('admin', 'driver', 'morador'), 
         allowNull: false, 
         defaultValue: null,
         //validate if its one of the parameters above
         validate: {
             isIn: {
-                args: [['admin', 'motorista', 'morador']],
+                args: [['admin', 'driver', 'morador']],
                 msg: "User type must be one of the following: admin, driver, or citizen"
             }
         }},
-       servico_porta_porta:{
+       door_to_door_service:{
         type:DataTypes.ENUM("sim","não"), 
         defaultValue: null,
         //validate if its one of the parameters above
@@ -69,12 +69,12 @@ module.exports = (sequelize, DataTypes, Collection_Point) => {
                 msg: "Option must be yes or no"
             }
         }},
-       idponto_moradia:{type:DataTypes.INTEGER,
+       address_point_id:{type:DataTypes.INTEGER,
             defaultValue: null, 
             //reference a column when its a foreign key (REFERENCE MODEL NAME IN EXPORT PARAMETERS)
            references: {
                model: Collection_Point,
-               key: 'idponto_recolha'
+               key: 'collection_point_id'
            }
        }
    }, {

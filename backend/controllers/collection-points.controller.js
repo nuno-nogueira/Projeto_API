@@ -28,8 +28,8 @@ let getAllPoints = async (req, res, next) => {
         //Iterate through all collection points to put all links
         collection_points.rows.forEach(collection_point => {
             collection_point.links = [
-                {rel: "delete", href: `/collection_points/${collection_point.idponto_recolha}, method: "DELETE`},
-                {rel: "modify", href: `/collection_points/${collection_point.idponto_recolha}, method: "PUT`}
+                {rel: "delete", href: `/collection_points/${collection_point.collection_point_id}, method: "DELETE`},
+                {rel: "modify", href: `/collection_points/${collection_point.collection_point_id}, method: "PUT`}
             ]
         });
 
@@ -60,7 +60,7 @@ let getPointById = async (req, res, next) => {
     try {
         //Find by its PK
         let collection_point = await Collection_Point.findByPk(req.params.id, {
-            attributes: ['tipo_ponto', 'rua', 'cod_postal', 'horario_funcionamento']
+            attributes: ['collection_point_type', 'street_name', 'postal_code', 'opening_hours']
         });
 
         //If not found
@@ -82,18 +82,18 @@ let addPoint = async (req, res, next) => {
      */
     try {
         //Gather all parameters
-        const {idponto_recolha, tipo_ponto, cod_postal, horario_funcionamento, coordenadas_geograficas, rua, numero_porta, rota} = req.body;
+        const {collection_point_id, collection_point_type, postal_code, opening_hours, geographical_coordinates, street_name, door_number, route_id} = req.body;
 
         // sequelize update method allows PARTIAL updates, so we NEED to check for missing fields    
         let missingFields = [];
-        if (idponto_recolha === undefined) missingFields.push('Collection Point ID');
-        if (tipo_ponto === undefined) missingFields.push('Collection Point type');
-        if (coordenadas_geograficas === undefined) missingFields.push('Geographical coordinates');
-        if (horario_funcionamento === undefined) missingFields.push('Schedule');
-        if (rua === undefined) missingFields.push('Address');
-        if (cod_postal === undefined) missingFields.push('Postal Code');
-        if (numero_porta === undefined) missingFields.push('Door Number');
-        if (rota === undefined) missingFields.push('Route');
+        if (collection_point_id === undefined) missingFields.push('Collection Point ID');
+        if (collection_point_type === undefined) missingFields.push('Collection Point type');
+        if (geographical_coordinates === undefined) missingFields.push('Geographical coordinates');
+        if (opening_hours === undefined) missingFields.push('Schedule');
+        if (street_name === undefined) missingFields.push('Address');
+        if (postal_code === undefined) missingFields.push('Postal Code');
+        if (door_number === undefined) missingFields.push('Door Number');
+        if (route_id === undefined) missingFields.push('Route');
 
         if (missingFields.length > 0) 
             throw new ErrorHandler(400, `Missing required fields: ${missingFields.join(', ')}`);
@@ -104,7 +104,7 @@ let addPoint = async (req, res, next) => {
         res.status(201).json({
             msg: "Collection Point sucessfully created.",
             links: [
-                {rel: "self", href: `/collection-points/${collection_point.idponto_recolha}}`, method: "GET"}
+                {rel: "self", href: `/collection-points/${collection_point.collection_point_id}}`, method: "GET"}
             ]
         })
     } catch (error) {
@@ -123,7 +123,7 @@ let updateCollectionPoint = async (req, res, next) => {
         //Only admins can update Collection Point details ^^^
 
         //Gather info
-        const {tipo_ponto, coordenadas_geograficas, horario_funcionamento, rua, cod_postal, numero_porta, rota} = req.body;
+        const {collection_point_type, geographical_coordinates, opening_hours, street_name, postal_code, door_number, route_id} = req.body;
 
         const collection_point = await Collection_Point.findByPk(req.params.id);
         if (!collection_point) {
@@ -132,20 +132,20 @@ let updateCollectionPoint = async (req, res, next) => {
 
         // sequelize update method allows PARTIAL updates, so we NEED to check for missing fields    
         let missingFields = [];
-        if (tipo_ponto === undefined) missingFields.push('Collection Point type');
-        if (coordenadas_geograficas === undefined) missingFields.push('Geographical coordinates');
-        if (horario_funcionamento === undefined) missingFields.push('Schedule');
-        if (rua === undefined) missingFields.push('Address');
-        if (cod_postal === undefined) missingFields.push('Postal Code');
-        if (numero_porta === undefined) missingFields.push('Door Number');
-        if (rota === undefined) missingFields.push('Route');
+        if (collection_point_type === undefined) missingFields.push('Collection Point type');
+        if (geographical_coordinates === undefined) missingFields.push('Geographical coordinates');
+        if (opening_hours === undefined) missingFields.push('Schedule');
+        if (street_name === undefined) missingFields.push('Address');
+        if (postal_code === undefined) missingFields.push('Postal Code');
+        if (door_number === undefined) missingFields.push('Door Number');
+        if (route_id === undefined) missingFields.push('Route');
 
         if (missingFields.length > 0) 
             throw new ErrorHandler(400, `Missing required fields: ${missingFields.join(', ')}`);
 
         const updates = {
-            tipo_ponto, coordenadas_geograficas, horario_funcionamento, rua,
-            cod_postal, numero_porta, rota
+            collection_point_type, geographical_coordinates, opening_hours, street_name,
+            postal_code, door_number, route_id
         }
 
         await collection_point.update(updates);
@@ -171,7 +171,7 @@ let deletePoint = async (req, res, next) => {
         //403 Forbidden Error later
 
         //delete an user in DB given its id
-        let result = await Collection_Point.destroy({where: {idponto_recolha: req.params.id}});
+        let result = await Collection_Point.destroy({where: {collection_point_id: req.params.id}});
         // the promise returns the number of deleted rows
         if (result === 0) {
             throw new ErrorHandler(404,`Cannot find any COLLECTION POINT with ID ${req.params.id}.`);

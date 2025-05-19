@@ -37,7 +37,7 @@ let getAllUsers = async (req, res, next) => {
             throw new ErrorHandler(400, `Both sort and order must be provided together.`);
 
         //ordering by if the user has activated the door-to-door service or not
-        const sortField = sort === 'door_to_door' ? 'door_to_door' : 'id_utilizador'; //by default sort by id
+        const sortField = sort === 'door_to_door' ? 'door_to_door' : 'user_id'; //by default sort by id
         const sortOrder = order === 'desc' ? 'DESC' : 'ASC';
 
         //SELECT * FROM UTILIZADOR WHERE TIPO_UTILIZADOR = "MORADOR"
@@ -50,7 +50,7 @@ let getAllUsers = async (req, res, next) => {
         //for each user column...
         users.rows.forEach(user => {
             users.links = [
-                {rel: "delete", href: `/users/${user.id_utilizador}`, methid: "DELETE"}
+                {rel: "delete", href: `/users/${user.user_id}`, method: "DELETE"}
             ]
         })
 
@@ -70,26 +70,26 @@ let getUserById = async(req, res, next) => {
      */
     try {
         //Find the ID given in the URL as a PK
-        let user = await User.findByPk(req.params.id, {
-            attributes: ['nome', 'contacto_email', 'contacto_telefone'],
+        let user = await User.findByPk(req.params.user_id, {
+            attributes: ['user_id', 'name', 'email', 'phone_number'],
             include: [ //include the collection_point info
                 {
                     model: db.Collection_Point,
-                    attributes: ['rua', 'cod_postal','numero_porta']
+                    attributes: ['collection_point_id', 'street_name', 'postal_code','door_number']
                 }
             ]
         })
 
         //If not found, return 404
         if (!user) {
-            throw new ErrorHandler(404, `Cannot find any USER with ID ${req.params.id}.`);
+            throw new ErrorHandler(404, `Cannot find any USER with ID ${req.params.user_id}.`);
         }
         
         //convert the user to a plain object
         user = user.toJSON();
         user.links = [
-            {rel: "modify", href: `/users/${user.id_utilizador}`, method: "PUT"},
-            {rel: "delete", href:`/users/${user.id_utilizador}`, method: "DELETE"}
+            {rel: "modify", href: `/users/${user.user_id}`, method: "PUT"},
+            {rel: "delete", href:`/users/${user.user_id}`, method: "DELETE"}
         ]
 
         res.status(200).json(user); //return the found post
@@ -108,7 +108,7 @@ let addUser = async (req, res, next) => {
     try {
         let error;
         // Check if the body has the mandatory fields
-        if (req.body.nome === undefined) {
+        if (req.body.name === undefined) {
             error = new Error(`Missing required field: name`)
         } else if (req.body.tin === undefined) {
             error = new Error(`Missing required field: TIN`)
@@ -126,7 +126,7 @@ let addUser = async (req, res, next) => {
         res.status(201).json({
             msg: "User sucessfully created.",
             links: [
-                {rel: "self", href: `/users/${user.id_utilizador}, method: "GET`}
+                {rel: "self", href: `/users/${user.user_id}, method: "GET`}
             ]
         });
     } catch (err) {
@@ -141,16 +141,16 @@ let loginUser = async (req, res, next) => {
      */
     try {
         //Parameters to login
-        const {nif, password} = req.body;
+        const {tin, password} = req.body;
         
         //Check if any of these parameters are missing
-        if (!nif || !password) {
+        if (!tin || !password) {
             throw new ErrorHandler(400, "Fields required: TIN and password");
         }
 
         //Try to find a user with the credentials given
         const user = await User.findOne({
-            where: {nif},
+            where: {tin},
             raw: true
         })
 
@@ -167,11 +167,11 @@ let loginUser = async (req, res, next) => {
         return res.status(200).json({
             msg: "Logged in sucessfully",
             data: {
-                id_utilizador: user.id_utilizador,
-                nome: user.nome,
-                tipo_utilizador: user.tipo_utilizador,
-                servico_porta_porta: user.servico_porta_porta,
-                idponto_moradia: user.idponto_moradia
+                user_id: user.user_id,
+                name: user.name,
+                user_type: user.user_type,
+                door_to_door: user.door_to_door_service,
+                address_point_id: user.address_point_id
             }
         })
     } catch (error) {        
@@ -190,34 +190,34 @@ let updateUserInfo = async (req, res, next) => {
         // }
         // Each user can only edit their own profile ^^^
 
-        const {nome, nif, password, contacto_email, contacto_telefone, servico_porta_porta, idponto_moradia} = req.body;
+        const {name, tin, password, email, phone_number, door_to_door_service, address_point_id} = req.body;
 
         //Find an user by their ID
-        const user = await User.findByPk(req.params.id);
+        const user = await User.findByPk(req.params.user_id);
         if (!user) {
-            throw new ErrorHandler(404, `User with ID ${req.params.id} wasn't found!`)
+            throw new ErrorHandler(404, `User with ID ${req.params.user_id} wasn't found!`)
         }
 
         // sequelize update method allows PARTIAL updates, so we NEED to check for missing fields    
         let missingFields = [];
-        if (nome === undefined) missingFields.push('Name');
-        if (nif === undefined) missingFields.push('TIN');
+        if (name === undefined) missingFields.push('Name');
+        if (tin === undefined) missingFields.push('TIN');
         if (password === undefined) missingFields.push('Password');
-        if (contacto_email === undefined) missingFields.push('Email');
-        if (contacto_telefone === undefined) missingFields.push('Phone Number');
-        if (servico_porta_porta === undefined) missingFields.push('Door to Door Service');
+        if (email === undefined) missingFields.push('Email');
+        if (phone_number === undefined) missingFields.push('Phone Number');
+        if (door_to_door_service === undefined) missingFields.push('Door to Door Service');
 
         if (missingFields.length > 0) 
            throw new ErrorHandler(400, `Missing required fields: ${missingFields.join(', ')}`);
 
         // search for the collection_point id, if there is one
-        if (req.body.servico_porta_porta === 'sim') {
-            if (idponto_moradia === undefined) {
+        if (req.body.door_to_door_service === 'sim') {
+            if (address_point_id === undefined) {
                 throw new ErrorHandler(400, 'Collection Point ID is required');
             }
 
             //Try to find the Collection Point
-            const collection_point = await Collection_Point.findByPk(req.body.idponto_moradia)
+            const collection_point = await Collection_Point.findByPk(req.body.door_to_door_service)
 
             if (!collection_point) {
                 throw new ErrorHandler(401, "Invalid credentials")
@@ -226,13 +226,13 @@ let updateUserInfo = async (req, res, next) => {
 
         //Update all parameters
         const updates = {
-            nome, 
-            nif,
+            name, 
+            tin,
             password,
-            contacto_email,
-            contacto_telefone, 
-            servico_porta_porta,
-            idponto_moradia: servico_porta_porta === 'sim' ? idponto_moradia : null
+            email,
+            phone_number, 
+            door_to_door_service,
+            address_point_id: door_to_door_service === 'sim' ? address_point_id : null
         };
 
         //UPDATE QUERY
@@ -259,10 +259,10 @@ let deleteUser = async (req, res, next) => {
         //403 Forbidden Error later
 
         //delete an user in DB given its id
-        let result = await User.destroy({where: {id_utilizador: req.params.id}});
+        let result = await User.destroy({where: {user_id: req.params.user_id}});
         // the promise returns the number of deleted rows
         if (result === 0) {
-           throw new ErrorHandler(404,`Cannot find any USER with ID ${req.params.id}.`);
+           throw new ErrorHandler(404,`Cannot find any USER with ID ${req.params.user_id}.`);
         }
 
         // send 204 No Content response

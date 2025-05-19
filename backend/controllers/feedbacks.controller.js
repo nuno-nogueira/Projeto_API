@@ -30,7 +30,7 @@ let getAllFeedbacks = async (req, res, next) => {
         }
 
         //ordering by feedback type and date
-        const sortField = sort === "date_time" ? "date_time" : "idFeedback"
+        const sortField = sort === "date_time" ? "date_time" : "feedback_id"
         const sortOrder = order === "desc" ? "DESC" : "ASC";
 
         let feedbacks = await Feedback.findAndCountAll({
@@ -40,7 +40,7 @@ let getAllFeedbacks = async (req, res, next) => {
 
         feedbacks.rows.forEach(feedback => {
             feedbacks.links = [
-                {rel: "self", href: `/feedbacks/${feedback.id}`, method: "GET"}
+                {rel: "self", href: `/feedbacks/${feedback.feedback_id}`, method: "GET"}
             ]
         });
 
@@ -61,15 +61,15 @@ let getFeedbackById = async (req, res, next) => {
     try {
         //Gather the feedback's info, as well as who posted it, and from what collection point its from
         let feedback = await Feedback.findByPk(req.params.id, {
-            attributes: ['descricao', 'Tipo_feedback', 'date_time', 'id_ponto_recolha'],
+            attributes: ['description', 'feedback_type', 'feedback_date', 'collection_point_id'],
             include: [
                 {
                     model: User,
-                    attributes: ["nome"]
+                    attributes: ["name"]
                 },
                 {
                     model: Collection_Point,
-                    attributes: ["rua", "cod_postal"]
+                    attributes: ["street_name", "postal_code"]
                 }
             ]
         });
@@ -91,16 +91,16 @@ let addFeedback = async (req, res, next) => {
      * Add a new feedback
      */
     try {
-        const {idfeedback, descricao, Tipo_feedback, id_ponto_recolha, id_utilizador, date_time} = req.body;
+        const {feedback_id, description, feedback_type, collection_point_id, user_id, feedback_date} = req.body;
 
         // sequelize update method allows PARTIAL updates, so we NEED to check for missing fields    
         let missingFields = [];
-        if (idfeedback === undefined) missingFields.push('Feedback ID');
-        if (descricao === undefined) missingFields.push('Description');
-        if (Tipo_feedback === undefined) missingFields.push('Feedback type');
-        if (id_ponto_recolha === undefined) missingFields.push('Collection Point ID');
-        if (id_utilizador === undefined) missingFields.push('User ID');
-        if (date_time === undefined) missingFields.push('Time');
+        if (feedback_id === undefined) missingFields.push('Feedback ID');
+        if (description === undefined) missingFields.push('Description');
+        if (feedback_type === undefined) missingFields.push('Feedback type');
+        if (collection_point_id === undefined) missingFields.push('Collection Point ID');
+        if (user_id === undefined) missingFields.push('User ID');
+        if (feedback_date === undefined) missingFields.push('Time');
 
         if (missingFields.length > 0) 
             throw new ErrorHandler(400, `Missing required fields: ${missingFields.join(', ')}`);
