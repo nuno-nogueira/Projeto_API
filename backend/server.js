@@ -15,10 +15,9 @@ app.use('/feedbacks', require('./routes/feedbacks.routes.js'));
 app.use('/collection-points', require('./routes/collection-points.routes.js'));
 app.use('/collection-guides', require('./routes/collection-guides.routes.js'));
 
-//Index Page
-app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-})
+//----------------------
+app.use('/readings', require('./routes/readings.routes.js'));
+//----------------------
 
 // error middleware (always at the end of the file)
 app.use((err, req, res, next) => {
