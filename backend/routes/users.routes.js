@@ -6,12 +6,12 @@ const router = express.Router();
 const usersController = require("../controllers/users.controller.js");
 
 router.get("/", usersController.getAllUsers);
-router.get("/:id", usersController.getUserById);
+router.get("/:user_id", usersController.getUserById);
 
 router.post("/", usersController.addUser);
 router.post("/login", usersController.loginUser);
 
-router.put("/:id", usersController.updateUserInfo)
+router.put("/:user_id", usersController.updateUserInfo)
 
-router.delete("/:id", usersController.deleteUser)
+router.delete("/:user_id", usersController.deleteUser)
 module.exports = router;

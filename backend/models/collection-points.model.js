@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
-    const Collection_Point = sequelize.define("ponto_recolha", {
-        idponto_recolha: { 
+    const Collection_Point = sequelize.define("collection_point", {
+        collection_point_id: { 
             type: DataTypes.INTEGER, 
             primaryKey: true, 
             allowNull: false, 
@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
                 args: true,
                 msg: "ID already exists"
             }},
-        tipo_ponto: { 
+        collection_point_type: { 
             type: DataTypes.ENUM("ecocentro", "ecoponto", "moradia"), 
             allowNull: false, 
             defaultValue: "ecoponto",
@@ -21,22 +21,22 @@ module.exports = (sequelize, DataTypes) => {
                 }
             }
             },
-        coordenadas_geograficas: { 
+        geographical_coordinates: { 
             type: DataTypes.STRING(45), 
             allowNull: false},
-        horario_funcionamento: { 
+        opening_hours: { 
             type: DataTypes.STRING(45), 
             defaultValue: null},
-        rua: { 
+        street_name: { 
             type: DataTypes.STRING(100), 
             allowNull: false},
-        cod_postal: { 
+        postal_code: { 
             type: DataTypes.STRING(10), 
             allowNull: false},
-        numero_porta: { 
+        door_number: { 
             type: DataTypes.STRING(10), 
             defaultValue: null},
-        rota: { 
+        route_id: { 
             type: DataTypes.INTEGER, 
             // references:{
             // model: Route,
