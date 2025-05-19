@@ -1,4 +1,4 @@
- const path = require('path');
+const path = require('path');
  require('dotenv').config({
   path: path.resolve(__dirname, '../.env')  // sobe uma pasta e aponta para o .env na raiz do backend
 });
@@ -7,6 +7,7 @@
 
  //database connection properties
 const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD,
+
 {
   host: process.env.DB_HOST,
   dialect: process.env.DB_DIALECT,
@@ -37,10 +38,16 @@ db.Collection_Point = require("./collection-points.model.js")(sequelize, Sequeli
 db.User = require("./users.model.js")(sequelize, Sequelize.DataTypes, db.Collection_Point)
 db.Feedback = require("./feedbacks.model.js")(sequelize, Sequelize.DataTypes,  db.Collection_Point, db.User) 
 
+
+db.RFIDReading = require("./readings.model.js")(sequelize, Sequelize.DataTypes)
+db.Container = require("./containers.model.js")(sequelize, Sequelize.DataTypes)
+db.Collection_Guide = require("./collection-guides.model.js")(sequelize, Sequelize.DataTypes)
+
 db.Waste_Type=require('./waste-types.model.js')(sequelize,Sequelize.DataTypes)
 db.Route=require('./waste-types.model.js')(sequelize,Sequelize.DataTypes)
 db.Vehicle=require('./waste-types.model.js')(sequelize,Sequelize.DataTypes)
 db.Zone=require('./waste-types.model.js')(sequelize,Sequelize.DataTypes)
+
 
 //define the relationships
 //1:N - 1 Collection_Point - N Users
@@ -74,6 +81,45 @@ db.Feedback.belongsTo(db.Collection_Point, {
 })
 
 
+//1: N - 1 Container - N RFIDReadings
+db.Container.hasMany(db.RFIDReading, {
+    foreignKey: "container_id",
+    onUpdate: "CASCADE",
+    onDelete: "SET NULL",
+})
+db.RFIDReading.belongsTo(db.Container, {
+    foreignKey: "container_id"
+})
+
+//1: N - 1 Collection_Point - N Containers
+db.Collection_Point.hasMany(db.Container, {
+    foreignKey: "collection_point_id",
+    onUpdate: "CASCADE",
+    onDelete: "SET NULL",
+})
+db.Container.belongsTo(db.Collection_Point, {
+    foreignKey: "collection_point_id"
+})
+
+//1: N - 1 RFIDReading - N Container
+db.Container.hasMany(db.RFIDReading, {
+    foreignKey: "container_id",
+    onUpdate: "CASCADE",
+    onDelete: "SET NULL",
+})
+db.RFIDReading.belongsTo(db.Container, {
+    foreignKey: "container_id"
+})
+
+//1: N - 1 Collection_Guide - N RFIDReadings
+db.Collection_Guide.hasMany(db.RFIDReading, {
+    foreignKey: "collection_guide_id",
+    onUpdate: "CASCADE", 
+    onDelete: "CASCADE",
+})
+db.RFIDReading.belongsTo(db.Collection_Guide, {
+    foreignKey: "collection_guide_id",
+
 //1:N - 1 Waste_Type - N Vehicles
 db.Waste_Type.hasMany(db.Vehicle, {
     foreignKey: "vehicle_id",
@@ -95,6 +141,7 @@ db.Route.belongsTo(db.Zone, {
     foreignKey: "route_id"
 })
 
+//----------------------
 
 //export the DB object w/ the Sequelize instance and models
 module.exports = db;

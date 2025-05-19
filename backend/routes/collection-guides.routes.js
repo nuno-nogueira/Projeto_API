@@ -8,7 +8,7 @@ const collection_guides_controller = require("../controllers/collection-guides.c
 router.get("/", collection_guides_controller.getAllGuides);
 router.get("/:id", collection_guides_controller.getGuideById);
 
-router.post("/", collection_guides_controller.validateBodyData, collection_guides_controller.addCollectionGuide)
+router.post("/", collection_guides_controller.addCollectionGuide)
 
-router.put("/:id", collection_guides_controller.validateBodyData, collection_guides_controller.updateGuideInfo)
+router.put("/:id", collection_guides_controller.updateGuideInfo)
 module.exports = router;
