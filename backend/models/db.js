@@ -6,20 +6,15 @@
  const { Sequelize } = require('sequelize');
 
  //database connection properties
-const sequelize = new Sequelize(
-    process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD,
-    {
-        host: process.env.DB_HOST,
-        dialect: process.env.DB_DIALECT,
-        // connection pool settings
-        pool: {
-            max: 5, // maximum number of connections in pool
-            min: 0, // minimum number of connections in pool
-            acquire: 30000, // maximum time (in ms) that a connection can be idle before being released
-            idle: 10000 // maximum time (in ms) that a connection can be idle before being released
-        }
-    }
-);
+const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD,
+{
+  host: process.env.DB_HOST,
+  dialect: process.env.DB_DIALECT,
+  pool: {
+    max: 5, min: 0,
+    acquire: 30000, idle: 10000
+  }
+});
 
 //test the connection to the DB & queries
 (async () => {
@@ -41,6 +36,11 @@ db.sequelize = sequelize; //save the Sequelize instance
 db.Collection_Point = require("./collection-points.model.js")(sequelize, Sequelize.DataTypes)
 db.User = require("./users.model.js")(sequelize, Sequelize.DataTypes, db.Collection_Point)
 db.Feedback = require("./feedbacks.model.js")(sequelize, Sequelize.DataTypes,  db.Collection_Point, db.User) 
+
+db.Waste_Type=require('./waste-types.model.js')(sequelize,Sequelize.DataTypes)
+db.Route=require('./waste-types.model.js')(sequelize,Sequelize.DataTypes)
+db.Vehicle=require('./waste-types.model.js')(sequelize,Sequelize.DataTypes)
+db.Zone=require('./waste-types.model.js')(sequelize,Sequelize.DataTypes)
 
 //define the relationships
 //1:N - 1 Collection_Point - N Users
@@ -71,6 +71,28 @@ db.Collection_Point.hasMany(db.Feedback, {
 })
 db.Feedback.belongsTo(db.Collection_Point, {
     foreignKey: "collection_point_id"
+})
+
+
+//1:N - 1 Waste_Type - N Vehicles
+db.Waste_Type.hasMany(db.Vehicle, {
+    foreignKey: "vehicle_id",
+    onUpdate: "CASCADE",
+    onDelete: "SET NULL",
+})
+db.Vehicle.belongsTo(db.Waste_Type, {
+    foreignKey: "vehicle_id"
+})
+
+
+//1:N - 1 zone - N routes
+db.Zone.hasMany(db.Route, {
+    foreignKey: "route_id",
+    onUpdate: "CASCADE",
+    onDelete: "SET NULL",
+})
+db.Route.belongsTo(db.Zone, {
+    foreignKey: "route_id"
 })
 
 
