@@ -119,6 +119,7 @@ db.Collection_Guide.hasMany(db.RFIDReading, {
 })
 db.RFIDReading.belongsTo(db.Collection_Guide, {
     foreignKey: "collection_guide_id",
+})
 
 //1:N - 1 Waste_Type - N Vehicles
 db.Waste_Type.hasMany(db.Vehicle, {

@@ -43,6 +43,16 @@ let getAllUsers = async (req, res, next) => {
         //SELECT * FROM UTILIZADOR WHERE TIPO_UTILIZADOR = "MORADOR"
         let users = await User.findAndCountAll({
             where,
+            attributes: ['user_id', 'name', 'user_number'],
+            where: {
+                user_type: "morador"
+            },
+            include: [
+                {
+                    model: db.Collection_Point,
+                    attributes: ['street_name', 'postal_code', 'door_number']
+                }
+            ],
             order: [[sortField, sortOrder]],
             raw: false
         })
@@ -71,7 +81,7 @@ let getUserById = async(req, res, next) => {
     try {
         //Find the ID given in the URL as a PK
         let user = await User.findByPk(req.params.user_id, {
-            attributes: ['user_id', 'name', 'email', 'phone_number'],
+            attributes: ['user_id', 'name', 'email', 'phone_number', 'door_to_door_service'],
             include: [ //include the collection_point info
                 {
                     model: db.Collection_Point,
@@ -106,14 +116,28 @@ let addUser = async (req, res, next) => {
      * To register a new user
      */
     try {
-        let error;
+        const {name, tin, password, phone_number, email, door_to_door_service, street_name, postal_code, door_number} = req.body;
+
+        let error, collection_point_id;
         // Check if the body has the mandatory fields
-        if (req.body.name === undefined) {
+        if (name === undefined) {
             error = new Error(`Missing required field: name`)
-        } else if (req.body.tin === undefined) {
+        } else if (tin === undefined) {
             error = new Error(`Missing required field: TIN`)
-        } else if (req.body.password === undefined) {
+        } else if (password === undefined) {
             error = new Error(`Missing required field: password`)
+        } else if (phone_number === undefined) {
+            error = new Error(`Missing required field: phone number`)
+        } else if (email === undefined) {
+            error = new Error(`Missing required field: email`)
+        } else if (door_to_door_service === undefined) {
+            error = new Error(`Missing required field: door to door service`)
+        } else if (street_name === undefined) {
+            error = new Error(`Missing required field: street name`)
+        } else if (postal_code === undefined) {
+            error = new Error(`Missing required field: postal code`)
+        } else if (door_number === undefined) {
+            error = new Error(`Missing required field: door number`)
         } 
         
         if (error) {
@@ -121,13 +145,42 @@ let addUser = async (req, res, next) => {
             return next(error); // Pass the error to the next middleware
         }
         
-        const user = await User.create(req.body);
+        const count_all_points = await Collection_Point.count({}) 
+        collection_point_id = count_all_points + 1
+
+        await Collection_Point.create({
+            collection_point_id,
+            collection_point_type: "moradia",
+            geographical_coordinates: null,
+            opening_hours: null,
+            street_name,
+            postal_code,
+            door_number,
+            route_id: 1
+        })
+
+        const count_user_number = await User.count({
+            where: {
+                user_number: {[Op.gt]: 3000}
+            }
+        }) 
+        console.log(count_user_number);
         
+
+        const count_all_users = await User.count({}) 
+        console.log(count_user_number);
+        
+        await User.create({
+            user_id: count_all_users + 1,
+            name, tin, 
+            user_number: 3000 + count_user_number + 1,
+            password, email, phone_number, 
+            user_type: "morador", 
+            door_to_door_service: door_to_door_service ? "sim" : "não", 
+            address_point_id: collection_point_id
+        });
         res.status(201).json({
-            msg: "User sucessfully created.",
-            links: [
-                {rel: "self", href: `/users/${user.user_id}, method: "GET`}
-            ]
+            msg: "User sucessfully created."
         });
     } catch (err) {
         next (err);
@@ -172,7 +225,10 @@ let loginUser = async (req, res, next) => {
                 user_type: user.user_type,
                 door_to_door: user.door_to_door_service,
                 address_point_id: user.address_point_id
-            }
+            },
+            links: [
+                {rel: "self", href: `/users/${user.user_id}, method: "GET`}
+            ]
         })
     } catch (error) {        
         next(error)

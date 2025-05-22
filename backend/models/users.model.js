@@ -23,7 +23,7 @@ module.exports = (sequelize, DataTypes, Collection_Point) => {
         //validate if its numeric
         validate: {isNumeric: true}},
        user_number:{
-        type: DataTypes.STRING(50), 
+        type: DataTypes.INTEGER, 
         defaultValue: null,
         unique: {
             args: true,
