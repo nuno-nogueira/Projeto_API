@@ -68,7 +68,7 @@
               <v-text-field
                 v-model="confirmPassword"
                 :append-icon="visible2 ? 'mdi-eye' : 'mdi-eye-off'"
-                :type="visible2 ? 'text' : 'confirmPassword'"
+                :type="visible2 ? 'text' : 'password'"
                 :error-messages="v$.confirmPassword.$errors.map(e => e.$message)"
                 variant="outlined"
                 label="Confirme a palavra-Passe"

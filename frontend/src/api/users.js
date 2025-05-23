@@ -10,9 +10,8 @@ export default {
         return api().get(`users/${user_id}`);
     },
 
-    login() {
-    //POST /users/login
-        return api().post("users/login")
+    login(userInfo) {
+        return api().post("users/login", userInfo)
     },
 
     register(userInfo) {

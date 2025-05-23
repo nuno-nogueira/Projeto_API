@@ -1,3 +1,8 @@
+//password encryption
+const bcrypt = require("bcryptjs");
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
+
 //Import the users data model
 const db = require('../models/db.js'); // Import the database connection
 const User = db.User; // Import the User model from the database connection
@@ -12,6 +17,12 @@ let getAllUsers = async (req, res, next) => {
      * Get all users (citizens only)
      */
     try {
+        if (req.loggedUserRole !== "admin") {
+            return res.status(403).json({ success: false,
+                msg: "This request required ADMIN role!"
+            })
+        };
+
         //get the user_type
         const {user_type, sort, order} = req.query;
 
@@ -44,9 +55,6 @@ let getAllUsers = async (req, res, next) => {
         let users = await User.findAndCountAll({
             where,
             attributes: ['user_id', 'name', 'user_number'],
-            where: {
-                user_type: "morador"
-            },
             include: [
                 {
                     model: db.Collection_Point,
@@ -139,7 +147,7 @@ let addUser = async (req, res, next) => {
         } else if (door_number === undefined) {
             error = new Error(`Missing required field: door number`)
         } 
-        
+
         if (error) {
             error.statusCode = 400;
             return next(error); // Pass the error to the next middleware
@@ -163,18 +171,16 @@ let addUser = async (req, res, next) => {
             where: {
                 user_number: {[Op.gt]: 3000}
             }
-        }) 
-        console.log(count_user_number);
-        
+        })         
 
         const count_all_users = await User.count({}) 
-        console.log(count_user_number);
         
         await User.create({
             user_id: count_all_users + 1,
             name, tin, 
             user_number: 3000 + count_user_number + 1,
-            password, email, phone_number, 
+            password: bcrypt.hashSync(password, 10), 
+            email, phone_number, 
             user_type: "morador", 
             door_to_door_service: door_to_door_service ? "sim" : "não", 
             address_point_id: collection_point_id
@@ -183,6 +189,11 @@ let addUser = async (req, res, next) => {
             msg: "User sucessfully created."
         });
     } catch (err) {
+        if (err instanceof ValidationError) {
+            res.status(400).json({sucess: false, msg: err.errors.map(e => e.message)});
+        } else {
+            res.status(500).json({sucess: false, msg: err.message || "Some error ocurred while signing up."});
+        }
         next (err);
     }
 }
@@ -194,28 +205,30 @@ let loginUser = async (req, res, next) => {
      */
     try {
         //Parameters to login
-        const {tin, password} = req.body;
-        
+        let {tin, password} = req.body;        
+
         //Check if any of these parameters are missing
         if (!tin || !password) {
-            throw new ErrorHandler(400, "Fields required: TIN and password");
+            return res.status(400).json({ success: false, msg: "Must provide TIN and password."});
         }
 
         //Try to find a user with the credentials given
-        const user = await User.findOne({
-            where: {tin},
+        let user = await User.findOne({
+            where: { tin },
             raw: true
-        })
+        })        
 
         //If the user wasnt found
-        if (!user) {
-            throw new ErrorHandler(401, "Invalid credentials")
-        }
+        if (!user) return res.status(404).json({ sucess: false, msg: "User not found."});
+        
+        //tests a string (password in body) against a hash (password in db)
+        const check = bcrypt.compareSync(password, user.password);
+        if (!check) return res.status(401).json({sucess: false, acessToken: null, msg: "Invalid credentials!"})
 
-        //If the password is incorrect
-        if (user.password !== password) {
-            throw new ErrorHandler(401, "Invalid credentials")
-        }
+        // sign the given payload (user ID and role) into a JWT payload -> builds JWT token, using secret key
+        const token = jwt.sign({ id: user.user_id, role: user.user_type},
+            process.env.SECRET, {expiresIn: '24h' //lasts 24 hours!
+            });
 
         return res.status(200).json({
             msg: "Logged in sucessfully",
@@ -228,7 +241,8 @@ let loginUser = async (req, res, next) => {
             },
             links: [
                 {rel: "self", href: `/users/${user.user_id}, method: "GET`}
-            ]
+            ],
+            accessToken: token
         })
     } catch (error) {        
         next(error)

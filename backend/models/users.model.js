@@ -31,7 +31,7 @@ module.exports = (sequelize, DataTypes, Collection_Point) => {
         },
         validate: {isNumeric: true}},
        password:{
-        type: DataTypes.STRING(20), 
+        type: DataTypes.STRING(60), 
         allowNull: false},
        email:{
         type:DataTypes.STRING(50), 
