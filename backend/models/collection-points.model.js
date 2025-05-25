@@ -22,8 +22,7 @@ module.exports = (sequelize, DataTypes) => {
             }
             },
         geographical_coordinates: { 
-            type: DataTypes.STRING(45), 
-            allowNull: false},
+            type: DataTypes.STRING(45)},
         opening_hours: { 
             type: DataTypes.STRING(45), 
             defaultValue: null},
