@@ -256,9 +256,7 @@ import Users from '@/api/users'
       async onSubmit() {
         //starts the validation fotr all form inputs
         const result = await this.v$.$validate()
-        console.log(result);
         
-
         if (result) {
           const userInfo = {
             name: this.name + " " + this.surname,
@@ -274,9 +272,6 @@ import Users from '@/api/users'
 
           try {
             const res = await Users.register(userInfo)
-
-            console.log(res.data);
-
             this.$router.push({name: "login"})
             
           } catch (error) {

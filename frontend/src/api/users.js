@@ -16,5 +16,9 @@ export default {
 
     register(userInfo) {
         return api().post("users", userInfo);
+    },
+
+    editProfile(userInfo) {
+        return api().put(`users/${userInfo.id}`, userInfo)
     }
 }
