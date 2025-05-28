@@ -404,10 +404,7 @@ export default {
 
     async created() {
         const res = await Users.getUserProfile(this.userId);
-        this.user = res.data;        
-
-        console.log(this.user);
-        
+        this.user = res.data;                
 
         this.id = this.user.user_id;
         let nameSplit = this.user.name.split(' ');
@@ -428,9 +425,7 @@ export default {
 
     methods: {
         async submitChanges() {
-            //starts the validation for all form inputs
-            console.log(this.id);
-            
+            //starts the validation for all form inputs            
             if (this.newPassword) {
                 this.oldPassword = this.newPassword
             }
@@ -454,8 +449,6 @@ export default {
 
                 try {
                     const res = await Users.editProfile(userInfo)
-
-                    alert('Alterações feitas com sucesso!')
                 } catch (error) {
                     console.error(error.response?.data)
                     alert('Erro ao registar: ' + (error.response?.data.error || error.message))
@@ -465,7 +458,7 @@ export default {
 
         activateService() {
             this.door_to_door_service = true;
-            this.submitChanges
+            this.submitChanges()
         }
     },
 
@@ -488,7 +481,7 @@ export default {
             maxLengthValue: maxLength(24)
             },
             newPassword: {
-            minLengthValue: minLength(10),
+            minLengthValue: minLength(8),
             maxLengthValue: maxLength(24)
             },
             phone_number: { required,

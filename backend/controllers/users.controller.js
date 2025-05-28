@@ -17,16 +17,15 @@ let getAllUsers = async (req, res, next) => {
     /**
      * Get all users (citizens only)
      */
-    try {
+    try {    
+        //get the user_type
+        const {user_type, sort, order} = req.query;
+        
         if (req.loggedUserRole !== "admin") {
             return res.status(403).json({ success: false,
                 msg: "This request required ADMIN role!"
             })
         };
-
-        //get the user_type
-        const {user_type, sort, order} = req.query;
-
         //filter by only citizens
         const where = {};
         if (user_type !== undefined) {
@@ -88,6 +87,11 @@ let getUserById = async(req, res, next) => {
      * Get each user's profile
      */
     try {
+        //Only the user can access their own profile
+        if (parseInt(req.params.user_id) !== req.loggedUserId) {
+            return res.status(403).json({ success: false, msg: "You are not authorized to access this profile!"})
+        }
+
         //Find the ID given in the URL as a PK
         let user = await User.findByPk(req.params.user_id, {
             attributes: ['user_id', 'name', 'tin', 'phone_number', 'email','door_to_door_service', 'user_type'],
@@ -266,10 +270,10 @@ let updateUserInfo = async (req, res, next) => {
      * Handles the changes an user can do in their profile
      */
     try {
-        // if (!req.user || req.user.id_utilizador !== req.params.id) {
-        //     throw new ErrorHandler(403, "You aren't allowed to modify another user's data")
-        // }
-        // Each user can only edit their own profile ^^^
+        //Only the user can access their own profile
+        if (parseInt(req.params.user_id) !== req.loggedUserId) {
+            return res.status(403).json({ success: false, msg: "You are not authorized to change this profile!"})
+        }
 
         let {id, name, tin, password, email, phone_number, street_name, postal_code, door_number, door_to_door_service, collection_point_id} = req.body;
 
@@ -348,7 +352,11 @@ let deleteUser = async (req, res, next) => {
      * or the user itself deletes their own profile
      */
     try {
-        //403 Forbidden Error later
+        if (req.loggedUserRole !== "admin") {
+            return res.status(403).json({ success: false,
+                msg: "This request required ADMIN role!"
+            })
+        };
 
         //delete an user in DB given its id
         let result = await User.destroy({where: {user_id: req.params.user_id}});
