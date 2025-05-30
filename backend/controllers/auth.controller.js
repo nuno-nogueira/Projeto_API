@@ -11,9 +11,9 @@ exports.verifyToken = (req, res, next) => {
     const token = bearer[1];
 
     try {
-        let decoded = jwt.verify(token, process.env.SECRET);
-        req.loggedUserId = decoded.user_id // save user ID and role into request object
-        req.loggedUserRole = decoded.user_type;
+        let decoded = jwt.verify(token, process.env.SECRET);        
+        req.loggedUserId = decoded.id // save user ID and role into request object
+        req.loggedUserRole = decoded.role;
         next();
     } catch (err) {
         return res.status(401).json({ success: false, msg: "Unauthorized!"});

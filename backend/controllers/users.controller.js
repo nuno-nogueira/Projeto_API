@@ -7,6 +7,7 @@ require('dotenv').config();
 const db = require('../models/db.js'); // Import the database connection
 const User = db.User; // Import the User model from the database connection
 const Collection_Point = db.Collection_Point;
+const Feedback = db.Feedback;
 const { Op } = require('sequelize'); // necessary operators for Sequelize 
 
 const { ErrorHandler } = require("../utils/error.js"); // Import the ErrorHandler class for error handling
@@ -16,16 +17,15 @@ let getAllUsers = async (req, res, next) => {
     /**
      * Get all users (citizens only)
      */
-    try {
+    try {    
+        //get the user_type
+        const {user_type, sort, order} = req.query;
+        
         if (req.loggedUserRole !== "admin") {
             return res.status(403).json({ success: false,
                 msg: "This request required ADMIN role!"
             })
         };
-
-        //get the user_type
-        const {user_type, sort, order} = req.query;
-
         //filter by only citizens
         const where = {};
         if (user_type !== undefined) {
@@ -87,13 +87,28 @@ let getUserById = async(req, res, next) => {
      * Get each user's profile
      */
     try {
+        //Only the user can access their own profile
+        if (parseInt(req.params.user_id) !== req.loggedUserId) {
+            return res.status(403).json({ success: false, msg: "You are not authorized to access this profile!"})
+        }
+
         //Find the ID given in the URL as a PK
         let user = await User.findByPk(req.params.user_id, {
-            attributes: ['user_id', 'name', 'email', 'phone_number', 'door_to_door_service'],
-            include: [ //include the collection_point info
+            attributes: ['user_id', 'name', 'tin', 'phone_number', 'email','door_to_door_service', 'user_type'],
+            include: [ //include the collection_point info && feedbacks array
                 {
                     model: db.Collection_Point,
                     attributes: ['collection_point_id', 'street_name', 'postal_code','door_number']
+                },
+                {
+                    model: db.Feedback,
+                    attributes: ['feedback_id', 'description', 'feedback_type', 'feedback_date'],
+                    include: [
+                        {
+                            model: db.Collection_Point,
+                            attributes: ['street_name']
+                        }
+                    ]
                 }
             ]
         })
@@ -255,12 +270,12 @@ let updateUserInfo = async (req, res, next) => {
      * Handles the changes an user can do in their profile
      */
     try {
-        // if (!req.user || req.user.id_utilizador !== req.params.id) {
-        //     throw new ErrorHandler(403, "You aren't allowed to modify another user's data")
-        // }
-        // Each user can only edit their own profile ^^^
+        //Only the user can access their own profile
+        if (parseInt(req.params.user_id) !== req.loggedUserId) {
+            return res.status(403).json({ success: false, msg: "You are not authorized to change this profile!"})
+        }
 
-        const {name, tin, password, email, phone_number, door_to_door_service, address_point_id} = req.body;
+        let {id, name, tin, password, email, phone_number, street_name, postal_code, door_number, door_to_door_service, collection_point_id} = req.body;
 
         //Find an user by their ID
         const user = await User.findByPk(req.params.user_id);
@@ -276,41 +291,52 @@ let updateUserInfo = async (req, res, next) => {
         if (email === undefined) missingFields.push('Email');
         if (phone_number === undefined) missingFields.push('Phone Number');
         if (door_to_door_service === undefined) missingFields.push('Door to Door Service');
+        if (door_number === undefined) missingFields.push("Door Number")
+        if(street_name === undefined) missingFields.push('Street Name')
+        if (postal_code === undefined) missingFields.push('Postal Code')
+        if (collection_point_id === undefined) missingFields.push('Collection Point ID')
 
         if (missingFields.length > 0) 
            throw new ErrorHandler(400, `Missing required fields: ${missingFields.join(', ')}`);
 
         // search for the collection_point id, if there is one
-        if (req.body.door_to_door_service === 'sim') {
-            if (address_point_id === undefined) {
-                throw new ErrorHandler(400, 'Collection Point ID is required');
-            }
-
-            //Try to find the Collection Point
-            const collection_point = await Collection_Point.findByPk(req.body.door_to_door_service)
-
-            if (!collection_point) {
-                throw new ErrorHandler(401, "Invalid credentials")
-            }
+        if (collection_point_id === undefined) {
+            throw new ErrorHandler(400, 'Collection Point ID is required');
         }
 
-        //Update all parameters
-        const updates = {
+        if (door_to_door_service) {
+            door_to_door_service = 'sim'
+        } else {
+            door_to_door_service = 'não'
+        }
+
+        //Try to find the Collection Point
+        const collection_point = await Collection_Point.findByPk(collection_point_id);
+
+        if (!collection_point) {
+            throw new ErrorHandler(401, "Invalid credentials")
+        }
+
+        //Update all parameters for the user
+        const userUpdate = {
             name, 
             tin,
-            password,
+            password: bcrypt.hashSync(password, 10),
             email,
             phone_number, 
-            door_to_door_service,
-            address_point_id: door_to_door_service === 'sim' ? address_point_id : null
+            door_to_door_service
         };
 
-        //UPDATE QUERY
-        await user.update(updates);
+        //Update all parameters for the collection point
+        const cpUpdate = {street_name, postal_code, door_number}
+
+        //UPDATE QUERIES
+        await user.update(userUpdate);
+        await collection_point.update(cpUpdate);
 
         const result = user.toJSON();
         return res.status(200).json({
-            msg: "User updated sucessfully",
+            msg: "User Info updated sucessfully",
             data: result
         })
 
@@ -326,7 +352,11 @@ let deleteUser = async (req, res, next) => {
      * or the user itself deletes their own profile
      */
     try {
-        //403 Forbidden Error later
+        if (req.loggedUserRole !== "admin") {
+            return res.status(403).json({ success: false,
+                msg: "This request required ADMIN role!"
+            })
+        };
 
         //delete an user in DB given its id
         let result = await User.destroy({where: {user_id: req.params.user_id}});

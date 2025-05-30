@@ -65,7 +65,9 @@
 <script>
   import Users from '@/api/users';
   import { useVuelidate } from '@vuelidate/core'
+  import { useAuthStore } from '@/stores/auth'
   import { required, between, numeric} from '@vuelidate/validators'
+  
   
   export default {
     setup() { return { v$: useVuelidate() }},
@@ -76,6 +78,7 @@
         tin: '',
         password: '',
         visible: false,
+        authStore: useAuthStore(),
       }
     },
 
@@ -83,7 +86,6 @@
       async onSubmit() {
         //starts the validation fotr all form inputs
         const result = await this.v$.$validate()
-        console.log(result);
         
         if (result) {
           const userInfo = {
@@ -100,11 +102,12 @@
             localStorage.setItem('token', token);
             localStorage.setItem('userId', userId)
 
-            console.log(res.data);
+            this.authStore.setToken(token);
+            this.authStore.setUser(res.data.data)
             
             this.$router.push({ name: 'profile', params: { userId } });
           } catch (error) {
-            alert(err.response?.data.msg || 'Erro no login');
+            alert(error.response?.data.msg || 'Erro no login');
             console.error("Login falhou:", error);
           }
         }
