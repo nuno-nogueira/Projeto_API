@@ -47,7 +47,7 @@ db.Waste_Type=require('./waste-types.model.js')(sequelize,Sequelize.DataTypes)
 db.Route=require('./waste-types.model.js')(sequelize,Sequelize.DataTypes)
 db.Vehicle=require('./waste-types.model.js')(sequelize,Sequelize.DataTypes)
 db.Zone=require('./waste-types.model.js')(sequelize,Sequelize.DataTypes)
-
+db.Collection_Plan=require('./collection-plan.model.js')(sequelize,Sequelize.DataTypes)
 
 //define the relationships
 //1:N - 1 Collection_Point - N Users
@@ -120,6 +120,7 @@ db.Collection_Guide.hasMany(db.RFIDReading, {
 db.RFIDReading.belongsTo(db.Collection_Guide, {
     foreignKey: "collection_guide_id",
 
+
 //1:N - 1 Waste_Type - N Vehicles
 db.Waste_Type.hasMany(db.Vehicle, {
     foreignKey: "vehicle_id",
@@ -140,6 +141,27 @@ db.Zone.hasMany(db.Route, {
 db.Route.belongsTo(db.Zone, {
     foreignKey: "route_id"
 })
+
+
+db.Zone.hasMany(db.Collection_Plan, {
+    foreignKey: "plan_id",
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+})
+db.Collection_Plan.belongsTo(db.Zone, {
+    foreignKey: "plan_id"
+})
+
+db.Waste_Type.hasMany(db.Collection_Plan, {
+    foreignKey: "plan_id",
+    onUpdate: "CASCADE",
+    onDelete: "RESTRICT",
+})
+db.Collection_Plan.belongsTo(db.Waste_Type, {
+    foreignKey: "plan_id"
+})
+
+
 
 //----------------------
 
