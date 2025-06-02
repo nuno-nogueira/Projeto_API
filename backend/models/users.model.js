@@ -4,18 +4,21 @@ module.exports = (sequelize, DataTypes, Collection_Point) => {
         primaryKey: true, 
         autoIncrement: true, 
         allowNull: false, 
-        //if a column has to be unique
+        isInt: true,
         unique: {
             args: true,
             msg: "ID already exists"
         }},
        name:{
         type: DataTypes.STRING(50), 
-        allowNull: false
+        allowNull: false,
+        len: [6, 50]
         },
        tin:{
         type: DataTypes.TEXT, 
         allowNull: false, 
+        min: 100000000,
+        max: 999999999,
         unique: {
             args: true,
             msg: "TIN already exists"
@@ -25,6 +28,9 @@ module.exports = (sequelize, DataTypes, Collection_Point) => {
        user_number:{
         type: DataTypes.INTEGER, 
         defaultValue: null,
+        isInt: true,
+        min: 1000,
+        max: 3999,
         unique: {
             args: true,
             msg: "User Number already exists"
@@ -32,9 +38,11 @@ module.exports = (sequelize, DataTypes, Collection_Point) => {
         validate: {isNumeric: true}},
        password:{
         type: DataTypes.STRING(60), 
+        len: [8, 60],
         allowNull: false},
        email:{
         type:DataTypes.STRING(50), 
+        len: [10, 50],
         unique: {
             args: true,
             msg: "Email already exists"
@@ -43,6 +51,8 @@ module.exports = (sequelize, DataTypes, Collection_Point) => {
         validate: {isEmail: true}},
        phone_number:{
         type:DataTypes.STRING(20), 
+        min: 100000000,
+        max: 999999999,
         unique: {
             args: true,
             msg: "Phone Number already exists"
@@ -71,6 +81,7 @@ module.exports = (sequelize, DataTypes, Collection_Point) => {
         }},
        address_point_id:{type:DataTypes.INTEGER,
             defaultValue: null, 
+            isInt: true,
             //reference a column when its a foreign key (REFERENCE MODEL NAME IN EXPORT PARAMETERS)
            references: {
                model: Collection_Point,
@@ -81,6 +92,5 @@ module.exports = (sequelize, DataTypes, Collection_Point) => {
        freezeTableName: true, //o nome da tabela é igual ao nome do modelo
        timestamps: false,
    });
-
    return User;
 }

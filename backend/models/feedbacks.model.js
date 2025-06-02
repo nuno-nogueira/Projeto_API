@@ -5,12 +5,15 @@ module.exports = (sequelize, DataTypes, Collection_Point, User) => {
             primaryKey: true, 
             autoIncrement: true, 
             allowNull: false, 
+            isInt: true,
             unique: {
                 args: true,
                 msg: "ID already exists"
             }},
         description: { 
             type: DataTypes.TEXT, 
+            notEmpty: true,
+            len: [10, 100],
             allowNull: false},
         feedback_type: { 
             type: DataTypes.ENUM("conservação", "recolha", "outro"), 
@@ -25,13 +28,15 @@ module.exports = (sequelize, DataTypes, Collection_Point, User) => {
         collection_point_id: { 
             type: DataTypes.INTEGER, 
             allowNull: false, 
+            isInt: true,
             references: {
             model: Collection_Point,
-            key: "idponto_recolha", 
+            key: "collection_point_id", 
         }}, 
         user_id: { 
-            type: DataTypes.INTEGER, 
-            references: {
+        type: DataTypes.INTEGER, 
+        isInt: true,
+        references: {
             model: User,
             key: "user_id"
         }, 
@@ -40,7 +45,8 @@ module.exports = (sequelize, DataTypes, Collection_Point, User) => {
         },
         feedback_date: { 
             type: DataTypes.DATE, 
-            defaultValue: DataTypes.NOW
+            defaultValue: DataTypes.NOW,
+            isDate: true,
         }
     }
 , {

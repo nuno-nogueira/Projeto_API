@@ -1,10 +1,11 @@
-module.exports = (sequelize, DataTypes) => {
+module.exports = (sequelize, DataTypes, Route) => {
     const Collection_Point = sequelize.define("collection_point", {
         collection_point_id: { 
             type: DataTypes.INTEGER, 
             primaryKey: true, 
             allowNull: false, 
             autoIncrement: true, 
+            isInt: true,
             unique: {
                 args: true,
                 msg: "ID already exists"
@@ -28,19 +29,26 @@ module.exports = (sequelize, DataTypes) => {
             defaultValue: null},
         street_name: { 
             type: DataTypes.STRING(100), 
+            len: [10, 100],
             allowNull: false},
         postal_code: { 
             type: DataTypes.STRING(10), 
-            allowNull: false},
+            allowNull: false,
+            len: [9, 10]
+        },
         door_number: { 
             type: DataTypes.STRING(10), 
+            isInt: true,
+            min: 1,
+            max: 50,
             defaultValue: null},
         route_id: { 
             type: DataTypes.INTEGER, 
-            // references:{
-            // model: Route,
-            // key: "idrota"}
+            references:{
+            model: Route,
+            key: "route_id"},
             defaultValue: null,
+            isInt: true,
             allowNull: false
         }
     }, {
