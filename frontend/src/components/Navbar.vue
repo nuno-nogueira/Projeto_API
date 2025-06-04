@@ -48,7 +48,7 @@
       </v-menu>
 
     <RouterLink :to="{ name: 'maps' }">Mapa</RouterLink>
-      <RouterLink :to="{ name: 'contacts' }">Contactos</RouterLink>
+      <!-- <RouterLink :to="{ name: 'contacts' }">Contactos</RouterLink> -->
 
     </div>
             <div class="navbar-right">

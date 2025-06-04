@@ -27,12 +27,12 @@ const router = createRouter({
       name: 'maps',
       component: MapsView,
     },
-    {
-      path: '/profile/:userId',
-      name: 'profile',
-      component: () => import('../views/ProfileView.vue'),
-      props: true
-    },
+    // {
+    //   path: '/profile/:userId',
+    //   name: 'profile',
+    //   component: () => import('../views/ProfileView.vue'),
+    //   props: true
+    // },
   ],
 })
 export default router
