@@ -19,7 +19,7 @@ let getAllUsers = async (req, res, next) => {
      */
     try {    
         // get the user_type
-        const {user_type, sort, order} = req.query;
+        const {page = 1, limit = 6, order = 'asc'} = req.query;
         
         if (req.loggedUserRole !== "admin") {
             return res.status(403).json({ success: false,
@@ -27,42 +27,22 @@ let getAllUsers = async (req, res, next) => {
             })
         };
 
-        // filter by only citizens
-        const where = {};
-        if (user_type !== undefined) {
-            //validate the door to door value
-            if (user_type !== 'morador' && user_type !== 'motorista' && user_type !== 'admin')
-                throw new ErrorHandler(400, `Invalid value for door to door: ${user_type}. It should be either 'sim' or 'não'.`);
-
-            where.user_type = user_type === 'morador'; //convert to boolean   
-        }
-
-        // validate sort and order values
-        if (sort && sort !== 'door_to_door') 
-           throw new ErrorHandler(400, `Invalid value for sort: ${sort}. It should be 'door_to_door'.`);
-
-        if (order && order !== 'asc' && order !== 'desc')
+        if (order !== 'asc' && order !== 'desc')
            throw new ErrorHandler(400, `Invalid value for order: ${order}. It should be either 'asc' or 'desc'.`);
-
-        //sort and order options must be passed together
-        if ((sort && !order) || (!sort && order)) 
-            throw new ErrorHandler(400, `Both sort and order must be provided together.`);
-
-        //ordering by if the user has activated the door-to-door service or not
-        const sortField = sort === 'door_to_door' ? 'door_to_door' : 'user_id'; //by default sort by id
-        const sortOrder = order === 'desc' ? 'DESC' : 'ASC';
 
         //SELECT * FROM UTILIZADOR WHERE TIPO_UTILIZADOR = "MORADOR"
         let users = await User.findAndCountAll({
-            where,
-            attributes: ['user_id', 'name', 'user_number'],
+            where: { user_type: "morador"},
+            attributes: ['user_id', 'name'],
+            limit: +limit,
+            offset: (+page - 1) * +limit,
             include: [
                 {
                     model: db.Collection_Point,
-                    attributes: ['street_name', 'postal_code', 'door_number']
+                    attributes: ['collection_point_id', 'street_name']
                 }
             ],
-            order: [[sortField, sortOrder]],
+            order: [['name', order]],
             raw: false
         })
 
@@ -74,8 +54,16 @@ let getAllUsers = async (req, res, next) => {
         })
 
         return res.status(200).json({
+            totalPages: Math.ceil(users.count / limit),
+            currentPage: page ? page : 0,
             total: users.count,
-            data: users.rows
+            data: users.rows,
+            links: [
+                // only add the previous page link if the current page is greater than 1
+                ...(page > 1 ? [{ "rel": "previous-page", "href": `/profile/${req.loggedUserId}?limit=${limit}&page=${page - 1}`, "method": "GET" }] : []),
+                // only add the next page link if there are more pages to show
+                ...(users.count > page * limit ? [{ "rel": "next-page", "href": `/profile/${req.loggedUserId}?limit=${limit}&page=${+page + 1}`, "method": "GET" }] : [])
+            ]
         });
     } catch (err) {
         next(err); // pass the error to the next middleware
@@ -189,7 +177,7 @@ let addUser = async (req, res, next) => {
             throw new ErrorHandler(400,`Name should have between 8 to 60 characters`);
         }
 
-        if (door_to_door_service !== "sim" && door_to_door_service !== "não") {
+        if (door_to_door_service !== false && door_to_door_service !== true) {
             throw new ErrorHandler(400,`Option must be yes or no`);
         }
         

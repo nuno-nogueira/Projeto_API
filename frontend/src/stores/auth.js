@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 export const useAuthStore = defineStore("user", {
     state: () => ({
         token: localStorage.getItem('token') || null,
-        user: JSON.parse(localStorage.getItem("user")) || null
+        userId: parseInt(localStorage.getItem('userId')) || null
     }),
 
     actions: {
@@ -12,15 +12,16 @@ export const useAuthStore = defineStore("user", {
             localStorage.setItem("token", token)
         },
 
-        setUser(user) {
-            this.user = user;
+        setUserId(userId) {
+            this.userId = userId;
+            localStorage.setItem("userId", userId.toString());
         },
         
         logout() {
             this.token = null;
-            this.user = null;
+            this.userId = null;
             localStorage.removeItem('token')
-            localStorage.removeItem('user')
+            localStorage.removeItem('userId')
         }
     }
 })

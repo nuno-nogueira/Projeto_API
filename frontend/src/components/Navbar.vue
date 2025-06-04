@@ -17,7 +17,7 @@
 
                 <template v-else>
                     <v-btn icon color="#fff">
-                        <RouterLink :to="{name: 'profile', params: {userId: authStore.user.user_id}}">
+                        <RouterLink :to="{name: 'profile', params: {userId: authStore.userId}}">
                             <v-icon color="#043601">mdi-account</v-icon>
                         </RouterLink>
                     </v-btn>
@@ -44,7 +44,6 @@
 <script>
 import { RouterLink } from 'vue-router';
 import { useAuthStore } from '@/stores/auth'
-import { computed } from 'vue'
 
 export default {
     name: 'Navbar',
