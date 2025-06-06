@@ -1,3 +1,4 @@
+
 import api from '@/api/api'
 
 export default {
@@ -17,3 +18,4 @@ export default {
         return api().patch(`collection-guides/${collectionGuideID}`);
     },
 }
+

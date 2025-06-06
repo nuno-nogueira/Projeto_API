@@ -1,5 +1,5 @@
 <template>
-    <section class="footer">
+    <footer class="footer">
         <div>
             <img src="@/assets/icons/logo_full.svg" alt="logo">
             <p>Sed ut perspiciatis undmnis is iste natus error sit amet voluptatem totam rem aperiam.</p>
@@ -22,28 +22,36 @@
             <h3>Segue-nos em</h3>
             <img src="@/assets/icons/sns.svg" alt="sns">
         </div>
-    </section>
+    </footer>
 </template>
-<script></script>
+<script>
+    export default {
+        name: 'Footer',
+
+    }
+</script>
 <style scoped>
     .footer {
-        background-color: #043601;
+        background-color: var(--color-Pakistan-green);
         width: 100vw;
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 200px;
         padding: 100px;
         align-items: center;
+        color: var(--color-White);
     }
     .footer-links {
         margin-left: 10px;
         display: flex;
         flex-direction: column;
+        
     }
     .footer-links > a {
         margin-bottom: 20px;
         width: 100px;
         padding: 8px;
+        color:var( --color-White);
     }
     .footer-center {
         display: flex;

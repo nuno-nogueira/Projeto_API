@@ -100,6 +100,7 @@ import img3 from '@/assets/images/carousel_3.webp'
   }
   .carousel-container {
       position: relative; 
+             color: var(--color-White);
   }
   .carousel {
       width: 100vw;
@@ -131,6 +132,7 @@ import img3 from '@/assets/images/carousel_3.webp'
       padding: 50px;
       width: 100vw;
       background-color: #09A129;
+       color: var(--color-White);
   }
   .statistics > div {
       padding: 20px 80px;

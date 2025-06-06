@@ -44,10 +44,11 @@ db.Container = require("./containers.model.js")(sequelize, Sequelize.DataTypes)
 db.Collection_Guide = require("./collection-guides.model.js")(sequelize, Sequelize.DataTypes)
 
 db.Waste_Type=require('./waste-types.model.js')(sequelize,Sequelize.DataTypes)
+
 db.Route=require('./routes.model.js')(sequelize,Sequelize.DataTypes)
 db.Vehicle=require('./vehicle.model.js')(sequelize,Sequelize.DataTypes)
 db.Zone=require('./zones.model.js')(sequelize,Sequelize.DataTypes)
-
+db.Collection_Plan=require('./collection-plan.model.js')(sequelize,Sequelize.DataTypes)
 
 //define the relationships
 //1:N - 1 Collection_Point - N Users
@@ -142,6 +143,7 @@ db.Collection_Guide.belongsTo(db.Route, {
     foreignKey: "route_id",
 })
 
+
 //1:N - 1 Waste_Type - N Vehicles
 db.Waste_Type.hasMany(db.Vehicle, {
     foreignKey: "waste_id",
@@ -169,6 +171,27 @@ db.Route.hasMany(db.Collection_Point, {
 db.Collection_Point.belongsTo(db.Route, { 
     foreignKey: 'route_id' 
 })
+
+
+db.Zone.hasMany(db.Collection_Plan, {
+    foreignKey: "plan_id",
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+})
+db.Collection_Plan.belongsTo(db.Zone, {
+    foreignKey: "plan_id"
+})
+
+db.Waste_Type.hasMany(db.Collection_Plan, {
+    foreignKey: "plan_id",
+    onUpdate: "CASCADE",
+    onDelete: "RESTRICT",
+})
+db.Collection_Plan.belongsTo(db.Waste_Type, {
+    foreignKey: "plan_id"
+})
+
+
 
 //----------------------
 db.Route.belongsTo(db.User, { foreignKey: 'driver_id' });

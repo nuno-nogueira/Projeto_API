@@ -3,7 +3,8 @@
 #app {
   max-width: 100%;
   font-weight: normal;
-  background-color: white;
+  background-color: var(--color-White);
+  font-family: var( --font-inter);
 }
 
 a,
@@ -22,4 +23,8 @@ a,
 
 @media (min-width: 1024px) {
   
+}
+
+span{
+  font-size: 16px;
 }
