@@ -24,13 +24,13 @@ module.exports = (sequelize, DataTypes) => {
                 }
             }
         },
-        residual_type: { 
+        waste_type_id: { 
             type: DataTypes.INTEGER, 
             allowNull: false,
             references: {
-                model: 'tipo_residuo',
-                key: 'idtipo_residuo'
-            }
+                model: 'waste_type',
+                key: 'waste_type_id'
+            },
         },
         collection_point_id: { 
             type: DataTypes.INTEGER, 

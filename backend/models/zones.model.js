@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-    const Zone = sequelize.define("Zone", {
+    const Zone = sequelize.define("zone", {
         zone_id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
                 msg: "Those coordinates already exist"
             }
         },
-        zone_cod: {
+        zone_code: {
             type: DataTypes.STRING(10),
             allowNull: false,
             unique: {
@@ -27,8 +27,9 @@ module.exports = (sequelize, DataTypes) => {
             }
         },
     }, {
-        TableName: 'zone',
         timestamps: false,
+        // freezeTableName: true,
+        tableName: 'zone'
     });
 
     return Zone;

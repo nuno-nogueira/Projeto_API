@@ -44,9 +44,9 @@ db.Container = require("./containers.model.js")(sequelize, Sequelize.DataTypes)
 db.Collection_Guide = require("./collection-guides.model.js")(sequelize, Sequelize.DataTypes)
 
 db.Waste_Type=require('./waste-types.model.js')(sequelize,Sequelize.DataTypes)
-db.Route=require('./waste-types.model.js')(sequelize,Sequelize.DataTypes)
-db.Vehicle=require('./waste-types.model.js')(sequelize,Sequelize.DataTypes)
-db.Zone=require('./waste-types.model.js')(sequelize,Sequelize.DataTypes)
+db.Route=require('./routes.model.js')(sequelize,Sequelize.DataTypes)
+db.Vehicle=require('./vehicle.model.js')(sequelize,Sequelize.DataTypes)
+db.Zone=require('./zones.model.js')(sequelize,Sequelize.DataTypes)
 
 
 //define the relationships
@@ -101,18 +101,9 @@ db.Container.belongsTo(db.Collection_Point, {
     foreignKey: "collection_point_id"
 })
 
-//1: N - 1 RFIDReading - N Container
-db.Container.hasMany(db.RFIDReading, {
-    foreignKey: "container_id",
-    onUpdate: "CASCADE",
-    onDelete: "SET NULL",
-})
-db.RFIDReading.belongsTo(db.Container, {
-    foreignKey: "container_id"
-})
-
 //1: N - 1 Collection_Guide - N RFIDReadings
 db.Collection_Guide.hasMany(db.RFIDReading, {
+    // as: 'readings',
     foreignKey: "collection_guide_id",
     onUpdate: "CASCADE", 
     onDelete: "CASCADE",
@@ -122,27 +113,68 @@ db.RFIDReading.belongsTo(db.Collection_Guide, {
 })
 
 //1:N - 1 Waste_Type - N Vehicles
+db.Waste_Type.hasMany(db.Collection_Guide, {
+    foreignKey: "waste_id",
+    onUpdate: "CASCADE",
+    onDelete: "SET NULL",
+})
+db.Collection_Guide.belongsTo(db.Waste_Type, {
+    foreignKey: "waste_id",
+})
+
+// 1:N - 1 Waste_Type - N Containers
+db.Waste_Type.hasMany(db.Container, {
+  foreignKey: "waste_type_id",
+  onUpdate: "CASCADE",
+  onDelete: "SET NULL",
+})
+db.Container.belongsTo(db.Waste_Type, {
+  foreignKey: "waste_type_id",
+})
+
+//1:N - 1 Route - N Collection_Guide
+db.Route.hasMany(db.Collection_Guide, {
+    foreignKey: "route_id",
+    onUpdate: "CASCADE",
+    onDelete: "SET NULL",
+})
+db.Collection_Guide.belongsTo(db.Route, {
+    foreignKey: "route_id",
+})
+
+//1:N - 1 Waste_Type - N Vehicles
 db.Waste_Type.hasMany(db.Vehicle, {
-    foreignKey: "vehicle_id",
+    foreignKey: "waste_id",
     onUpdate: "CASCADE",
     onDelete: "SET NULL",
 })
 db.Vehicle.belongsTo(db.Waste_Type, {
-    foreignKey: "vehicle_id"
+    foreignKey: "waste_id",
 })
 
 
 //1:N - 1 zone - N routes
 db.Zone.hasMany(db.Route, {
-    foreignKey: "route_id",
+    foreignKey: "zone_id",
     onUpdate: "CASCADE",
     onDelete: "SET NULL",
 })
 db.Route.belongsTo(db.Zone, {
-    foreignKey: "route_id"
+    foreignKey: "zone_id"
+})
+
+db.Route.hasMany(db.Collection_Point, { 
+    foreignKey: 'route_id' 
+})
+db.Collection_Point.belongsTo(db.Route, { 
+    foreignKey: 'route_id' 
 })
 
 //----------------------
+db.Route.belongsTo(db.User, { foreignKey: 'driver_id' });
+db.Route.belongsTo(db.Vehicle, { foreignKey: 'vehicle_id' });
+db.Vehicle.hasMany(db.Feedback, { foreignKey: 'vehicle_id' });
+
 
 //export the DB object w/ the Sequelize instance and models
 module.exports = db;
