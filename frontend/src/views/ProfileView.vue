@@ -388,10 +388,10 @@
             grow
             show-arrows
             justify-center>
-                <v-tab class="admin-custom-tab" :prepend-icon="icons.cp_icon" text="Pontos de Recolha" value="1" color="#538055"></v-tab>
-                <v-tab class="admin-custom-tab" :prepend-icon="icons.user_icon" text="Utilizadores" value="2" color="#538055"></v-tab>
-                <v-tab class="admin-custom-tab" :prepend-icon="icons.cg_icon" text="Guias de Recolha" value="3" color="#538055"></v-tab>
-                <v-tab class="admin-custom-tab" :prepend-icon="icons.annual_plan_icon" text="Plano de Recolha" value="4" color="#538055"></v-tab>
+                <v-tab class="admin-custom-tab" :prepend-icon="icons.cp_icon" text="Pontos de Recolha" value="1"></v-tab>
+                <v-tab class="admin-custom-tab" :prepend-icon="icons.user_icon" text="Utilizadores" value="2"></v-tab>
+                <v-tab class="admin-custom-tab" :prepend-icon="icons.cg_icon" text="Guias de Recolha" value="3"></v-tab>
+                <v-tab class="admin-custom-tab" :prepend-icon="icons.annual_plan_icon" text="Plano de Recolha" value="4"></v-tab>
             </v-tabs>
 
             <v-tabs-window v-model="admin_tab">
@@ -413,7 +413,7 @@
                         variant = "outlined"></v-select>
                     </div>
                     <v-row>
-                        <v-col
+                        <!-- <v-col
                         v-for="user in users"
                         :key="user.user_id"
                         cols="6"
@@ -434,7 +434,31 @@
                                     </div>
                                 </template>
                             </v-card>
-                        </v-col>
+                        </v-col> -->
+                        <v-container>
+                            <v-table>
+                            <thead>
+                                <tr>
+                                    <th class="text-left">NOME</th>
+                                    <th class="text-left">MORADA</th>
+                                    <th class="text-left">AÇÕES</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="user in users" :key="user.user_id">
+                                    <td>{{ user.name }}</td>
+                                    <td>{{ user.collection_point.street_name }}</td>
+                                    <td>
+                                        <v-btn color="white" 
+                                        rounded="2" 
+                                        style="background-color: #ED6868;"
+                                        @click="deleteUser(user.user_id)">
+                                        Remover Utilizador</v-btn>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </v-table>
+                        </v-container>
                     </v-row>
                     <v-pagination 
                     v-model="page"
@@ -581,7 +605,7 @@ export default {
                 this.fetchUsers(this.page)
             } catch (err) {
                 console.error(err.response?.data)
-                    alert('Erro ao editar perfil: ' + (err.response?.data.error || error.message))
+                    alert('Erro ao editar perfil: ' + (err.response?.data.error || err.message))
             }
         },
 
@@ -787,7 +811,6 @@ p{
 
 .admin-custom-tab, .custom-tab{
     margin: 0 8px;
-    background-color: #EAEEEA;
 }
 
 .rounded-tabs {
@@ -799,9 +822,6 @@ p{
     border-top-right-radius: 15px;
 }
 
-.admin-tab-window{
-    background-color: #EAEEEA;
-}
 
 #tab-window2 .window-header{
     display: flex;
