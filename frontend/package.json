@@ -11,14 +11,21 @@
   "dependencies": {
     "@googlemaps/js-api-loader": "^1.16.8",
     "@mdi/font": "^7.4.47",
+
     "dotenv": "^16.5.0",
+    "@vuelidate/core": "^2.0.3",
+    "@vuelidate/validators": "^2.0.4",
+    "axios": "^1.9.0",
+
     "pinia": "^3.0.2",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0",
+    "vuelidate": "^0.7.7",
     "vuetify": "^3.8.4"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.3",
+    "sass-embedded": "^1.89.0",
     "vite": "^6.2.4",
     "vite-plugin-vue-devtools": "^7.7.2"
   }
