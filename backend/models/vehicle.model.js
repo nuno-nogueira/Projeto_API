@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-    const Vehicle = sequelize.define("Zone", {
+    const Vehicle = sequelize.define("vehicle", {
         vehicle_id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
@@ -29,7 +29,7 @@ module.exports = (sequelize, DataTypes) => {
 
         },
     }, {
-        TableName: 'vehicle',
+        freezeTableName: true,
         timestamps: false,
     });
 

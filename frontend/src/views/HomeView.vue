@@ -14,15 +14,15 @@
   </div>
   <section class="statistics">
     <div>
-      <h2>46%</h2>
+      <h2 class="title">46%</h2>
       <p>Percentagem de resíduos recicláveis (azul, amarelo, verde) em relação ao total de resíduos produzidos.</p>
     </div>
     <div>
-      <h2>41%</h2>
+      <h2 class="title">41%</h2>
       <p>Resíduos não reciclados enviados para incineração ou tratamento indiferenciado.</p>
     </div>
     <div>
-      <h2>115kg/hab.ano</h2>
+      <h2 class="title">115kg/hab.ano</h2>
       <p>Volume total de resíduos (todos os tipos) recolhidos, dividido pelo número de habitantes.</p>
     </div>
   </section>
@@ -34,7 +34,7 @@
           <img src="@/assets/images/carousel_2.webp" class="news-container1-image" alt="image">
         </div>
         <p>6 maio 2024</p>
-        <h3>Lorem ipsum dolor sit amet</h3>
+        <h3 class="title">Lorem ipsum dolor sit amet</h3>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, sapien nec tincidunt fringilla, lacus erat suscipit enim, non vulputate nulla lorem ac nisi. Nulla facilisi. Suspendisse potenti.</p>
       </div>
       <div class="news-container2">
@@ -42,21 +42,21 @@
           <img class="news-image" src="@/assets/images/carousel_1.webp" alt="news">
           <div>
             <p>6 maio 2024</p>
-            <h4>Lorem ipsum dolor sit amet Nulla facilisi. Suspendisse potenti</h4>
+            <h4 class="title">Lorem ipsum dolor sit amet Nulla facilisi. Suspendisse potenti</h4>
           </div>
         </div>
         <div class="news-container-content">
           <img class="news-image" src="@/assets/images/carousel_3.webp" alt="news">
           <div>
             <p>6 maio 2024</p>
-            <h4>Lorem ipsum dolor sit amet Nulla facilisi. Suspendisse potenti</h4>
+            <h4 class="title">Lorem ipsum dolor sit amet Nulla facilisi. Suspendisse potenti</h4>
           </div>
         </div>
         <div class="news-container-content">
           <img class="news-image" src="@/assets/images/carousel_1.webp" alt="news">
           <div>
             <p>6 maio 2024</p>
-            <h4>Lorem ipsum dolor sit amet Nulla facilisi. Suspendisse potenti</h4>
+            <h4 class="title">Lorem ipsum dolor sit amet Nulla facilisi. Suspendisse potenti</h4>
           </div>
         </div>
       </div>
@@ -170,5 +170,8 @@ import img3 from '@/assets/images/carousel_3.webp'
   } 
   h2 {
     margin-bottom: 15px;
+  }
+  .title {
+    font-weight: 600;
   }
 </style>

@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-    const Route = sequelize.define("Route", {
+    const Route = sequelize.define("route", {
         route_id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
@@ -12,7 +12,11 @@ module.exports = (sequelize, DataTypes) => {
         },
         zone_id: {
             type: DataTypes.INTEGER,
-            allowNull: false,
+            allowNull: true,
+            references: {
+                model: 'zone',
+                key: 'zone_id'
+            }
         },
         route_cod: {
             type: DataTypes.STRING(10),
@@ -27,8 +31,9 @@ module.exports = (sequelize, DataTypes) => {
             defaultValue: null
         },
     }, {
-        TableName: 'route',
+        freezeTableName: true,
         timestamps: false,
+        tableName: 'route' 
     });
 
     return Route;
