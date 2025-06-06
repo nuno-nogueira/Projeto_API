@@ -2,8 +2,8 @@ import api from '@/api/api'
 
 export default {
     // GET /users
-    allUsers() {
-        return api().get("users");
+    allUsers({page, limit, order}) {
+        return api().get('users', { params: {page, limit, order} });
     },
 
     getUserProfile(user_id) {
@@ -20,5 +20,9 @@ export default {
 
     editProfile(userInfo) {
         return api().put(`users/${userInfo.id}`, userInfo)
+    },
+
+    deleteUser(userId) {
+        return api().delete(`users/${userId}`, userId)
     }
 }

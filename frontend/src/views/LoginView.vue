@@ -103,7 +103,7 @@
             localStorage.setItem('userId', userId)
 
             this.authStore.setToken(token);
-            this.authStore.setUser(res.data.data)
+            this.authStore.setUserId(userId)
             
             this.$router.push({ name: 'profile', params: { userId } });
           } catch (error) {

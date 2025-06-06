@@ -26,13 +26,15 @@ let getAllPoints = async (req, res, next) => {
         })
         
         //Iterate through all collection points to put all links
-        collection_points.rows.forEach(collection_point => {
-            collection_point.links = [
-                {rel: "delete", href: `/collection_points/${collection_point.collection_point_id}, method: "DELETE`},
-                {rel: "modify", href: `/collection_points/${collection_point.collection_point_id}, method: "PUT`}
-            ]
-        });
-
+        if (req.loggedUserRole !== "admin") {
+            collection_points.rows.forEach(collection_point => {
+                collection_point.links = [
+                    {rel: "delete", href: `/collection_points/${collection_point.collection_point_id}, method: "DELETE`},
+                    {rel: "modify", href: `/collection_points/${collection_point.collection_point_id}, method: "PUT`}
+                ]
+            });
+        } 
+        
         return res.status(200).json({
             totalPages: Math.ceil(collection_points.count / limit),
             currentPage: page ? page : 0,
@@ -46,10 +48,8 @@ let getAllPoints = async (req, res, next) => {
                 ...(collection_points.count > page * limit ? [{ "rel": "next-page", "href": `/collection-points?limit=${limit}&page=${+page + 1}`, "method": "GET" }] : [])
             ]
         });
-    } catch (error) {
-        console.error(error);
-        
-        next(error);
+    } catch (err) {        
+        next(err);
     }
 }
 
@@ -71,8 +71,8 @@ let getPointById = async (req, res, next) => {
         //convert the user to a plain object
         collection_point = collection_point.toJSON();
         res.status(200).json(collection_point);
-    } catch (error) {
-        next(error);
+    } catch (err) {
+        next(err);
     }
 }
 
@@ -81,25 +81,60 @@ let addPoint = async (req, res, next) => {
      * Add a new Collection Point
      */
     try {
+        if (req.loggedUserRole !== "admin") {
+            return res.status(403).json({ 
+                success: false,
+                msg: "This request require ADMIN role!"
+            })
+        };
+
         //Gather all parameters
-        const {collection_point_id, collection_point_type, postal_code, opening_hours, geographical_coordinates, street_name, door_number, route_id} = req.body;
+        const {collection_point_type, postal_code, opening_hours, geographical_coordinates, street_name, door_number} = req.body;
 
         // sequelize update method allows PARTIAL updates, so we NEED to check for missing fields    
         let missingFields = [];
-        if (collection_point_id === undefined) missingFields.push('Collection Point ID');
+        let collection_point_id;
         if (collection_point_type === undefined) missingFields.push('Collection Point type');
         if (geographical_coordinates === undefined) missingFields.push('Geographical coordinates');
         if (opening_hours === undefined) missingFields.push('Schedule');
         if (street_name === undefined) missingFields.push('Address');
         if (postal_code === undefined) missingFields.push('Postal Code');
         if (door_number === undefined) missingFields.push('Door Number');
-        if (route_id === undefined) missingFields.push('Route');
 
-        if (missingFields.length > 0) 
+        if (missingFields.length > 0) {
             throw new ErrorHandler(400, `Missing required fields: ${missingFields.join(', ')}`);
+        }
+
+        if (opening_hours.length < 5 || opening_hours.length > 45) {
+            throw new ErrorHandler(400,`Opening hours should be between 5 and 45 characters`);
+        }
+
+        if (street_name.length < 10 || street_name.length > 100) {
+            throw new ErrorHandler(400,`Street Name should be between 10 and 100 characters`);
+        }
+
+        if (postal_code.length !== 8) {
+            throw new ErrorHandler(400,`Postal Code should be 8 characters long`);
+        }
+
+        if (door_number <= 1 || door_number > 80) {
+            throw new ErrorHandler(400,`Door Number should be between 1 and 50`);
+        }
 
         //INSERT QUERY
-        const collection_point = await Collection_Point.create(req.body);
+        const count_all_points = await Collection_Point.count({}) 
+        collection_point_id = count_all_points + 1
+
+        const collection_point = await Collection_Point.create({
+            collection_point_id,
+            collection_point_type,
+            geographical_coordinates,
+            opening_hours,
+            street_name,
+            postal_code,
+            door_number,
+            route_id: 1
+        })
 
         res.status(201).json({
             msg: "Collection Point sucessfully created.",
@@ -107,8 +142,8 @@ let addPoint = async (req, res, next) => {
                 {rel: "self", href: `/collection-points/${collection_point.collection_point_id}}`, method: "GET"}
             ]
         })
-    } catch (error) {
-        next (error);
+    } catch (err) {
+        next (err);
     }
 }
 
@@ -117,13 +152,11 @@ let updateCollectionPoint = async (req, res, next) => {
      * Update a Collection Point
      */
     try {
-        // if (!req.user || req.user.tipo_utilizador !== req.params.tipo_utilizador) {
-        //     throw new ErrorHandler(403, "You aren't allowed to modify another user's data")
-        // }
-        //Only admins can update Collection Point details ^^^
+        if (parseInt(req.params.user_id) !== req.loggedUserId && req.loggedUserRole !== "admin") {
+            return res.status(403).json({ success: false, msg: "You are not authorized to change this collection point!"})
+        }
 
-        //Gather info
-        const {collection_point_type, geographical_coordinates, opening_hours, street_name, postal_code, door_number, route_id} = req.body;
+        const {collection_point_type, postal_code, opening_hours, geographical_coordinates, street_name, door_number} = req.body;
 
         const collection_point = await Collection_Point.findByPk(req.params.id);
         if (!collection_point) {
@@ -138,14 +171,29 @@ let updateCollectionPoint = async (req, res, next) => {
         if (street_name === undefined) missingFields.push('Address');
         if (postal_code === undefined) missingFields.push('Postal Code');
         if (door_number === undefined) missingFields.push('Door Number');
-        if (route_id === undefined) missingFields.push('Route');
 
         if (missingFields.length > 0) 
             throw new ErrorHandler(400, `Missing required fields: ${missingFields.join(', ')}`);
 
+        if (opening_hours.length < 5 || opening_hours.length > 45) {
+            throw new ErrorHandler(400,`Opening hours should be between 5 and 45 characters`);
+        }
+
+        if (street_name.length < 10 || street_name.length > 100) {
+            throw new ErrorHandler(400,`Street Name should be between 10 and 100 characters`);
+        }
+
+        if (postal_code.length !== 8) {
+            throw new ErrorHandler(400,`Postal Code should be 8 characters long`);
+        }
+
+        if (door_number <= 1 || door_number > 80) {
+            throw new ErrorHandler(400,`Door Number should be between 1 and 50`);
+        }
+
         const updates = {
             collection_point_type, geographical_coordinates, opening_hours, street_name,
-            postal_code, door_number, route_id
+            postal_code, door_number
         }
 
         await collection_point.update(updates);
@@ -155,9 +203,7 @@ let updateCollectionPoint = async (req, res, next) => {
             msg: "Collection Point updated sucessfully",
             data: result
         })
-    } catch (error) {
-        console.error(error);
-        
+    } catch (error) {        
         next(error);
     }
 }
@@ -168,7 +214,12 @@ let deletePoint = async (req, res, next) => {
      * Delete a Collection Point
      */
     try {
-        //403 Forbidden Error later
+        // only admins can delete collection points
+        if (parseInt(req.params.user_id) !== req.loggedUserId) {
+            return res.status(403).json({ 
+                success: false, 
+                msg: "You are not authorized to change this profile!"})
+        }
 
         //delete an user in DB given its id
         let result = await Collection_Point.destroy({where: {collection_point_id: req.params.id}});
@@ -179,8 +230,8 @@ let deletePoint = async (req, res, next) => {
 
         // send 204 No Content response
         res.status(204).json();
-    } catch (error) {
-        next(error)
+    } catch (err) {
+        next(err)
     }
 }
 

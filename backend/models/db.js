@@ -34,7 +34,7 @@ const db = {}; //object to be exported;
 db.sequelize = sequelize; //save the Sequelize instance
 
 //include models here!!
-db.Collection_Point = require("./collection-points.model.js")(sequelize, Sequelize.DataTypes)
+db.Collection_Point = require("./collection-points.model.js")(sequelize, Sequelize.DataTypes, db.Route)
 db.User = require("./users.model.js")(sequelize, Sequelize.DataTypes, db.Collection_Point)
 db.Feedback = require("./feedbacks.model.js")(sequelize, Sequelize.DataTypes,  db.Collection_Point, db.User) 
 

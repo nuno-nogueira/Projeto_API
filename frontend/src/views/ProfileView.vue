@@ -365,6 +365,121 @@
             </v-tabs-window-item>
         </v-tabs-window>
     </div>
+    <div style="margin-top: 100px;" v-if="user.user_type == 'admin'">
+        <v-card class="px-6 py-8 welcome-card" max-width="90%">
+            <v-row>
+                <v-col cols="4" md="3" class="image-column">
+                    <img src="../assets/icons/robot-icon.webp" style="width: 250px; height: 250px;" alt="Icone de robo" srcset="">
+                </v-col>
+                <v-col cols="12" md="6" class="welcome-column">
+                    <h1>Bem Vindo <br> {{ user.name }}</h1>
+                    <h3>Gere ecopontos, guias, utilizadores e o nosso plano anual – tudo à distância de um clique! </h3>
+                </v-col>
+                <v-col cols="4" md="3" class="image-column">
+                    <img src="../assets/icons/calendar-icon.webp" style="width: 250px; height: 200px;" alt="Icone de robo" srcset="">
+                </v-col>
+
+            </v-row>
+
+            <v-tabs
+            v-model="admin_tab"
+            class="rounded-tabs"
+            color="black"
+            grow
+            show-arrows
+            justify-center>
+                <v-tab class="admin-custom-tab" :prepend-icon="icons.cp_icon" text="Pontos de Recolha" value="1"></v-tab>
+                <v-tab class="admin-custom-tab" :prepend-icon="icons.user_icon" text="Utilizadores" value="2"></v-tab>
+                <v-tab class="admin-custom-tab" :prepend-icon="icons.cg_icon" text="Guias de Recolha" value="3"></v-tab>
+                <v-tab class="admin-custom-tab" :prepend-icon="icons.annual_plan_icon" text="Plano de Recolha" value="4"></v-tab>
+            </v-tabs>
+
+            <v-tabs-window v-model="admin_tab">
+                <v-tabs-window-item value="1" class="admin-tab-window" id="tab-window1">
+
+                </v-tabs-window-item>
+            </v-tabs-window>
+
+            <v-tabs-window v-model="admin_tab">
+                <v-tabs-window-item value="2" class="admin-tab-window" id="tab-window2">
+                    <div class="window-header">
+                        <h2>Lista de Utilizadores</h2>
+
+                        <v-select 
+                        v-model="orderBy"
+                        label="Ordenar por nome"
+                        density="compact"
+                        :items="['(A-Z)','(Z-A)']"
+                        variant = "outlined"></v-select>
+                    </div>
+                    <v-row>
+                        <!-- <v-col
+                        v-for="user in users"
+                        :key="user.user_id"
+                        cols="6"
+                        md="4">
+                            <v-card :variant="outlined"
+                            class="mx-auto"
+                            background-color="white"
+                            max-width="250"
+                            :title="user.name"
+                            :subtitle="user.collection_point.street_name">
+                                <template v-slot:actions>
+                                    <div justify-end>
+                                        <v-btn color="white" 
+                                        rounded="2" 
+                                        style="background-color: #ED6868;"
+                                        @click="deleteUser(user.user_id)">
+                                        Remover Utilizador</v-btn>
+                                    </div>
+                                </template>
+                            </v-card>
+                        </v-col> -->
+                        <v-container>
+                            <v-table>
+                            <thead>
+                                <tr>
+                                    <th class="text-left">NOME</th>
+                                    <th class="text-left">MORADA</th>
+                                    <th class="text-left">AÇÕES</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="user in users" :key="user.user_id">
+                                    <td>{{ user.name }}</td>
+                                    <td>{{ user.collection_point.street_name }}</td>
+                                    <td>
+                                        <v-btn color="white" 
+                                        rounded="2" 
+                                        style="background-color: #ED6868;"
+                                        @click="deleteUser(user.user_id)">
+                                        Remover Utilizador</v-btn>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </v-table>
+                        </v-container>
+                    </v-row>
+                    <v-pagination 
+                    v-model="page"
+                    :length="totalPages"
+                    rounded="circle"/>
+                </v-tabs-window-item>
+            </v-tabs-window>
+
+            <v-tabs-window v-model="admin_tab">
+                <v-tabs-window-item value="3" class="admin-tab-window" id="tab-window3">
+                    
+                </v-tabs-window-item>
+            </v-tabs-window>
+
+            <v-tabs-window v-model="admin_tab" class="admin-tab-window" id="tab-window4">
+                <v-tabs-window-item value="4">
+                    
+                </v-tabs-window-item>
+            </v-tabs-window>
+        </v-card>
+    </div>
 </template>
 
 <script>
@@ -381,6 +496,7 @@ export default {
         return {
             user: null,
             tab: 1,
+            admin_tab: 1,
             form: false,
             visible1: false,
             visible2: false,
@@ -399,27 +515,36 @@ export default {
             user_type: '',
             door_to_door_service: false,
             feedbacks: [],
+            users: [],
+            page: 1,
+            totalPages: 1,
+            orderBy: "(A-Z)",
+            icons: {
+                user_icon: "mdi-account",
+                cg_icon: "mdi-paperclip",
+                cp_icon: "mdi-cached",
+                annual_plan_icon: "mdi-calendar" 
+            }
         }
     },
 
     async created() {
-        const res = await Users.getUserProfile(this.userId);
-        this.user = res.data;                
+        const userInfo = await Users.getUserProfile(this.userId);
+        this.user = userInfo.data;                
 
         this.id = this.user.user_id;
-        let nameSplit = this.user.name.split(' ');
+        const nameSplit = this.user.name.split(' ');
         this.name = nameSplit[0];
         this.surname = nameSplit[1];
         this.tin = this.user.tin;
         this.phone_number = this.user.phone_number;
         this.email = this.user.email;
-        this.address = this.user.collection_point.street_name;
-        this.postal_code = this.user.collection_point.postal_code;
-        this.door_number = this.user.collection_point.door_number;
-        this.user_type = this.user.user_type
-        this.door_to_door_service = this.user.door_to_door_service === "sim" ? true : false;
-        this.cp_id = this.user.collection_point.collection_point_id;
-        this.feedbacks = this.user.feedbacks; 
+        this.user_type = this.user.user_type;
+        if (this.user_type === "morador") {
+            this.citizenInfo();
+        } else if (this.user_type === "admin") {
+            this.fetchUsers(this.page);
+        }
         
     },
 
@@ -449,16 +574,53 @@ export default {
 
                 try {
                     const res = await Users.editProfile(userInfo)
-                } catch (error) {
-                    console.error(error.response?.data)
-                    alert('Erro ao registar: ' + (error.response?.data.error || error.message))
+                } catch (err) {
+                    console.error(err.response?.data)
+                    alert('Erro ao editar perfil: ' + (err.response?.data.error || error.message))
                 }
+            }
+        },
+
+        async fetchUsers(page) {
+            try {
+                const res = await Users.allUsers({
+                    page, 
+                    limit: 6,
+                    order: this.checkOrderBy
+                });
+
+                this.users = res.data.data  
+                this.page = res.data.currentPage
+                this.totalPages = res.data.totalPages
+                
+            } catch (err) {
+                console.error("Erro:", err);
+                
+            }
+        },
+
+        async deleteUser(userId) {
+            try {
+                await Users.deleteUser(userId);
+                this.fetchUsers(this.page)
+            } catch (err) {
+                console.error(err.response?.data)
+                    alert('Erro ao editar perfil: ' + (err.response?.data.error || err.message))
             }
         },
 
         activateService() {
             this.door_to_door_service = true;
             this.submitChanges()
+        },
+
+        citizenInfo() {
+            this.address = this.user.collection_point.street_name;
+            this.postal_code = this.user.collection_point.postal_code;
+            this.door_number = this.user.collection_point.door_number;
+            this.door_to_door_service = this.user.door_to_door_service === "sim" ? true : false;
+            this.cp_id = this.user.collection_point.collection_point_id;
+            this.feedbacks = this.user.feedbacks; 
         }
     },
 
@@ -515,8 +677,30 @@ export default {
 
         color() {
             return ['error', 'warning', 'success'][Math.floor(this.progress / 40)]
+        },
+
+        checkOrderBy() {
+            return this.orderBy === "(A-Z)" ? "asc" : "desc";
         }
-    }
+    },
+
+    watch: {
+        page(newPage, oldPage) {
+            // when a new page is selected, it will fetch the user's info from that page
+            if (newPage !== oldPage) {
+                this.fetchUsers(newPage);
+            }
+        },
+
+        orderBy(newOrder, oldOrder) {
+
+            if (newOrder !== oldOrder) {
+                // when a new order by is selected, it automatically goes to page 1
+                this.page = 1;
+                this.fetchUsers(this.page)
+            }
+        }
+    },
 }
 </script>
 
@@ -536,7 +720,7 @@ p{
   }
 
 .v-label {
-  color: #000 !important;        /* força o texto do label a ser preto */
+  color: #000;
 }
 
 .statistics_icon{
@@ -610,9 +794,59 @@ p{
     margin-top: 20px;
 }
 
+.welcome-card{
+    margin: auto;
+}
+
+.welcome-column{
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+.welcome-column h1{
+    font-weight: 700;
+    margin-bottom: 50px;
+}
+
+.admin-custom-tab, .custom-tab{
+    margin: 0 8px;
+}
+
+.rounded-tabs {
+  margin-top: 100px;
+}
+
+.rounded-tabs .v-tab, .custom-tab .v-tab{
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+}
+
+
+#tab-window2 .window-header{
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 30px 50px 30px;
+}
+
+#tab-window2 .window-header .v-select{
+    max-width: 150px;
+}
+
+#tab-window2 h2{
+    font-weight: 650;
+    font-size: 24px;
+}
+
 @media screen and (max-width: 1220px) {
   .edit_profile_icon{
     display: none;
   }
 }
-</style>
+
+@media screen and (max-width: 960px) {
+  .image-column img{
+    display: none;
+  }
+}
+</style> 

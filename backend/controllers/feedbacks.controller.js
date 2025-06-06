@@ -13,11 +13,17 @@ let getAllFeedbacks = async (req, res, next) => {
      * Get all feedbacks
      */
     try {
+        if (req.loggedUserRole !== "admin") {
+            return res.status(403).json({ success: false,
+                msg: "This request required ADMIN role!"
+            })
+        };
+
         const {sort, order} = req.query;
 
         //validate sort and order values
-        if (sort && sort !== "tipo_feedback") {
-            throw new ErrorHandler(400, `Invalid value for sort: ${sort}. It should be 'tipo_feedback'.`);
+        if (sort && sort !== "feedback_type") {
+            throw new ErrorHandler(400, `Invalid value for sort: ${sort}. It should be 'feedback_type'.`);
         }
 
         if (order && order !== "asc" && order !== "desc") {
@@ -48,9 +54,7 @@ let getAllFeedbacks = async (req, res, next) => {
             total: feedbacks.count,
             data: feedbacks.rows
         });
-    } catch (error) {
-        console.error(error);
-        
+    } catch (error) {        
         next(error);
     }
 }
@@ -91,29 +95,41 @@ let addFeedback = async (req, res, next) => {
      * Add a new feedback
      */
     try {
-        const {feedback_id, description, feedback_type, collection_point_id, user_id, feedback_date} = req.body;
+        const {description, feedback_type, collection_point_id, user_id, feedback_date} = req.body;
 
         // sequelize update method allows PARTIAL updates, so we NEED to check for missing fields    
         let missingFields = [];
-        if (feedback_id === undefined) missingFields.push('Feedback ID');
         if (description === undefined) missingFields.push('Description');
         if (feedback_type === undefined) missingFields.push('Feedback type');
         if (collection_point_id === undefined) missingFields.push('Collection Point ID');
         if (user_id === undefined) missingFields.push('User ID');
         if (feedback_date === undefined) missingFields.push('Time');
 
-        if (missingFields.length > 0) 
-            throw new ErrorHandler(400, `Missing required fields: ${missingFields.join(', ')}`);
+        if (missingFields.length > 0) {
+            throw new ErrorHandler(400, `Missing required fields: ${missingFields.join(', ')}`)
+        }
 
-        await Feedback.create(req.body);
+        if (description.length < 10 || description.length > 100) {
+            throw new ErrorHandler(400,`Description should have between 10 and 100 characters`);
+        }
+
+        const count_all_feedbacks = await Feedback.count({}) 
+        let feedback_id = count_all_feedbacks + 1
+
+        await Feedback.create({
+            feedback_id,
+            description,
+            feedback_type,
+            collection_point_id,
+            user_id,
+            feedback_date
+        });
 
         res.status(201).json({
             msg: "Feedback was sucessfully created!",
         })
 
-    } catch (error) {
-        console.error(error);
-        
+    } catch (error) {        
         next(error);
     }
 }
