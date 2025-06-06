@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
             }
         },
         year: { 
-            type: DataTypes.year(4), 
+            type: DataTypes.INTEGER(4), 
             allowNull: false,
         },
         Waste_id: { 
@@ -31,7 +31,7 @@ module.exports = (sequelize, DataTypes) => {
             }
         },
         Collection_days: { 
-           type: DataTypes.SET('SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SAB'),
+           type: DataTypes.ENUM('SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SAB'),
             allowNull: false}
     }, {
         freezeTableName: true,

@@ -97,7 +97,7 @@ let getUserById = async(req, res, next) => {
                             model: db.Collection_Point,
                             attributes: ['street_name']
                         }
-                    ]
+                    ],
                 }
             ]
         })
@@ -259,6 +259,8 @@ let loginUser = async (req, res, next) => {
         //tests a string (password in body) against a hash (password in db)
         const check = bcrypt.compareSync(password, user.password);
         if (!check) return res.status(401).json({sucess: false, acessToken: null, msg: "Invalid credentials!"})
+
+            
 
         // sign the given payload (user ID and role) into a JWT payload -> builds JWT token, using secret key
         const token = jwt.sign({ id: user.user_id, role: user.user_type},
