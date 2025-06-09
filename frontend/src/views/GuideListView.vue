@@ -1,3 +1,4 @@
+
 <template>
 	<v-data-table
 		:headers="headers"
@@ -20,7 +21,7 @@
 			</v-btn>
 		</template>
 
-		<!-- Coluna DATA formatada -->
+		<!-- Column DATE formated -->
 		<template v-slot:item.issue_date="{ value }">
 			{{ formatDate(value) }}
 		</template>
@@ -102,25 +103,36 @@ export default {
 				const response = await CollectionGuidesService.allCollectionGuides();
 				const rawGuides = response.data;
 				const processedGuides = [];
-
+				
 				rawGuides.forEach(guide => {
-					// Go through every collection point inside the route
-					guide.route.collection_points.forEach(point => {
-						// Go through every container inside each collection point
-						point.containers.forEach(container => {
-							processedGuides.push({
-								collection_guide_id: guide.collection_guide_id,
-								issue_date: guide.issue_date,
-								collection_status: guide.collection_status,
-								waste_type: container.waste_type, 
-								route: guide.route,
-								container_id: container.container_id,
-								street_name: point.street_name,
-								collection_point_type: point.collection_point_type,
-								total_weight_collected: container.rfid_readings.reduce(
-									(sum, reading) => sum + reading.weight_collected, 0
-								),
-							});
+					// Check if guide has a collection point
+					const point = guide.route?.user?.collection_point;
+					if (!point) { return }
+
+					// Check is collection point has containers
+					if (!point.containers || point.containers.length === 0) {
+						console.log(`Guia ${guide.collection_guide_id} não tem contentores.`);
+						return;
+					}
+
+					// Process all of the containers in each collection point
+					point.containers.forEach(container => {
+						if (!container.waste_type) {
+							return;
+						}
+						// Add the processed guide info to the array
+						processedGuides.push({
+							collection_guide_id: guide.collection_guide_id,
+							issue_date: guide.issue_date,
+							collection_status: guide.collection_status,
+							waste_type: container.waste_type,  
+							route: guide.route,
+							container_id: container.container_id,
+							street_name: point.street_name,
+							collection_point_type: point.collection_point_type,
+							total_weight_collected: container.rfid_readings.reduce(
+								(sum, reading) => sum + reading.weight_collected, 0
+							),
 						});
 					});
 				});

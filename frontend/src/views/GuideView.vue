@@ -9,6 +9,7 @@
 
 		<div v-if="guide">
 			<div v-for="(point, i) in guide.route.collection_points" :key="i" class="collection-point">
+				<p v-if="filteredContainers(point.containers).length === 0">Sem contentores neste ponto.</p>
 				<v-timeline side="end">
 					<v-timeline-item
 						v-for="container in filteredContainers(point.containers)" 
@@ -82,10 +83,16 @@ export default {
 	},
 	methods: {
 		filteredContainers(containers) { // v-for will call this function 
+			console.log('Containers recebidos:', containers);
 			if (!this.selectedWasteType) return containers; // If there is no filter selected, return all containers
-			return containers.filter(
-				container => container.waste_type.name.trim() === this.selectedWasteType.trim() // Filter the containers by the selected waste type
+			// return containers.filter(
+			// 	container => container.waste_type.name.trim() === this.selectedWasteType.trim() // Filter the containers by the selected waste type
+			// );
+			const filtrados = containers.filter(
+				container => container.waste_type.name.trim() === this.selectedWasteType.trim()
 			);
+			console.log('Containers filtrados:', filtrados);
+			return filtrados;
 		},
 		// This function fetches the guide and the rfid readings data:
 		async fetchGuide() {
@@ -93,9 +100,11 @@ export default {
 				const guideID = this.$route.params.id; // Access the id parameter through the parameters defined in the route path -> /guide/:id
 				const guideResponse = await axios.get(`http://localhost:3000/collection-guides/${guideID}`); // Get the guide data from the backend
 				this.guide = guideResponse.data; // Save the guide data to the component's state
-				
+				console.log('Guide carregado:', this.guide);
+
 				// Get the existing data from the backend and insert it into guideChanges (the fields or initialize them)
 				this.guide.route.collection_points.forEach(point => { 
+					point.containers = point.containers || [];
 					point.containers.forEach(container => {
 						const existing = this.guideChanges[container.container_id] || {}; // Get existing data or initialize an empty object
 						this.guideChanges[container.container_id] = { 
@@ -160,6 +169,7 @@ export default {
 	mounted() {
 		this.fetchGuide();
 		this.selectedWasteType = this.$route.params.wasteType; // Get the waste type from the route parameters
+		console.log('Waste type selecionado:', this.selectedWasteType);
 	}
 }
 </script>

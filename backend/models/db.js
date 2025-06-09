@@ -171,9 +171,9 @@ db.Collection_Point.belongsTo(db.Route, {
 })
 
 //----------------------
-db.Route.belongsTo(db.User, { foreignKey: 'driver_id' });
-db.Route.belongsTo(db.Vehicle, { foreignKey: 'vehicle_id' });
-db.Vehicle.hasMany(db.Feedback, { foreignKey: 'vehicle_id' });
+db.Route.belongsTo(db.User, { foreignKey: 'route_id' });
+// db.Route.belongsTo(db.Vehicle, { foreignKey: 'vehicle_id' });
+// db.Vehicle.hasMany(db.Feedback, { foreignKey: 'vehicle_id' });
 
 
 //export the DB object w/ the Sequelize instance and models
