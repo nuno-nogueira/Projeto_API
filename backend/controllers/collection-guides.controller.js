@@ -4,62 +4,63 @@ const { ErrorHandler } = require("../utils/error.js");
 
 let getAllGuides = async (req, res, next) => {
     try {
-        // if (req.loggedUserRole !== "motorista") {
-        //     return res.status(403).json({ success: false,
-        //         msg: "This request required MOTORISTA role!"
-        //     })
-        // };
         const guides = await db.Collection_Guide.findAll({
+            attributes: ['collection_guide_id', 'issue_date', 'collection_status'],
             include: [
                 {
-                    model: db.Waste_Type,
-                    attributes: ['waste_type_id', 'name'],
-                    include: [
-                        {
-                            model: db.Vehicle, 
-                            attributes: ['vehicle_id','plate'],
-                        }
-                    ]
-                },
-                {
-                    model:db.Route,
+                    model: db.Route,
                     attributes: ['route_id'],
                     include: [
                         {
-                            model: db.User, 
+                            model: db.User,
                             attributes: ['user_id', 'name'],
                             include: [
                                 {
-                                    model: db.Feedback,
-                                    attributes: [],
-                                    where: { feedback_type: 'recolha' },
-                                    required: false
-                                }
-                            ]   
-                        },
-                        {
-                            model: db.Collection_Point,
-                            attributes: ['street_name', 'collection_point_type'],
-                            include: [
-                                {
-                                    model: db.Container,
-                                    attributes: ['container_id'],
+                                    model: db.Collection_Point,
+                                    attributes: ['collection_point_id', 'street_name', 'collection_point_type'],
                                     include: [
                                         {
-                                            model: db.Waste_Type,
-                                            attributes: ['name'],
-                                        },
-                                        {
-                                            model: db.RFIDReading,
-                                            attributes: ['weight_collected'],
+                                            model: db.Container,
+                                            attributes: ['container_id'],
+                                            include: [
+                                                {
+                                                    model: db.RFIDReading,
+                                                    attributes: ['weight_collected']
+                                                },
+                                                {
+                                                    model: db.Waste_Type, 
+                                                    attributes: ['name']
+                                                }
+                                            ]
                                         }
                                     ]
-                                }
+                                },
                             ]
+                        },
+                        
+                    ]
+                },
+                {
+                    model: db.Waste_Type,
+                    attributes: ['name'],
+                    include: [
+                        {
+                            model: db.Vehicle,
+                            attributes: ['plate']
+                        },
+                    ]
+                },
+                {                                             
+                    model: db.RFIDReading,
+                    attributes: ['weight_collected'],
+                    include: [ 
+                        {
+                            model: db.Container,
+                            attributes: ['container_id'],
                         }
                     ]
                 }
-            ]
+            ] 
         })
         res.json(guides);
        
@@ -93,6 +94,7 @@ let getGuideById = async (req, res, next) => {
                         include: [
                             {
                                 model: db.Container,
+                                foreignKey: 'collection_point_id',
                                 attributes: ['container_id'],
                                 include: [
                                     {
