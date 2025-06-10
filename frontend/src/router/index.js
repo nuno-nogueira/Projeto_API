@@ -21,7 +21,7 @@ const router = createRouter({
       component: GuideListView,
     },
     {
-      path: '/guide/:id/:wasteType?',
+      path: '/guide/:id/:wasteType',
       name: 'guide',
       component: GuideView,
     },

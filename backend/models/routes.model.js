@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
                 key: 'zone_id'
             }
         },
-        route_cod: {
+        route_code: {
             type: DataTypes.STRING(10),
             allowNull: false,
             unique:{

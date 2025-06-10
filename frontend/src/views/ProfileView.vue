@@ -184,6 +184,7 @@
                             size="large"
                             @click="activateService"
                             variant="elevated"
+                            class="activate-service"
                             block>Solicitar Serviço de Recolha</v-btn>
                         </v-col>
                     </v-row>
