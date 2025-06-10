@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-    const Waste_Type = sequelize.define("Waste", {
+    const Waste_Type = sequelize.define("waste_type", {
         waste_type_id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
@@ -27,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
             }
         },
     }, {
-        TableName: 'waste_type',
+        freezeTableName: true,
         timestamps: false,
     });
 
