@@ -55,7 +55,7 @@
                 <template v-if="!isAuthenticated">
                     <RouterLink :to="{name: 'signup'}">Criar conta</RouterLink>
                     <v-btn color="#09A129">
-                        <RouterLink :to="{name: 'login'}" class="link-white">Entrar</RouterLink>
+                        <RouterLink :to="{name: 'login'}" class="link-white login-button">Entrar</RouterLink>
                     </v-btn>
                 </template>
 
@@ -65,7 +65,7 @@
                             <v-icon color="#043601">mdi-account</v-icon>
                         </RouterLink>
                     </v-btn>
-                    <v-btn @click="logout" color="#09A129">Sair</v-btn>
+                    <v-btn @click="logout" color="#09A129" class="logout-button">Sair</v-btn>
                 </template>
             </div>
         </div>

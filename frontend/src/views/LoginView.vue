@@ -13,6 +13,7 @@
           :error-messages="v$.tin.$errors.map(e => e.$message)"
           variant = "outlined"
           class="mb-2 sign-up-input"
+          id="tin-input"
           label="NIF"
           type="number"
           clearable
@@ -29,6 +30,7 @@
           type = "password"
           @click:append="visible = !visible"
           class="sign-up-input"
+          id="pass-input"
           clearable
         >
           <template v-slot:loader>
@@ -49,6 +51,7 @@
           @click="onSubmit"
           type="submit"
           variant="elevated"
+          class="confirm-login"
           block
         >
           Entrar
