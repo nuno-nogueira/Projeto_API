@@ -2,15 +2,13 @@
   <GoogleMap
     :center="{ lat: 41.3662, lng: -8.7418871 }"
     :zoom="15"
-    :markers="meusMarcadores"
+    :markers="CollectionPoints"
   />
 </template>
 
 <script>
-
-// read environment variables from .env file
-
 import GoogleMap from "../components/Map.vue";
+import collectionPoints from "@/api/collectionPoints";
 
 export default {
   name: "MapView",
@@ -19,7 +17,9 @@ export default {
   },
   data() {
     return {
-      meusMarcadores: [
+
+      
+      CollectionPoints: [
         {
           position: { lat: 41.3662, lng: -8.7418871  },
           title: "Ponto 1",
@@ -27,7 +27,6 @@ export default {
           description: "Descrição do ponto 1",
           image: "https://via.placeholder.com/300x150"
         },
-        // … outros marcadores
       ]
     };
   }

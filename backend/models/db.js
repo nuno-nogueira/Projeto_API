@@ -118,7 +118,7 @@ db.Collection_Guide.hasMany(db.RFIDReading, {
     onDelete: "CASCADE",
 })
 db.RFIDReading.belongsTo(db.Collection_Guide, {
-    foreignKey: "collection_guide_id",
+    foreignKey: "collection_guide_id",})
 
 
 //1:N - 1 Waste_Type - N Vehicles
