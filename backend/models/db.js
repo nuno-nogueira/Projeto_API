@@ -204,5 +204,6 @@ db.Route.belongsTo(db.User, { foreignKey: 'driver_id' });
 //db.Vehicle.hasMany(db.Feedback, { foreignKey: 'vehicle_id' });
 
 
+
 //export the DB object w/ the Sequelize instance and models
 module.exports = db;
