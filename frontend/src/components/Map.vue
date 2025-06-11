@@ -31,6 +31,7 @@ export default {
       // 1) Usa props.apiKey em vez de uma string fixa
       const loader = new Loader({
         apiKey: "AIzaSyBWDBV60KO4k505pCU0ltRqyDNCG08vu1s",
+
         version: "weekly",
       });
 
@@ -46,6 +47,7 @@ export default {
       const infoWindow = new google.maps.InfoWindow({ maxWidth: 300 });
 
       // 5) Adiciona os marcadores
+
       this.markers.forEach((marker) => {
         console.log("Adicionando marcador:", marker);
         console.log("Todos marcadores recebidos:", this.markers);
@@ -73,6 +75,7 @@ export default {
             <div class="info-window">
               <h1>${marker.type.toUpperCase()}</h1>
               <br>
+
               <h3>${marker.title}</h3>
               <p class="info-window-address">${marker.address}</p>
               <p>${marker.description}</p>
