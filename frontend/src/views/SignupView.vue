@@ -36,6 +36,7 @@
 
               <v-text-field
                 v-model="tin"
+                :counter="9"
                 :error-messages="v$.tin.$errors.map(e => e.$message)"
                 variant="outlined"
                 class="mb-2  form-input"

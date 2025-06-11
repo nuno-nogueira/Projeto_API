@@ -1,3 +1,8 @@
+//////////////////////////////////////////////////////////////////
+//npm i @googlemaps/js-api-loader
+//////////////////////////////////////////////////////////////////
+
+
 const path = require('path');
  require('dotenv').config({
   path: path.resolve(__dirname, '../.env')  // sobe uma pasta e aponta para o .env na raiz do backend
@@ -34,7 +39,7 @@ const db = {}; //object to be exported;
 db.sequelize = sequelize; //save the Sequelize instance
 
 //include models here!!
-db.Collection_Point = require("./collection-points.model.js")(sequelize, Sequelize.DataTypes)
+db.Collection_Point = require("./collection-points.model.js")(sequelize, Sequelize.DataTypes, db.Route)
 db.User = require("./users.model.js")(sequelize, Sequelize.DataTypes, db.Collection_Point)
 db.Feedback = require("./feedbacks.model.js")(sequelize, Sequelize.DataTypes,  db.Collection_Point, db.User) 
 
@@ -195,8 +200,9 @@ db.Collection_Plan.belongsTo(db.Waste_Type, {
 
 //----------------------
 db.Route.belongsTo(db.User, { foreignKey: 'driver_id' });
-db.Route.belongsTo(db.Vehicle, { foreignKey: 'vehicle_id' });
-db.Vehicle.hasMany(db.Feedback, { foreignKey: 'vehicle_id' });
+//db.Route.belongsTo(db.Vehicle, { foreignKey: 'vehicle_id' });
+//db.Vehicle.hasMany(db.Feedback, { foreignKey: 'vehicle_id' });
+
 
 
 //export the DB object w/ the Sequelize instance and models

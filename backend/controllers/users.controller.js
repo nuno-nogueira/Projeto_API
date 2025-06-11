@@ -15,53 +15,34 @@ const { ErrorHandler } = require("../utils/error.js"); // Import the ErrorHandle
 //list all users with filtering and ordering
 let getAllUsers = async (req, res, next) => {
     /**
-     * Get all users (citizens only)
+     * Get all users (except admins & drivers)
      */
     try {    
-        //get the user_type
-        const {user_type, sort, order} = req.query;
+        // get the user_type
+        const {page = 1, limit = 6, order = 'asc'} = req.query;
         
         if (req.loggedUserRole !== "admin") {
             return res.status(403).json({ success: false,
                 msg: "This request required ADMIN role!"
             })
         };
-        //filter by only citizens
-        const where = {};
-        if (user_type !== undefined) {
-            //validate the door to door value
-            if (user_type !== 'morador' && user_type !== 'motorista' && user_type !== 'admin')
-                throw new ErrorHandler(400, `Invalid value for door to door: ${user_type}. It should be either 'sim' or 'não'.`);
 
-            where.user_type = user_type === 'morador'; //convert to boolean   
-        }
-
-        //validate sort and order values
-        if (sort && sort !== 'door_to_door') 
-           throw new ErrorHandler(400, `Invalid value for sort: ${sort}. It should be 'door_to_door'.`);
-
-        if (order && order !== 'asc' && order !== 'desc')
+        if (order !== 'asc' && order !== 'desc')
            throw new ErrorHandler(400, `Invalid value for order: ${order}. It should be either 'asc' or 'desc'.`);
-
-        //sort and order options must be passed together
-        if ((sort && !order) || (!sort && order)) 
-            throw new ErrorHandler(400, `Both sort and order must be provided together.`);
-
-        //ordering by if the user has activated the door-to-door service or not
-        const sortField = sort === 'door_to_door' ? 'door_to_door' : 'user_id'; //by default sort by id
-        const sortOrder = order === 'desc' ? 'DESC' : 'ASC';
 
         //SELECT * FROM UTILIZADOR WHERE TIPO_UTILIZADOR = "MORADOR"
         let users = await User.findAndCountAll({
-            where,
-            attributes: ['user_id', 'name', 'user_number'],
+            where: { user_type: "morador"},
+            attributes: ['user_id', 'name'],
+            limit: +limit,
+            offset: (+page - 1) * +limit,
             include: [
                 {
                     model: db.Collection_Point,
-                    attributes: ['street_name', 'postal_code', 'door_number']
+                    attributes: ['collection_point_id', 'street_name']
                 }
             ],
-            order: [[sortField, sortOrder]],
+            order: [['name', order]],
             raw: false
         })
 
@@ -73,8 +54,16 @@ let getAllUsers = async (req, res, next) => {
         })
 
         return res.status(200).json({
+            totalPages: Math.ceil(users.count / limit),
+            currentPage: page ? page : 0,
             total: users.count,
-            data: users.rows
+            data: users.rows,
+            links: [
+                // only add the previous page link if the current page is greater than 1
+                ...(page > 1 ? [{ "rel": "previous-page", "href": `/profile/${req.loggedUserId}?limit=${limit}&page=${page - 1}`, "method": "GET" }] : []),
+                // only add the next page link if there are more pages to show
+                ...(users.count > page * limit ? [{ "rel": "next-page", "href": `/profile/${req.loggedUserId}?limit=${limit}&page=${+page + 1}`, "method": "GET" }] : [])
+            ]
         });
     } catch (err) {
         next(err); // pass the error to the next middleware
@@ -108,7 +97,7 @@ let getUserById = async(req, res, next) => {
                             model: db.Collection_Point,
                             attributes: ['street_name']
                         }
-                    ]
+                    ],
                 }
             ]
         })
@@ -128,8 +117,8 @@ let getUserById = async(req, res, next) => {
         res.status(200).json(user); //return the found post
 
         /**COLOCAR ERRO 401 (UNAUTHORIZED) */
-    } catch (error) {
-        next(error);
+    } catch (err) {
+        next(err);
     }
 }
 
@@ -166,6 +155,42 @@ let addUser = async (req, res, next) => {
         if (error) {
             error.statusCode = 400;
             return next(error); // Pass the error to the next middleware
+        }
+
+        if (name.length < 6 || name.length > 50) {
+            throw new ErrorHandler(400,`Name should have between 6 to 50 characters`);
+        }
+                
+        if (tin < 100000000 || tin > 999999999) {
+            throw new ErrorHandler(400,`TIN should have 9 characters`);
+        }
+
+        if (phone_number < 100000000 || phone_number > 999999999) {
+            throw new ErrorHandler(400,`Phone Number should have 9 characters`);
+        }
+
+        if (password.length < 8 || password.length > 60) {
+            throw new ErrorHandler(400,`Name should have between 8 to 60 characters`);
+        }
+
+        if (email.length < 10 || email.length > 50) {
+            throw new ErrorHandler(400,`Name should have between 8 to 60 characters`);
+        }
+
+        if (door_to_door_service !== false && door_to_door_service !== true) {
+            throw new ErrorHandler(400,`Option must be yes or no`);
+        }
+        
+        if (street_name.length < 10 || street_name.length > 100) {
+            throw new ErrorHandler(400,`Street Name should have between 10 and 100 characters`);
+        }
+
+        if (postal_code.length !== 8) {
+            throw new ErrorHandler(400,`Postal Code should be 8 characters long`);
+        }
+
+        if (door_number <= 1 || door_number > 80) {
+            throw new ErrorHandler(400,`Door Number should be between 1 and 50`);
         }
         
         const count_all_points = await Collection_Point.count({}) 
@@ -204,11 +229,6 @@ let addUser = async (req, res, next) => {
             msg: "User sucessfully created."
         });
     } catch (err) {
-        if (err instanceof ValidationError) {
-            res.status(400).json({sucess: false, msg: err.errors.map(e => e.message)});
-        } else {
-            res.status(500).json({sucess: false, msg: err.message || "Some error ocurred while signing up."});
-        }
         next (err);
     }
 }
@@ -240,6 +260,8 @@ let loginUser = async (req, res, next) => {
         const check = bcrypt.compareSync(password, user.password);
         if (!check) return res.status(401).json({sucess: false, acessToken: null, msg: "Invalid credentials!"})
 
+            
+
         // sign the given payload (user ID and role) into a JWT payload -> builds JWT token, using secret key
         const token = jwt.sign({ id: user.user_id, role: user.user_type},
             process.env.SECRET, {expiresIn: '24h' //lasts 24 hours!
@@ -259,8 +281,8 @@ let loginUser = async (req, res, next) => {
             ],
             accessToken: token
         })
-    } catch (error) {        
-        next(error)
+    } catch (err) {        
+        next(err)
     }
 }
 
@@ -304,10 +326,40 @@ let updateUserInfo = async (req, res, next) => {
             throw new ErrorHandler(400, 'Collection Point ID is required');
         }
 
-        if (door_to_door_service) {
-            door_to_door_service = 'sim'
-        } else {
-            door_to_door_service = 'não'
+        if (name.length < 6 || name.length > 50) {
+            throw new ErrorHandler(400,`Name should have between 6 to 50 characters`);
+        }
+                
+        if (tin < 100000000 || tin > 999999999) {
+            throw new ErrorHandler(400,`TIN should have 9 characters`);
+        }
+
+        if (phone_number < 100000000 || phone_number > 999999999) {
+            throw new ErrorHandler(400,`Phone Number should have 9 characters`);
+        }
+
+        if (password.length < 8 || password.length > 60) {
+            throw new ErrorHandler(400,`Name should have between 8 to 60 characters`);
+        }
+
+        if (email.length < 10 || email.length > 50) {
+            throw new ErrorHandler(400,`Name should have between 8 to 60 characters`);
+        }
+
+        if (door_to_door_service !== "sim" && door_to_door_service !== "não") {
+            throw new ErrorHandler(400,`Option must be yes or no`);
+        }
+        
+        if (street_name.length < 10 || street_name.length > 100) {
+            throw new ErrorHandler(400,`Street Name should have between 10 and 100 characters`);
+        }
+
+        if (postal_code.length !== 8) {
+            throw new ErrorHandler(400,`Postal Code should have 8 characters`);
+        }
+
+        if (door_number <= 1 || door_number > 50) {
+            throw new ErrorHandler(400,`Door Number should be between 1 and 50`);
         }
 
         //Try to find the Collection Point
@@ -334,14 +386,12 @@ let updateUserInfo = async (req, res, next) => {
         await user.update(userUpdate);
         await collection_point.update(cpUpdate);
 
-        const result = user.toJSON();
-        return res.status(200).json({
-            msg: "User Info updated sucessfully",
-            data: result
-        })
+        res.status(201).json({
+            msg: "User sucessfully updated."
+        });
 
-    } catch (error) {
-        next(error)
+    } catch (err) {
+        next(err)
     }
 }
 
@@ -353,8 +403,9 @@ let deleteUser = async (req, res, next) => {
      */
     try {
         if (req.loggedUserRole !== "admin") {
-            return res.status(403).json({ success: false,
-                msg: "This request required ADMIN role!"
+            return res.status(403).json({ 
+                success: false,
+                msg: "This request requires ADMIN role!"
             })
         };
 
@@ -367,8 +418,8 @@ let deleteUser = async (req, res, next) => {
 
         // send 204 No Content response
         res.status(204).json();
-    } catch (error) {
-        next(error)
+    } catch (err) {
+        next(err)
     }
 }
 

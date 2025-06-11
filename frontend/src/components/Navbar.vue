@@ -55,17 +55,17 @@
                 <template v-if="!isAuthenticated">
                     <RouterLink :to="{name: 'signup'}">Criar conta</RouterLink>
                     <v-btn color="#09A129">
-                        <RouterLink :to="{name: 'login'}" class="link-white">Entrar</RouterLink>
+                        <RouterLink :to="{name: 'login'}" class="link-white login-button">Entrar</RouterLink>
                     </v-btn>
                 </template>
 
                 <template v-else>
                     <v-btn icon color="#fff">
-                        <RouterLink :to="{name: 'profile', params: {userId: authStore.user.user_id}}">
+                        <RouterLink :to="{name: 'profile', params: {userId: authStore.userId}}">
                             <v-icon color="#043601">mdi-account</v-icon>
                         </RouterLink>
                     </v-btn>
-                    <v-btn @click="logout" color="#09A129">Sair</v-btn>
+                    <v-btn @click="logout" color="#09A129" class="logout-button">Sair</v-btn>
                 </template>
             </div>
         </div>
@@ -88,7 +88,6 @@
 <script>
 import { RouterLink } from 'vue-router';
 import { useAuthStore } from '@/stores/auth'
-import { computed } from 'vue'
 
 export default {
     name: 'Navbar',
