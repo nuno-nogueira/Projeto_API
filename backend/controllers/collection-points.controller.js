@@ -6,13 +6,19 @@ const { Op } = require('sequelize'); // necessary operators for Sequelize 
 const { ErrorHandler } = require("../utils/error.js"); // Import the ErrorHandler class for error handling
 
 let getAllPoints = async (req, res, next) => {
+    //PARA CHAMARES A ROTA NOS COMPONENTES POR ASSIM
+    // PARA O MAPA ->  await CPs.allCollectionPoints({route_type: 'map'})
+    //PARA O ADMIN ->  await CPs.allCollectionPoints({route_type: 'admin'})
+
+
+
     /**
      * Get all collection points in the DB
      */
     try {
         //Pagination - 6 Collection Points per page
-        let {page = 1, limit = 6} = req.query;
-
+        let {page = 1, limit = 6, route_type = "admin"} = req.query;
+        let collection_points;
         // validate page and limit values
         if (isNaN(page) || page < 1) 
             throw new ErrorHandler(400, `Invalid value for page: ${page}. It should be a positive integer.`);
@@ -20,34 +26,57 @@ let getAllPoints = async (req, res, next) => {
         if (isNaN(limit) || limit < 1) 
             throw new ErrorHandler(400, `Invalid value for limit: ${limit}. It should be a positive integer.`);
 
-        //Find all collection points
-        let collection_points = await Collection_Point.findAndCountAll({
-            limit: +limit
-        })
+
         
         //Iterate through all collection points to put all links
-        if (req.loggedUserRole !== "admin") {
+
+        if (route_type == 'map') {
+            //  Find all eco centers & eco points for the map
+            collection_points = await Collection_Point.findAndCountAll({
+                where: {
+                    collection_point_type: {
+                        [Op.in]: ['ecoponto', 'ecocentro']
+                    }
+                },
+                limit: +limit
+            })
+            
+            return res.status(200).json({
+                data: collection_points,
+            });
+
+        } else if (route_type == 'admin') {
+            if (req.loggedUserRole !== "admin") {
+                return res.status(403).json({ success: false,
+                    msg: "This request required ADMIN role!"
+                })
+            } 
+            // Find all collection points
+            collection_points = await Collection_Point.findAndCountAll({
+                limit: +limit
+            })
+
             collection_points.rows.forEach(collection_point => {
-                collection_point.links = [
-                    {rel: "delete", href: `/collection_points/${collection_point.collection_point_id}, method: "DELETE`},
-                    {rel: "modify", href: `/collection_points/${collection_point.collection_point_id}, method: "PUT`}
+            collection_point.links = [
+                {rel: "delete", href: `/collection_points/${collection_point.collection_point_id}, method: "DELETE`},
+                {rel: "modify", href: `/collection_points/${collection_point.collection_point_id}, method: "PUT`}
                 ]
             });
-        } 
-        
-        return res.status(200).json({
-            totalPages: Math.ceil(collection_points.count / limit),
-            currentPage: page ? page : 0,
-            total: collection_points.count,
-            data: collection_points.rows,
-            links: [
-                { "rel": "add-collection-point", "href": `/collection-points`, "method": "POST" },
-                // only add the previous page link if the current page is greater than 1
-                ...(page > 1 ? [{ "rel": "previous-page", "href": `/collection-points?limit=${limit}&page=${page - 1}`, "method": "GET" }] : []),
-                // only add the next page link if there are more pages to show
-                ...(collection_points.count > page * limit ? [{ "rel": "next-page", "href": `/collection-points?limit=${limit}&page=${+page + 1}`, "method": "GET" }] : [])
-            ]
-        });
+
+            return res.status(200).json({
+                totalPages: Math.ceil(collection_points.count / limit),
+                currentPage: page ? page : 0,
+                total: collection_points.count,
+                data: collection_points.rows,
+                links: [
+                    { "rel": "add-collection-point", "href": `/collection-points`, "method": "POST" },
+                    // only add the previous page link if the current page is greater than 1
+                    ...(page > 1 ? [{ "rel": "previous-page", "href": `/collection-points?limit=${limit}&page=${page - 1}`, "method": "GET" }] : []),
+                    // only add the next page link if there are more pages to show
+                    ...(collection_points.count > page * limit ? [{ "rel": "next-page", "href": `/collection-points?limit=${limit}&page=${+page + 1}`, "method": "GET" }] : [])
+                ]
+            });
+        }
     } catch (err) {        
         next(err);
     }
