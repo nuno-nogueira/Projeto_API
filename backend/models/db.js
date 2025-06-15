@@ -109,7 +109,6 @@ db.Container.belongsTo(db.Collection_Point, {
 
 //1: N - 1 Collection_Guide - N RFIDReadings
 db.Collection_Guide.hasMany(db.RFIDReading, {
-    // as: 'readings',
     foreignKey: "collection_guide_id",
     onUpdate: "CASCADE", 
     onDelete: "CASCADE",
@@ -177,6 +176,7 @@ db.Collection_Point.belongsTo(db.Route, {
     foreignKey: 'route_id' 
 })
 
+<<<<<<< Updated upstream
 
 db.Zone.hasMany(db.Collection_Plan, {
     foreignKey: "plan_id",
@@ -203,6 +203,16 @@ db.Route.belongsTo(db.User, { foreignKey: 'driver_id' });
 //db.Route.belongsTo(db.Vehicle, { foreignKey: 'vehicle_id' });
 //db.Vehicle.hasMany(db.Feedback, { foreignKey: 'vehicle_id' });
 
+=======
+db.Route.belongsTo(db.User, { 
+    foreignKey: 'driver_id' 
+});
+db.User.hasMany(db.Route, { 
+    foreignKey: 'driver_id' 
+});
+// db.Route.belongsTo(db.Vehicle, { foreignKey: 'vehicle_id' });
+// db.Vehicle.hasMany(db.Feedback, { foreignKey: 'vehicle_id' });
+>>>>>>> Stashed changes
 
 
 //export the DB object w/ the Sequelize instance and models
