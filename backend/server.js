@@ -6,6 +6,7 @@ const path = require('path')
 
 // read environment variables from .env file
 require('dotenv').config();
+require('./cron/collection-guide.cron.js')
 
 const app = express();
 const port = process.env.PORT;	// use environment variables

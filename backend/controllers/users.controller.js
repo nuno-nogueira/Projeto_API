@@ -115,8 +115,6 @@ let getUserById = async(req, res, next) => {
         ]
 
         res.status(200).json(user); //return the found post
-
-        /**COLOCAR ERRO 401 (UNAUTHORIZED) */
     } catch (err) {
         next(err);
     }
