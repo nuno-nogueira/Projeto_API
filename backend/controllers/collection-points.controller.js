@@ -46,6 +46,9 @@ let getAllPoints = async (req, res, next) => {
             });
 
         } else if (route_type == 'admin') {
+            if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+            return res.status(401).json({ errorMessage: "No access token provided" });
+        }
             if (req.loggedUserRole !== "admin") {
                 return res.status(403).json({ success: false,
                     msg: "This request required ADMIN role!"
@@ -83,6 +86,10 @@ let getAllPoints = async (req, res, next) => {
 }
 
 let getPointById = async (req, res, next) => {
+    if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+            return res.status(401).json({ errorMessage: "No access token provided" });
+        }
+
     /**
      * Get a collection point by its ID (Interactive Map)
      */
@@ -106,6 +113,9 @@ let getPointById = async (req, res, next) => {
 }
 
 let addPoint = async (req, res, next) => {
+    if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+            return res.status(401).json({ errorMessage: "No access token provided" });
+        }
     /**
      * Add a new Collection Point
      */
@@ -177,6 +187,9 @@ let addPoint = async (req, res, next) => {
 }
 
 let updateCollectionPoint = async (req, res, next) => {
+    if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+            return res.status(401).json({ errorMessage: "No access token provided" });
+        }
     /**
      * Update a Collection Point
      */
@@ -239,6 +252,9 @@ let updateCollectionPoint = async (req, res, next) => {
 
 
 let deletePoint = async (req, res, next) => {
+    if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+            return res.status(401).json({ errorMessage: "No access token provided" });
+        }
     /**
      * Delete a Collection Point
      */

@@ -9,6 +9,7 @@ const { ErrorHandler } = require("../utils/error.js"); // Import the ErrorHandle
 
 
 let getAllFeedbacks = async (req, res, next) => {
+   
     /**
      * Get all feedbacks
      */
@@ -61,6 +62,7 @@ let getAllFeedbacks = async (req, res, next) => {
 
 
 let getFeedbackById = async (req, res, next) => {
+  
     /**Get feedback by ID */
     try {
         //Gather the feedback's info, as well as who posted it, and from what collection point its from
@@ -91,6 +93,7 @@ let getFeedbackById = async (req, res, next) => {
 }
 
 let addFeedback = async (req, res, next) => {
+  
     /**
      * Add a new feedback
      */
