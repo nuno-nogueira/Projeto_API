@@ -46,6 +46,11 @@ module.exports = (sequelize, DataTypes) => {
                     msg: "Weight must be a number"
                 }
             }
+        },
+        collection_status: {
+            type: DataTypes.TINYINT,
+            allowNull: false,
+            defaultValue: false
         }
     }, {
         freezeTableName: true,
