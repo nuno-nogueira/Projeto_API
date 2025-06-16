@@ -21,6 +21,10 @@ let getAllUsers = async (req, res, next) => {
         // get the user_type
         const {page = 1, limit = 6, order = 'asc'} = req.query;
         
+        if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+            return res.status(401).json({ errorMessage: "No access token provided" });
+        }
+
         if (req.loggedUserRole !== "admin") {
             return res.status(403).json({ success: false,
                 msg: "This request required ADMIN role!"
@@ -76,6 +80,11 @@ let getUserById = async(req, res, next) => {
      * Get each user's profile
      */
     try {
+
+        if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+            return res.status(401).json({ errorMessage: "No access token provided" });
+        }
+
         //Only the user can access their own profile
         if (parseInt(req.params.user_id) !== req.loggedUserId) {
             return res.status(403).json({ success: false, msg: "You are not authorized to access this profile!"})
@@ -115,8 +124,6 @@ let getUserById = async(req, res, next) => {
         ]
 
         res.status(200).json(user); //return the found post
-
-        /**COLOCAR ERRO 401 (UNAUTHORIZED) */
     } catch (err) {
         next(err);
     }
@@ -292,6 +299,10 @@ let updateUserInfo = async (req, res, next) => {
      * Handles the changes an user can do in their profile
      */
     try {
+        if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+            return res.status(401).json({ errorMessage: "No access token provided" });
+        }
+
         //Only the user can access their own profile
         if (parseInt(req.params.user_id) !== req.loggedUserId) {
             return res.status(403).json({ success: false, msg: "You are not authorized to change this profile!"})
@@ -402,6 +413,10 @@ let deleteUser = async (req, res, next) => {
      * or the user itself deletes their own profile
      */
     try {
+        if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+            return res.status(401).json({ errorMessage: "No access token provided" });
+        }
+
         if (req.loggedUserRole !== "admin") {
             return res.status(403).json({ 
                 success: false,
