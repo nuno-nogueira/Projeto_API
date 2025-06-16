@@ -1,18 +1,28 @@
 const collection_guides = require("../models/collection-guides.model.js")
 const db = require('../models/db.js');
 const { ErrorHandler } = require("../utils/error.js"); 
+const { Op } = require('sequelize'); // necessary operators for Sequelize
 
-const Container = db.Container;
-const Collection_Point = db.Collection_Point;
-const User = db.User;
-const Waste_type = db.Waste_Type;
 const Reading = db.RFIDReading;
+const User = db.User;
 
 let getReadingsByWasteType = async (req, res, next) => {
     try {
-        if (parseInt(req.params.user_id) !== req.loggedUserId) {
+        if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+            return res.status(401).json({ errorMessage: "No access token provided" });
+        }
+
+        if (parseInt(req.params.user_id) !== req.loggedUserId && req.loggedUserRole !== "admin") {
             return res.status(403).json({ success: false, msg: "You are not authorized to access this information!"})
         }
+        
+         const user = await User.findByPk(req.params.user_id, {
+            attributes: ['address_point_id']
+        })
+
+         if (!user) {
+            return res.status(404).json({ success: false, msg: `User ID ${paramUserId} not found.` });
+        }        
 
         // Find the ID given in the URL as a PK
         let readings = await Reading.findAll({
@@ -20,32 +30,24 @@ let getReadingsByWasteType = async (req, res, next) => {
             include: [
                 {
                     model: db.Container,
+                    attributes: ['container_id'],
+                    where: {
+                        collection_point_id: user.address_point_id
+                    },
                     include: [
-                        {
-                            model: db.Collection_Point,
-                            include: [
-                                {
-                                    model: db.User,
-                                    where: {
-                                        user_id: req.params.user_id
-                                    },
-                                }
-                            ]
-                        },
                         {
                             model: db.Waste_Type,
                             attributes: ['name'],
-                        }
+                        }   
                     ]
-                }                  
-            ],
+                }              
+            ]
         })
 
-        if (!readings) {
-            throw new ErrorHandler(404, `Cannot find any USER with ID ${req.params.user_id}.`);
-        }
-
-        res.status(200).json(readings); 
+        res.status(200).json({
+            total: readings.length,
+            data: readings
+        }); 
     } catch (err) {
         next(err)
     }

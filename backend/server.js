@@ -20,7 +20,6 @@ app.use(express.json());
 
 // use route middleware for all requests
 app.use('/users', require('./routes/users.routes.js'));
-app.use('/stats', require('./routes/stats.routes.js'));
 app.use('/feedbacks', require('./routes/feedbacks.routes.js'));
 app.use('/collection-points', require('./routes/collection-points.routes.js'));
 app.use('/collection-guides', require('./routes/collection-guides.routes.js'));

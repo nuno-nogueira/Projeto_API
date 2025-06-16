@@ -69,4 +69,4 @@ const createCollectionGuide = async() => {
 createCollectionGuide();
 
 // It then runs every
-cron.schedule('0 0 * * *', createCollectionGuide); 
+cron.schedule('* * 1 * *', createCollectionGuide); 
