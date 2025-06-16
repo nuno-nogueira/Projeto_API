@@ -7,3 +7,4 @@ const collection_plan_controller = require("../controllers/collection-plan.contr
 const authController = require("../controllers/auth.controller.js")
 
 router.get("/",authController.verifyToken, collection_plan_controller.getPlan);
+module.exports = router;

@@ -24,6 +24,7 @@ app.use('/feedbacks', require('./routes/feedbacks.routes.js'));
 app.use('/collection-points', require('./routes/collection-points.routes.js'));
 app.use('/collection-guides', require('./routes/collection-guides.routes.js'));
 app.use('/readings', require('./routes/readings.routes.js'));
+app.use('/collection-plan', require('./routes/collection-plan.routes.js'));
 //----------------------
 
 // error middleware (always at the end of the file)

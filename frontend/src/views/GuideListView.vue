@@ -1,22 +1,15 @@
-
 <template>
-	<v-data-table
-		:headers="headers"
-		:items="guides"
-		:loading="loading"
-		item-value="container_id"
+	<v-data-table 
+		:headers="headers" 
+		:items="guides" 
+		:loading="loading" 
+		item-value="uniqueId"
 		v-model:expanded="expandedItems"
 	>
 		<template v-slot:item.data-table-expand="{ item }">
-			<v-btn
-				@click="toggleExpand(item)"
-				variant="text"
-				size="small"
-				class="text-none"
-				color="medium-emphasis"
-			>
+			<v-btn @click="toggleExpand(item)" variant="text" size="small" class="text-none" color="medium-emphasis">
 				<v-icon>
-					{{ expandedItems.includes(item.container_id) ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
+					{{ expandedItems.includes(item.uniqueId) ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
 				</v-icon>
 			</v-btn>
 		</template>
@@ -31,14 +24,10 @@
 		</template>
 
 		<template v-slot:item.actions="{ item }">
-			<v-btn
-				:to="{ name: 'guide', params: { id: item.collection_guide_id, wasteType: item.waste_type?.name } }"
-				color="#4CAF50"
-				size="small"
-			>
-			Ver detalhes 
+			<v-btn :to="{ name: 'guide', params: { id: item.collection_guide_id, wasteType: item.waste_type?.name } }"
+				color="#4CAF50" size="small">
+				Ver detalhes
 			</v-btn>
-	
 		</template>
 
 		<template v-slot:expanded-row="{ item }">
@@ -56,9 +45,9 @@
 
 							<tbody>
 								<tr>
-									<td>{{ item.route?.user?.name || 'N/A' }}</td> 
-									<td>{{ item.waste_type?.vehicles?.plate || 'N/A' }}</td>
-									<td>{{ item.route?.user?.Feedback?.length || 0 }}</td>
+									<td>{{ item.driver?.name || 'N/A' }}</td>
+									<td>{{ item.vehicle?.plate || 'N/A' }}</td>
+									<td>{{ item.feedback_count || 0 }}</td>
 								</tr>
 							</tbody>
 						</v-table>
@@ -72,7 +61,7 @@
 import CollectionGuidesService from '@/api/collectionGuides.js';
 
 export default {
-		data() {
+	data() {
 		return {
 			headers: [
 				{ title: '', value: 'data-table-expand', sortable: false, width: '50px' },
@@ -89,54 +78,80 @@ export default {
 	},
 	methods: {
 		toggleExpand(item) {
-			const id = item.container_id;
-			const index = this.expandedItems.indexOf(id);
-			if (index > -1) {
-					this.expandedItems.splice(index, 1);
+			const id = item.uniqueId;
+			if (this.expandedItems.includes(id)) {
+				this.expandedItems = [];
 			} else {
-					this.expandedItems.push(id);
+				this.expandedItems = [id];
 			}
 		},
+
 		async fetchGuides() {
 			this.loading = true;
 			try {
 				const response = await CollectionGuidesService.allCollectionGuides();
 				const rawGuides = response.data;
 				const processedGuides = [];
+				// console.log(rawGuides)		
+				const guidesList = [];			
+				console.log(rawGuides);
 				
 				rawGuides.forEach(guide => {
-					// Check if guide has a collection point
-					const point = guide.route?.user?.collection_point;
-					if (!point) { return }
+					const route = guide.route;
+					let motorista = route.user;
+					const wasteTypes = {};
+					
+					// console.log(guide.rfid_readings);
 
-					// Check is collection point has containers
-					if (!point.containers || point.containers.length === 0) {
-						console.log(`Guia ${guide.collection_guide_id} não tem contentores.`);
-						return;
-					}
+					guide.rfid_readings.forEach(reading => {
+						const collectionPoint = reading?.container?.collection_point;
+						// console.log(collectionPoint);
 
-					// Process all of the containers in each collection point
-					point.containers.forEach(container => {
-						if (!container.waste_type) {
-							return;
-						}
-						// Add the processed guide info to the array
-						processedGuides.push({
-							collection_guide_id: guide.collection_guide_id,
-							issue_date: guide.issue_date,
-							collection_status: guide.collection_status,
-							waste_type: container.waste_type,  
-							route: guide.route,
-							container_id: container.container_id,
-							street_name: point.street_name,
-							collection_point_type: point.collection_point_type,
-							total_weight_collected: container.rfid_readings.reduce(
-								(sum, reading) => sum + reading.weight_collected, 0
-							),
-						});
-					});
+						collectionPoint.containers.forEach(container => {
+							let wasteType = container?.waste_type?.name;
+							wasteType = container.waste_type.name.trim();
+
+							if (!wasteTypes[wasteType]) {
+								wasteTypes[wasteType] = {
+									uniqueId: `${guide.collection_guide_id}-${wasteType}`,
+									collection_guide_id: guide.collection_guide_id,
+									issue_date: guide.issue_date,
+									collection_status: guide.collection_status,
+									waste_type: container.waste_type,
+									containers: [],
+									street_name: collectionPoint.street_name,
+									collection_point_type: collectionPoint.collection_point_type,
+									route: guide.Kroute,
+									driver: guide.route?.user,
+									vehicle: guide.waste_type?.vehicles?.[0],
+									total_weight_collected: 0, 
+									feedback_count: guide.feedback_count || 0
+								}
+							}
+							
+							if (!wasteTypes[wasteType].containers.includes(container.container_id)) {
+									wasteTypes[wasteType].containers.push(container.container_id);
+								}
+
+							container.rfid_readings?.forEach(r => {
+								wasteTypes[wasteType].total_weight_collected += r.weight_collected;
+								wasteTypes[wasteType].feedback_count = guide.feedback_count || 0;
+
+								
+							});
+						
+							// console.log(feedbackCount);
+								
+						})
+						
+					})
+					Object.values(wasteTypes).forEach(item => guidesList.push(item));
+
 				});
-				this.guides = processedGuides;
+
+				console.log(guidesList);
+				this.guides = guidesList;
+				
 			} catch (error) {
 				console.error('Erro ao carregar as guias:', error);
 			} finally {
@@ -144,9 +159,9 @@ export default {
 			}
 		},
 		formatDate(dateString) {
-				if (!dateString) return 'N/A'; //not available
-				const date = new Date(dateString);
-				return date.toLocaleDateString('pt-pt');
+			if (!dateString) return 'N/A'; //not available
+			const date = new Date(dateString);
+			return date.toLocaleDateString('pt-pt');
 		}
 	},
 	mounted() {
