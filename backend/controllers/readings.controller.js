@@ -4,7 +4,21 @@ const db = require('../models/db.js');
 const { ErrorHandler } = require("../utils/error.js"); 
 
 let getReadingsByGuide = async (req, res, next) => {
+    /**
+     * Gets all RFID readings associated with a specific collection guide (by guide ID)
+     * This is used to know which containers were collected during that guide's route
+     */
     try {
+        if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+            return res.status(401).json({ errorMessage: "No access token provided" });
+        }
+        if (req.loggedUserRole !== "motorista") {
+
+            return res.status(401).json({ success: false,
+                msg: "Your access token has expired! Please login again!"
+            })
+        };
+        
         const guideID = req.params.guideID;
         const readings = await db.RFIDReading.findAll({
             where: { collection_guide_id: guideID} 
@@ -17,6 +31,15 @@ let getReadingsByGuide = async (req, res, next) => {
 
 let addReading = async (req, res, next) => {
     try {
+        if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+            return res.status(401).json({ errorMessage: "No access token provided" });
+        }
+        if (req.loggedUserRole !== "motorista") {
+            return res.status(401).json({ success: false,
+                msg: "Your access token has expired! Please login again!"
+            })
+        };
+
         const { container_id, collection_guide_id, reading_date, weight_collected, collection_status } = req.body;
         const booleanStatus = collection_status === true || collection_status === 'true';
 
@@ -30,7 +53,7 @@ let addReading = async (req, res, next) => {
 
         await updateGuideStatusById(collection_guide_id);
 
-        res.status(201).json(newReading);
+        res.status(200).json(newReading);
 
     } catch (err) {
         next(err);
@@ -39,11 +62,20 @@ let addReading = async (req, res, next) => {
 
 let updateReading = async (req, res, next) => {
 
+    if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+            return res.status(401).json({ errorMessage: "No access token provided" });
+        }
+    if (req.loggedUserRole !== "motorista") {
+        return res.status(401).json({ success: false,
+            msg: "Your access token has expired! Please login again!"
+        })
+    };
+
     const { readingID } = req.params;
     const { weight_collected } = req.body;
     const { collection_status } = req.body;
     
-    try {
+    try {        
         const status = collection_status === true || collection_status === 1 || collection_status === 'true'
         const updated = await db.RFIDReading.update(
         { 
@@ -60,8 +92,7 @@ let updateReading = async (req, res, next) => {
 
         res.status(200).json({ message: 'Reading updated.' });
     } catch (err) {
-        console.error(err)
-        res.status(500).json({ errorMessage: 'Error updating reading.' });
+        next(err);
     }
 };
 

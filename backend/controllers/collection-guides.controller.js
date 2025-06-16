@@ -4,14 +4,27 @@ const { ErrorHandler } = require("../utils/error.js");
 
 let getAllGuides = async (req, res, next) => {
     try {
-
-        const limit = parseInt(req.query.limit) || 10;
-        const page = parseInt(req.query.page) || 0;
-
-        if (limit <= 0) {
-            throw new ErrorHandler(400, "Limit of guides must be a positive number");
+        if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+            return res.status(401).json({ errorMessage: "No access token provided" });
         }
 
+        if (req.loggedUserRole !== "motorista") {
+            return res.status(401).json({ success: false,
+                msg: "Your access token has expired! Please login again!"
+            })
+        };
+
+        if(!accessToken) {
+            return res.status(401).json({ success: false,
+                msg: "Your access token has expired! Please login again!"
+            })
+        }
+
+        const limit = req.query.limit !== undefined ? parseInt(req.query.limit) : 10;
+        const page = req.query.page !== undefined ? parseInt(req.query.page) : 0;
+        if (isNaN(limit) || limit <= 0) {
+            throw new ErrorHandler(400, "Limit of guides must be a positive number");
+        }
         if (page < 0) {
             throw new ErrorHandler(400, "Page must be 0 or a positive number");
         }
@@ -78,30 +91,41 @@ let getAllGuides = async (req, res, next) => {
             ] 
         })
         
-        const driverIds = guides
-        .map(g => g.Route?.driver_id)
-        .filter((id, i, arr) => id && arr.indexOf(id) === i); // remove duplicados e nulls
+
+        
+        /** 
+         * Get all unique driver IDs from the guides associated routes
+         * The IDs will be used to get the corresponding driver details from the database
+         */
+        const driverIDs = guides //list of unique IDs from the drivers
+        .map(g => g.Route?.driver_id) //gwt driver_id from each guide's route (if it exists)
+        .filter((id, i, arr) => id && arr.indexOf(id) === i); // remove duplicados and nulls to keep only the first id from the list
         
         const drivers = await db.User.findAll({
         where: {
-            user_id: driverIds,
-            user_type: 'motorista'
+            user_id: driverIDs, //only get drivers that were used
+            user_type: 'motorista' 
         },
-        attributes: ['user_id', 'name', 'user_type']
+        attributes: ['user_id', 'name', 'user_type'] 
         });
 
-        const guidesWithDrivers = guides.map(guide => {
-            const driver = drivers.find(d => d.user_id === guide.Route?.driver_id);
 
+        /** 
+         * Count the total number of feedbacks associated with a guide, 
+         * with each collection point being counted only once
+         * 
+         * Feedbacks are retrieved from RFIDreadings -> containers -> collection points
+         */
+        const guidesWithDrivers = guides.map(guide => {
             let feedbackCount = 0;
-            const points = new Set(); // to not repeat the feedbacks
+            const points = new Set(); // to keep count of feedbacks from collection points without repeating them
 
             guide.rfid_readings?.forEach(reading => {
-                
                 const collectionPoint = reading.container?.collection_point;                
                 
                 if (collectionPoint && !points.has(collectionPoint.collection_point_id)) {
                     points.add(collectionPoint.collection_point_id);
+                    
                     if (collectionPoint.feedbacks?.length) {
                         feedbackCount += collectionPoint.feedbacks.length;
                     }
@@ -114,7 +138,7 @@ let getAllGuides = async (req, res, next) => {
             };
         });
         
-        res.json(guidesWithDrivers);
+        res.status(200).json(guidesWithDrivers);
        
     } catch (error) {
         next(error);
@@ -123,11 +147,16 @@ let getAllGuides = async (req, res, next) => {
 
 let getGuideById = async (req, res, next) => {
     try { 
-        // if (req.loggedUserRole !== "motorista") {
-        //     return res.status(403).json({ success: false,
-        //         msg: "This request required MOTORISTA role!"
-        //     })
-        // };
+        if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+            return res.status(401).json({ errorMessage: "No access token provided" });
+        }
+
+        if (req.loggedUserRole !== "motorista") {
+            return res.status(401).json({ success: false,
+                msg: "Your access token has expired! Please login again!"
+            })
+        };
+        
         const id = parseInt(req.params.id);
 
         if (isNaN(id)) {
@@ -179,14 +208,16 @@ let getGuideById = async (req, res, next) => {
 }
 
 let addCollectionGuide = async (req, res, next) => {
-   
     try {
+        if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+            return res.status(401).json({ errorMessage: "No access token provided" });
+        }
 
-        // if (req.loggedUserRole !== "motorista") {
-        //     return res.status(403).json({ success: false,
-        //         msg: "This request required MOTORISTA role!"
-        //     })
-        // };
+        if (req.loggedUserRole !== "motorista") {
+            return res.status(401).json({ success: false,
+                msg: "Your access token has expired! Please login again!"
+            })
+        };
         const { issue_date, waste_id, collection_status, route_id } = req.body;
         
         if (!issue_date || !waste_id || collection_status === undefined || !route_id) {
@@ -211,11 +242,21 @@ let addCollectionGuide = async (req, res, next) => {
 
 let patchGuideStatus = async (req, res, next) => {
     try {
+        if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+            return res.status(401).json({ errorMessage: "No access token provided" });
+        }
+
+        if (req.loggedUserRole !== "motorista") {
+            return res.status(401).json({ success: false,
+                msg: "Your access token has expired! Please login again!"
+            })
+        };
+
         const guideID = req.params.id;
         const forceUpdate = req.query.force === 'true'; 
 
         if (isNaN(guideID)) {
-            return res.status(400).json({ errorMessage: "Guide ID must be a number" });
+            return res.status(404).json({ errorMessage: "Guide ID must be a number" });
         }
 
         const result = await updateGuideStatusById(guideID, forceUpdate);
@@ -226,6 +267,12 @@ let patchGuideStatus = async (req, res, next) => {
 };
 
 async function updateGuideStatusById(guideID, force = false) {
+    /**
+     * This function updates the status of a collection guide 
+     * when all the collection points are collected.
+     * 
+     * ("não iniciada", "em execução", "concluída")
+     */
     const guide = await db.Collection_Guide.findByPk(guideID, {
         attributes: [
             'collection_guide_id', 
