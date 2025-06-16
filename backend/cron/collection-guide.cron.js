@@ -6,7 +6,7 @@ const Waste_Type = db.Waste_Type;
 const Route = db.Route;
 
 // It runs every 2 minutes
-const createCollectionGuide = async() => {
+cron.schedule('0 */12 * * *', async () => {
     try {
         // Get the current time & format it
         const current_time = new Date();
@@ -63,10 +63,4 @@ const createCollectionGuide = async() => {
     } catch (err) {
         console.error('❌ [CRON] Erro ao criar guia automaticamente:', err.message);
     }
-};
-
-// Runs automatically when the server starts
-createCollectionGuide();
-
-// It then runs every
-cron.schedule('* * 1 * *', createCollectionGuide); 
+});
