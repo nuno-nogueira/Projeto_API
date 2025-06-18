@@ -30,7 +30,7 @@ let getFeedbackById = async (req, res, next) => {
         });
 
         if (!feedback) {
-            throw new ErrorHandler(404, `Feedback with ID ${id} not found`);
+            throw new ErrorHandler(404, `Feedback with ID ${req.params.id} not found`);
         }
 
         const result = feedback.toJSON();

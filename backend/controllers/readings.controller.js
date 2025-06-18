@@ -22,7 +22,7 @@ let getReadingsByWasteType = async (req, res, next) => {
         })
 
          if (!user) {
-            return res.status(404).json({ success: false, msg: `User ID ${paramUserId} not found.` });
+            return res.status(404).json({ success: false, msg: `User ID ${req.params.user_id} not found.` });
         }        
 
         // Find the ID given in the URL as a PK
@@ -63,10 +63,10 @@ let getReadingsByGuide = async (req, res, next) => {
         if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
             return res.status(401).json({ errorMessage: "No access token provided" });
         }
-        if (req.loggedUserRole !== "motorista") {
 
-            return res.status(401).json({ success: false,
-                msg: "Your access token has expired! Please login again!"
+        if (req.loggedUserRole !== "motorista" && req.loggedUserRole !== "admin") {
+            return res.status(403).json({ success: false,
+                msg: "You must be MOTORISTA or ADMIN!"
             })
         };
         
@@ -85,9 +85,9 @@ let addReading = async (req, res, next) => {
         if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
             return res.status(401).json({ errorMessage: "No access token provided" });
         }
-        if (req.loggedUserRole !== "motorista") {
-            return res.status(401).json({ success: false,
-                msg: "Your access token has expired! Please login again!"
+        if (req.loggedUserRole !== "motorista" && req.loggedUserRole !== "admin") {
+            return res.status(403).json({ success: false,
+                msg: "You must be MOTORISTA or ADMIN!"
             })
         };
 
@@ -116,9 +116,9 @@ let updateReading = async (req, res, next) => {
     if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
             return res.status(401).json({ errorMessage: "No access token provided" });
         }
-    if (req.loggedUserRole !== "motorista") {
-        return res.status(401).json({ success: false,
-            msg: "Your access token has expired! Please login again!"
+    if (req.loggedUserRole !== "motorista" && req.loggedUserRole !== "admin") {
+        return res.status(403).json({ success: false,
+            msg: "You must be MOTORISTA or ADMIN!"
         })
     };
 
