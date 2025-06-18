@@ -6,12 +6,6 @@ const { Op } = require('sequelize'); // necessary operators for Sequelize 
 const { ErrorHandler } = require("../utils/error.js"); // Import the ErrorHandler class for error handling
 
 let getAllPoints = async (req, res, next) => {
-    //PARA CHAMARES A ROTA NOS COMPONENTES POR ASSIM
-    // PARA O MAPA ->  await CPs.allCollectionPoints({route_type: 'map'})
-    //PARA O ADMIN ->  await CPs.allCollectionPoints({route_type: 'admin'})
-
-
-
     /**
      * Get all collection points in the DB
      */
@@ -24,9 +18,7 @@ let getAllPoints = async (req, res, next) => {
             throw new ErrorHandler(400, `Invalid value for page: ${page}. It should be a positive integer.`);
         
         if (isNaN(limit) || limit < 1) 
-            throw new ErrorHandler(400, `Invalid value for limit: ${limit}. It should be a positive integer.`);
-
-
+            throw new ErrorHandler(400, `Invalid value for limit: ${limit}. It should be a positive integer.`);           
         
         //Iterate through all collection points to put all links
 
@@ -79,6 +71,8 @@ let getAllPoints = async (req, res, next) => {
                     ...(collection_points.count > page * limit ? [{ "rel": "next-page", "href": `/collection-points?limit=${limit}&page=${+page + 1}`, "method": "GET" }] : [])
                 ]
             });
+        } else {
+            throw new ErrorHandler(400, `Invalid value for route type: ${route_type}. It should be either 'map' or 'admin'.`);
         }
     } catch (err) {        
         next(err);
@@ -86,13 +80,6 @@ let getAllPoints = async (req, res, next) => {
 }
 
 let getPointById = async (req, res, next) => {
-    if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
-            return res.status(401).json({ errorMessage: "No access token provided" });
-        }
-
-    /**
-     * Get a collection point by its ID (Interactive Map)
-     */
     try {
         //Find by its PK
         let collection_point = await Collection_Point.findByPk(req.params.id, {
@@ -187,12 +174,13 @@ let addPoint = async (req, res, next) => {
 }
 
 let updateCollectionPoint = async (req, res, next) => {
-    if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
-            return res.status(401).json({ errorMessage: "No access token provided" });
-        }
     /**
      * Update a Collection Point
      */
+
+    if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+            return res.status(401).json({ errorMessage: "No access token provided" });
+        }
     try {
         if (parseInt(req.params.user_id) !== req.loggedUserId && req.loggedUserRole !== "admin") {
             return res.status(403).json({ success: false, msg: "You are not authorized to change this collection point!"})
@@ -252,19 +240,20 @@ let updateCollectionPoint = async (req, res, next) => {
 
 
 let deletePoint = async (req, res, next) => {
-    if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
-            return res.status(401).json({ errorMessage: "No access token provided" });
-        }
     /**
      * Delete a Collection Point
      */
     try {
-        // only admins can delete collection points
-        if (parseInt(req.params.user_id) !== req.loggedUserId) {
-            return res.status(403).json({ 
-                success: false, 
-                msg: "You are not authorized to change this profile!"})
+        if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+            return res.status(401).json({ errorMessage: "No access token provided" });
         }
+
+        if (req.loggedUserRole !== "admin") {
+            return res.status(403).json({ 
+                success: false,
+                msg: "This request require ADMIN role!"
+            })
+        };
 
         //delete an user in DB given its id
         let result = await Collection_Point.destroy({where: {collection_point_id: req.params.id}});

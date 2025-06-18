@@ -25,12 +25,8 @@ let getPlan = async (req, res, next) => {
 
         //If not found
         if (!plan) return res.status(404).json({ error: 'collection plan not found' });
-        res.json(plan);
 
-        return res.status(200).json({
-            total: plan.count,
-            data: plan.rows
-        });
+        res.status(200).json({plan});
     } catch (error) {
         next(error);
     }
