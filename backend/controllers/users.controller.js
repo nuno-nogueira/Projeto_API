@@ -422,7 +422,10 @@ let deleteUser = async (req, res, next) => {
         }
 
         // send 204 No Content response
-        res.status(204).json();
+        res.status(200).json({
+            msg: `User with id ${req.params.user_id}  sucessfully deleted.`
+        });
+;
     } catch (err) {
         next(err)
     }
