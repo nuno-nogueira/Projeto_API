@@ -9,6 +9,7 @@
 
 		<div v-if="guide">
 			<div v-for="(point, i) in guide.route.collection_points" :key="i" class="collection-point">
+				<p v-if="filteredContainers(point.containers).length === 0">Sem contentores neste ponto.</p>
 				<v-timeline side="end">
 					<v-timeline-item
 						v-for="container in filteredContainers(point.containers)" 
@@ -46,6 +47,7 @@
 							<v-checkbox
 								v-model="guideChanges[container.container_id].status"
 								label="Recolha confirmada"
+								@change="checkIfGuideIsCompleted"
 							/>	
 							
 						</div>
@@ -82,28 +84,35 @@ export default {
 	},
 	methods: {
 		filteredContainers(containers) { // v-for will call this function 
+			// console.log('Containers recebidos:', containers);
 			if (!this.selectedWasteType) return containers; // If there is no filter selected, return all containers
-			return containers.filter(
-				container => container.waste_type.name.trim() === this.selectedWasteType.trim() // Filter the containers by the selected waste type
+			const filtrados = containers.filter(
+				container => container.waste_type.name.trim() === this.selectedWasteType.trim()
 			);
+			// console.log('Containers filtrados:', filtrados);
+			return filtrados;
 		},
+
 		// This function fetches the guide and the rfid readings data:
 		async fetchGuide() {
 			try {
 				const guideID = this.$route.params.id; // Access the id parameter through the parameters defined in the route path -> /guide/:id
 				const guideResponse = await axios.get(`http://localhost:3000/collection-guides/${guideID}`); // Get the guide data from the backend
 				this.guide = guideResponse.data; // Save the guide data to the component's state
-				
+				// console.log('Guide carregado:', this.guide);
+
 				// Get the existing data from the backend and insert it into guideChanges (the fields or initialize them)
 				this.guide.route.collection_points.forEach(point => { 
+					point.containers = point.containers || [];
 					point.containers.forEach(container => {
-						const existing = this.guideChanges[container.container_id] || {}; // Get existing data or initialize an empty object
-						this.guideChanges[container.container_id] = { 
-							weight: existing.weight || 0,
-							status: existing.status || false,
-							report: existing.report || 'yellow',
-							readingID: existing.readingID || null
-						};
+						if (!this.guideChanges[container.container_id]) {
+							this.guideChanges[container.container_id] = {
+								weight: 0,
+								status: false,
+								report: 'yellow',
+								readingID: null
+							};
+						}
 					});
 				});
 
@@ -111,15 +120,13 @@ export default {
 				const readingsResponse = await axios.get(`http://localhost:3000/readings/collection-guides/${guideID}`); 
 				// This data will be used to update the guideChanges object with the current weight and reading ID for each container
 				readingsResponse.data.forEach(reading => {
-					if (this.guideChanges[reading.container_id]) { // Only update a container_id that is in guideChanges
-						this.guideChanges[reading.container_id] = {
-							...this.guideChanges[reading.container_id], // Copy everything that was already in guideChanges[container_id] to keep old values
-							// and update with the new data if the user inserts new data:
-							weight: reading.weight_collected || 0,
-							readingID: reading.rfid_reading_id,
-						};
+					if (this.guideChanges[reading.container_id]) {
+						this.guideChanges[reading.container_id].weight = reading.weight_collected || 0;
+						this.guideChanges[reading.container_id].status = Boolean(reading.collection_status);
+						this.guideChanges[reading.container_id].readingID = reading.rfid_reading_id;
 					}
 				});
+
 			} catch (error) {
 				console.error('Erro ao carregar guia:', error);
 			}
@@ -135,9 +142,10 @@ export default {
 					// Update existing reading
 					await axios.patch(`http://localhost:3000/readings/${change.readingID}`, {
 						weight_collected: change.weight,
-						collection_status: change.status
+						collection_status: change.status ? 1 : 0
 					});
 				} else {
+					console.log('Dados enviados para POST /readings:');
 					// Create new reading
 					const response = await axios.post('http://localhost:3000/readings', {
 						container_id: container_id,
@@ -147,7 +155,7 @@ export default {
 						collection_status: change.status
 					});
 
-					// Update the reading id on guideChanges with the new one to prevent duplicated saves on the database
+					//update the reading id on guideChanges with the new one to prevent duplicated saves on the database
 					this.guideChanges[container_id].readingID = response.data.rfid_reading_id;
 				}
 				alert('Dados guardados com sucesso.');
@@ -156,6 +164,50 @@ export default {
 				console.error('Erro ao guardar dados:', err);
 			}
 		},
+
+		async updateGuideStatus(newStatus) {
+			try {
+				const response = await axios.patch(`http://localhost:3000/collection-guides/${this.guide.collection_guide_id}`, {
+					collection_status: newStatus
+				});
+				console.log('Status da guia atualizado:', response.data.collection_status);
+				
+				this.guide.collection_status = response.data.collection_status; // atualizar localmente o estado
+				console.log('Status guia atualizado para:', newStatus);
+			} catch (error) {
+				console.error('Erro ao atualizar o status da guia:', error);
+			}
+		},
+
+		checkIfGuideIsCompleted() {
+			const currentWasteId = this.guide.waste_id;
+			
+			//get containers with waste type of guide
+			const relevantContainers = [];
+			this.guide.route.collection_points.forEach(point => {
+				point.containers.forEach(container => {
+					if (container.waste_type.id === currentWasteId) {
+						relevantContainers.push(container);
+					}
+				});
+			});
+
+			//check the status of those containers
+			const completed = relevantContainers.filter(container => 
+				this.guideChanges[container.container_id]?.status
+			).length;
+
+			const total = relevantContainers.length;
+			
+			let newStatus = 'não iniciada';
+			if (completed === total && total > 0) newStatus = 'concluída';
+			else if (completed > 0) newStatus = 'em execução';
+
+			if (this.guide.collection_status !== newStatus) {
+				this.guide.collection_status = newStatus;
+				this.updateGuideStatus(newStatus);
+			}
+		}
 	},
 	mounted() {
 		this.fetchGuide();

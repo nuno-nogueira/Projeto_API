@@ -184,6 +184,7 @@
                             size="large"
                             @click="activateService"
                             variant="elevated"
+                            class="activate-service"
                             block>Solicitar Serviço de Recolha</v-btn>
                         </v-col>
                     </v-row>
@@ -211,7 +212,14 @@
                                     </template>
                                 </v-card>
                             </v-col>
-                            <v-col cols="4" md="3">
+                            <v-col cols="4" md="8" sm="8">
+                                <apex-chart
+                                type="line"
+                                height="300"
+                                :options="chartOptions"
+                                :series="[{name: 'Lixo Recolhido', data: chartSeries}]"></apex-chart>
+                            </v-col>
+                            <!-- <v-col cols="4" md="3">
                                 <v-row class="trash-types-container">
                                     <v-col cols="12" md="12">
                                         <v-card elevation="0" class="trash-type">
@@ -336,7 +344,7 @@
                                         </v-card>
                                     </v-col>
                                 </v-row>
-                            </v-col>
+                            </v-col> -->
                         </v-row>
                     </v-container>
                     <v-container>
@@ -396,7 +404,8 @@
 
             <v-tabs-window v-model="admin_tab">
                 <v-tabs-window-item value="1" class="admin-tab-window" id="tab-window1">
-
+                    <v-btn @click="fetchMap">Map</v-btn>
+                    <v-btn @click="fetchAdmin">Admin</v-btn>
                 </v-tabs-window-item>
             </v-tabs-window>
 
@@ -486,6 +495,7 @@
 import { useVuelidate } from '@vuelidate/core'
 import { required, minLength, maxLength, alpha, between, email, numeric} from '@vuelidate/validators'
 import Users from '@/api/users';
+import Readings from '@/api/readings';
 
 export default {
     setup() { return { v$: useVuelidate() }},
@@ -516,6 +526,7 @@ export default {
             door_to_door_service: false,
             feedbacks: [],
             users: [],
+            readings: [],
             page: 1,
             totalPages: 1,
             orderBy: "(A-Z)",
@@ -524,13 +535,34 @@ export default {
                 cg_icon: "mdi-paperclip",
                 cp_icon: "mdi-cached",
                 annual_plan_icon: "mdi-calendar" 
+            },
+            chartSeries: [],
+            chartOptions: {
+                chart: {
+                    type: 'line'
+                },
+                stroke: {
+                    curve: 'smooth'
+                },
+                xaxis: {},
+                yaxis: {
+                    text: "Quantidade de lixo (kg)"
+                },
+                tooltip: {
+                    x: {
+                        format: 'dd/MM/yyyy'
+                    }
+                }
             }
         }
     },
 
     async created() {
         const userInfo = await Users.getUserProfile(this.userId);
-        this.user = userInfo.data;                
+        const readingsInfo = await Readings.getReadingsByWasteType(this.userId);
+        
+        this.user = userInfo.data;
+        this.readings = readingsInfo.data;
 
         this.id = this.user.user_id;
         const nameSplit = this.user.name.split(' ');
@@ -542,6 +574,7 @@ export default {
         this.user_type = this.user.user_type;
         if (this.user_type === "morador") {
             this.citizenInfo();
+            this.groupByMonth();
         } else if (this.user_type === "admin") {
             this.fetchUsers(this.page);
         }
@@ -609,6 +642,24 @@ export default {
             }
         },
 
+        async fetchMap() {
+            try {
+                const res = await CPs.allCollectionPoints({route_type: 'map'})
+                console.log("Fetch Map ->", res.data);   
+            } catch (error) {
+                
+            }
+        },
+
+        async fetchAdmin() {
+            try {
+                const res = await CPs.allCollectionPoints({route_type: 'admin'})
+                console.log("Fetch Admin ->", res.data);   
+            } catch (error) {
+                
+            }
+        },
+
         activateService() {
             this.door_to_door_service = true;
             this.submitChanges()
@@ -621,6 +672,45 @@ export default {
             this.door_to_door_service = this.user.door_to_door_service === "sim" ? true : false;
             this.cp_id = this.user.collection_point.collection_point_id;
             this.feedbacks = this.user.feedbacks; 
+        },
+
+        groupByMonth() {
+            const readingValues = {};
+            this.chartSeries = [];
+
+            console.log(this.readings);
+            
+            // In order to put the data in the graph, the reading dates need to be in a specific format (DD-MM-YYYY)
+            this.readings.data.forEach(reading => {
+                const date = reading.reading_date.substring(8, 10) + '/' + reading.reading_date.substring(5, 7) + '/' + reading.reading_date.substring(0, 4)
+                const month = date.substring(3, 5);
+
+                const weight = reading.weight_collected || 0;
+
+                if (!readingValues[month]) {
+                    readingValues[month] = 0;
+                }
+
+                readingValues[month] += weight;
+            }) 
+
+            // Iterate through each month to add the weight collected of that month
+            Object.keys(readingValues).sort().forEach(month => {
+                    this.chartSeries.push({x: month, y: readingValues[month]})
+            })
+
+            // Add the category names for the x axis
+            this.chartOptions.xaxis = {
+                type: 'category',
+                categories: Object.keys(readingValues).map(m =>{
+                    const months = ['Jan', 'Feb', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+                    return months[m -1]
+                })
+            }
+            console.log(this.chartSeries);
+            console.log(this.chartOptions.xaxis);
+            
+            
         }
     },
 
@@ -849,4 +939,4 @@ p{
     display: none;
   }
 }
-</style> 
+</style>

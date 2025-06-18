@@ -6,63 +6,14 @@ const Feedback = db.Feedback;
 const { Op } = require('sequelize'); // necessary operators for Sequelize
 
 const { ErrorHandler } = require("../utils/error.js"); // Import the ErrorHandler class for error handling
-
-
-let getAllFeedbacks = async (req, res, next) => {
-    /**
-     * Get all feedbacks
-     */
-    try {
-        if (req.loggedUserRole !== "admin") {
-            return res.status(403).json({ success: false,
-                msg: "This request required ADMIN role!"
-            })
-        };
-
-        const {sort, order} = req.query;
-
-        //validate sort and order values
-        if (sort && sort !== "feedback_type") {
-            throw new ErrorHandler(400, `Invalid value for sort: ${sort}. It should be 'feedback_type'.`);
-        }
-
-        if (order && order !== "asc" && order !== "desc") {
-            throw new ErrorHandler(400, `Invalid value for order: ${order}. It should be either 'asc' or 'desc'.`);
-        }
-
-        //sort & order options must be passed together!!
-        if ((sort && !order) || (!sort && order)) {
-            throw new ErrorHandler(400, `Both sort and order must be provided together.`);
-        }
-
-        //ordering by feedback type and date
-        const sortField = sort === "date_time" ? "date_time" : "feedback_id"
-        const sortOrder = order === "desc" ? "DESC" : "ASC";
-
-        let feedbacks = await Feedback.findAndCountAll({
-            order: [[sortField, sortOrder]],
-            raw: false,
-        })
-
-        feedbacks.rows.forEach(feedback => {
-            feedbacks.links = [
-                {rel: "self", href: `/feedbacks/${feedback.feedback_id}`, method: "GET"}
-            ]
-        });
-
-        return res.status(200).json({
-            total: feedbacks.count,
-            data: feedbacks.rows
-        });
-    } catch (error) {        
-        next(error);
-    }
-}
+const { access } = require('fs');
 
 
 let getFeedbackById = async (req, res, next) => {
+  
     /**Get feedback by ID */
     try {
+
         //Gather the feedback's info, as well as who posted it, and from what collection point its from
         let feedback = await Feedback.findByPk(req.params.id, {
             attributes: ['description', 'feedback_type', 'feedback_date', 'collection_point_id'],
@@ -91,10 +42,15 @@ let getFeedbackById = async (req, res, next) => {
 }
 
 let addFeedback = async (req, res, next) => {
+  
     /**
      * Add a new feedback
      */
     try {
+        if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+            return res.status(401).json({ errorMessage: "No access token provided" });
+        }
+        
         const {description, feedback_type, collection_point_id, user_id, feedback_date} = req.body;
 
         // sequelize update method allows PARTIAL updates, so we NEED to check for missing fields    
@@ -135,6 +91,6 @@ let addFeedback = async (req, res, next) => {
 }
 
 module.exports = {
-    getAllFeedbacks, getFeedbackById,
+    getFeedbackById,
     addFeedback
 }
