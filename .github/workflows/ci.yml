@@ -7,10 +7,19 @@ on:
     branches: [ sandra ]
 
 jobs: 
-
   test-backend:
     name: Test Backend
     runs-on: ubuntu-latest
+
+    env:
+      DB_HOST: ${{ secrets.DB_HOST }}
+      DB_USER: ${{ secrets.DB_USER }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_NAME: ${{ secrets.DB_NAME }}
+      DB_DIALECT: ${{ secrets.DB_DIALECT }}
+      PORT: ${{ secrets.PORT }}
+      HOST: ${{ secrets.HOST }}
+      NODE_ENV: ${{ secrets.NODE_ENV }}
 
     steps:
       - name: Checkout code
