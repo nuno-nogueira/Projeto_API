@@ -20,6 +20,7 @@ jobs:
       PORT: ${{ secrets.PORT }}
       HOST: ${{ secrets.HOST }}
       NODE_ENV: ${{ secrets.NODE_ENV }}
+      SECRET: ${{ secrets.SECRET }}
 
     steps:
       - name: Checkout code
