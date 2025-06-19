@@ -87,21 +87,21 @@ let getAllGuides = async (req, res, next) => {
         
 
         
-        /** 
-         * Get all unique driver IDs from the guides associated routes
-         * The IDs will be used to get the corresponding driver details from the database
-         */
-        const driverIDs = guides //list of unique IDs from the drivers
-        .map(g => g.Route?.driver_id) //gwt driver_id from each guide's route (if it exists)
-        .filter((id, i, arr) => id && arr.indexOf(id) === i); // remove duplicados and nulls to keep only the first id from the list
+        // /** 
+        //  * Get all unique driver IDs from the guides associated routes
+        //  * The IDs will be used to get the corresponding driver details from the database
+        //  */
+        // const driverIDs = guides //list of unique IDs from the drivers
+        // .map(g => g.Route?.driver_id) //gwt driver_id from each guide's route (if it exists)
+        // .filter((id, i, arr) => id && arr.indexOf(id) === i); // remove duplicados and nulls to keep only the first id from the list
         
-        const drivers = await db.User.findAll({
-        where: {
-            user_id: driverIDs, //only get drivers that were used
-            user_type: 'motorista' 
-        },
-        attributes: ['user_id', 'name', 'user_type'] 
-        });
+        // const drivers = await db.User.findAll({
+        // where: {
+        //     user_id: driverIDs, //only get drivers that were used
+        //     user_type: 'motorista' 
+        // },
+        // attributes: ['user_id', 'name', 'user_type'] 
+        // });
 
 
         /** 
@@ -250,6 +250,7 @@ let patchGuideStatus = async (req, res, next) => {
             return res.status(404).json({ errorMessage: "Guide ID must be a number" });
         }
 
+        // call async function updateGuideStatusById
         const result = await updateGuideStatusById(guideID, forceUpdate);
         res.status(200).json(result);
     } catch (err) {
@@ -260,10 +261,12 @@ let patchGuideStatus = async (req, res, next) => {
 async function updateGuideStatusById(guideID, force = false) {
     /**
      * This function updates the status of a collection guide 
-     * when all the collection points are collected.
+     * It is called when a new reading is added
      * 
      * ("não iniciada", "em execução", "concluída")
      */
+
+    // get the guide 
     const guide = await db.Collection_Guide.findByPk(guideID, {
         attributes: [
             'collection_guide_id', 
@@ -276,6 +279,7 @@ async function updateGuideStatusById(guideID, force = false) {
         throw new ErrorHandler(404, `Oops. Guide ${guideID} not found`);
     }
 
+    // get all readings from that guide
     const readings = await db.RFIDReading.findAll({
         where: { collection_guide_id: guideID },
         include: [{
@@ -289,20 +293,25 @@ async function updateGuideStatusById(guideID, force = false) {
         ]
     });
 
+    // how many of those readings are completed
     const completed = readings.filter(r =>
         [true, 1, '1', 'true'].includes(r.collection_status)
     ).length;
 
+    // and get the total ammount of readings (completed or not) on the guide
     const total = readings.length;
 
+    // define the guide status
     let newStatus = 'não iniciada';
     if (completed > 0 && completed < total) newStatus = 'em execução';
     if (completed === total && total > 0) newStatus = 'concluída';
 
-    const previousStatus = guide.collection_status; 
-    const statusChanged = previousStatus !== newStatus; 
+    // check if status actually changed
+    const previousStatus = guide.collection_status; // current status
+    const statusChanged = previousStatus !== newStatus; // true if didn't change, false if it's 'não iniciada'
     const shouldUpdate = force || statusChanged; 
 
+    // update collection status
     if (shouldUpdate) {
         await guide.update({ collection_status: newStatus });
     }
