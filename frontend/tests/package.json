@@ -1,9 +1,9 @@
 {
   "name": "tests",
   "version": "1.0.0",
-  "main": "acessCitizenProfile.js",
+  "main": "accessGuides.js",
   "scripts": {
-    "test": "node accessCitizenProfile.js"
+    "test": "node accessGuides.js"
   },
   "keywords": [],
   "author": "",

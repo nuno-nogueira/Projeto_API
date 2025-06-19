@@ -2,6 +2,57 @@ const collection_guides = require("../models/collection-guides.model.js")
 const { updateGuideStatusById } = require('./collection-guides.controller.js');
 const db = require('../models/db.js');
 const { ErrorHandler } = require("../utils/error.js"); 
+const { Op } = require('sequelize'); // necessary operators for Sequelize
+
+const Reading = db.RFIDReading;
+const User = db.User;
+
+let getReadingsByWasteType = async (req, res, next) => {
+    try {
+        if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+            return res.status(401).json({ errorMessage: "No access token provided" });
+        }
+
+        if (parseInt(req.params.user_id) !== req.loggedUserId && req.loggedUserRole !== "admin") {
+            return res.status(403).json({ success: false, msg: "You are not authorized to access this information!"})
+        }
+        
+         const user = await User.findByPk(req.params.user_id, {
+            attributes: ['address_point_id']
+        })
+
+         if (!user) {
+            return res.status(404).json({ success: false, msg: `User ID ${req.params.user_id} not found.` });
+        }        
+
+        // Find the ID given in the URL as a PK
+        let readings = await Reading.findAll({
+            attributes: ['weight_collected', 'reading_date'],
+            include: [
+                {
+                    model: db.Container,
+                    attributes: ['container_id'],
+                    where: {
+                        collection_point_id: user.address_point_id
+                    },
+                    include: [
+                        {
+                            model: db.Waste_Type,
+                            attributes: ['name'],
+                        }   
+                    ]
+                }              
+            ]
+        })
+
+        res.status(200).json({
+            total: readings.length,
+            data: readings
+        }); 
+    } catch (err) {
+        next(err)
+    }
+}
 
 let getReadingsByGuide = async (req, res, next) => {
     /**
@@ -12,10 +63,10 @@ let getReadingsByGuide = async (req, res, next) => {
         if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
             return res.status(401).json({ errorMessage: "No access token provided" });
         }
-        if (req.loggedUserRole !== "motorista") {
 
-            return res.status(401).json({ success: false,
-                msg: "Your access token has expired! Please login again!"
+        if (req.loggedUserRole !== "motorista" && req.loggedUserRole !== "admin") {
+            return res.status(403).json({ success: false,
+                msg: "You must be MOTORISTA or ADMIN!"
             })
         };
         
@@ -34,9 +85,9 @@ let addReading = async (req, res, next) => {
         if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
             return res.status(401).json({ errorMessage: "No access token provided" });
         }
-        if (req.loggedUserRole !== "motorista") {
-            return res.status(401).json({ success: false,
-                msg: "Your access token has expired! Please login again!"
+        if (req.loggedUserRole !== "motorista" && req.loggedUserRole !== "admin") {
+            return res.status(403).json({ success: false,
+                msg: "You must be MOTORISTA or ADMIN!"
             })
         };
 
@@ -65,9 +116,9 @@ let updateReading = async (req, res, next) => {
     if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
             return res.status(401).json({ errorMessage: "No access token provided" });
         }
-    if (req.loggedUserRole !== "motorista") {
-        return res.status(401).json({ success: false,
-            msg: "Your access token has expired! Please login again!"
+    if (req.loggedUserRole !== "motorista" && req.loggedUserRole !== "admin") {
+        return res.status(403).json({ success: false,
+            msg: "You must be MOTORISTA or ADMIN!"
         })
     };
 
@@ -97,6 +148,7 @@ let updateReading = async (req, res, next) => {
 };
 
 module.exports = {
+    getReadingsByWasteType,
     getReadingsByGuide,
     addReading,
     updateReading

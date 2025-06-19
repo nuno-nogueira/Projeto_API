@@ -17,9 +17,14 @@
     "fs": "^0.0.1-security",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.14.1",
+    "node-cron": "^4.1.0",
     "nodemon": "^3.1.10",
     "path": "^0.12.7",
     "sass-embedded": "^1.89.2",
     "sequelize": "^6.37.7"
+  },
+  "devDependencies": {
+    "jest": "^30.0.1",
+    "supertest": "^7.1.1"
   }
 }

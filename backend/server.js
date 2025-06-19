@@ -6,6 +6,7 @@ const path = require('path')
 
 // read environment variables from .env file
 require('dotenv').config();
+require('./cron/collection-guide.cron.js')
 
 const app = express();
 const port = process.env.PORT;	// use environment variables
@@ -19,11 +20,11 @@ app.use(express.json());
 
 // use route middleware for all requests
 app.use('/users', require('./routes/users.routes.js'));
-app.use('/stats', require('./routes/stats.routes.js'));
 app.use('/feedbacks', require('./routes/feedbacks.routes.js'));
 app.use('/collection-points', require('./routes/collection-points.routes.js'));
 app.use('/collection-guides', require('./routes/collection-guides.routes.js'));
 app.use('/readings', require('./routes/readings.routes.js'));
+app.use('/collection-plan', require('./routes/collection-plan.routes.js'));
 //----------------------
 
 // error middleware (always at the end of the file)

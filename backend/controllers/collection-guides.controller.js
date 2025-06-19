@@ -8,17 +8,11 @@ let getAllGuides = async (req, res, next) => {
             return res.status(401).json({ errorMessage: "No access token provided" });
         }
 
-        if (req.loggedUserRole !== "motorista") {
-            return res.status(401).json({ success: false,
-                msg: "Your access token has expired! Please login again!"
+        if (req.loggedUserRole !== "motorista" && req.loggedUserRole !== "admin") {
+            return res.status(403).json({ success: false,
+                msg: "Must be MOTORISTA or ADMIN role!"
             })
         };
-
-        if(!accessToken) {
-            return res.status(401).json({ success: false,
-                msg: "Your access token has expired! Please login again!"
-            })
-        }
 
         const limit = req.query.limit !== undefined ? parseInt(req.query.limit) : 10;
         const page = req.query.page !== undefined ? parseInt(req.query.page) : 0;
@@ -151,8 +145,8 @@ let getGuideById = async (req, res, next) => {
             return res.status(401).json({ errorMessage: "No access token provided" });
         }
 
-        if (req.loggedUserRole !== "motorista") {
-            return res.status(401).json({ success: false,
+        if (req.loggedUserRole !== "motorista" && req.loggedUserRole !== "admin") {
+            return res.status(403).json({ success: false,
                 msg: "Your access token has expired! Please login again!"
             })
         };
@@ -162,10 +156,7 @@ let getGuideById = async (req, res, next) => {
         if (isNaN(id)) {
             throw new ErrorHandler(400, "Guide ID must be a number");
         }
-        
-        if (isNaN(id)) {
-            return res.status(400).json({errorMessage: "Invalid ID"});
-        }
+    
         let guide = await db.Collection_Guide.findByPk(req.params.id, {
             include: [
                 {
@@ -213,9 +204,9 @@ let addCollectionGuide = async (req, res, next) => {
             return res.status(401).json({ errorMessage: "No access token provided" });
         }
 
-        if (req.loggedUserRole !== "motorista") {
-            return res.status(401).json({ success: false,
-                msg: "Your access token has expired! Please login again!"
+        if (req.loggedUserRole !== "motorista" && req.loggedUserRole !== "admin") {
+            return res.status(403).json({ success: false,
+                msg: "You must be MOTORISTA or ADMIN!"
             })
         };
         const { issue_date, waste_id, collection_status, route_id } = req.body;
@@ -246,7 +237,7 @@ let patchGuideStatus = async (req, res, next) => {
             return res.status(401).json({ errorMessage: "No access token provided" });
         }
 
-        if (req.loggedUserRole !== "motorista") {
+        if (req.loggedUserRole !== "motorista" && req.loggedUserRole !== "admin") {
             return res.status(401).json({ success: false,
                 msg: "Your access token has expired! Please login again!"
             })
@@ -297,11 +288,6 @@ async function updateGuideStatusById(guideID, force = false) {
             'collection_status'
         ]
     });
-
-    console.log('------------------------------readings encontradas:',readings.map(r => ({
-        id: r.rfid_reading_id,
-        status: r.collection_status
-    })))
 
     const completed = readings.filter(r =>
         [true, 1, '1', 'true'].includes(r.collection_status)

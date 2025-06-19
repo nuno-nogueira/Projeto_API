@@ -8,17 +8,12 @@ const { Op } = require('sequelize'); // necessary operators for Sequelize
 const { ErrorHandler } = require("../utils/error.js"); // Import the ErrorHandler class for error handling
 const { access } = require('fs');
 
+
 let getFeedbackById = async (req, res, next) => {
+  
     /**Get feedback by ID */
     try {
-        if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
-            return res.status(401).json({ errorMessage: "No access token provided" });
-        }
-        if (req.loggedUserRole !== "admin") {
-            return res.status(401).json({ success: false,
-                msg: "This request required ADMIN role!"
-            })
-        };
+
         //Gather the feedback's info, as well as who posted it, and from what collection point its from
         let feedback = await Feedback.findByPk(req.params.id, {
             attributes: ['description', 'feedback_type', 'feedback_date', 'collection_point_id'],
@@ -35,7 +30,7 @@ let getFeedbackById = async (req, res, next) => {
         });
 
         if (!feedback) {
-            throw new ErrorHandler(404, `Feedback with ID ${id} not found`);
+            throw new ErrorHandler(404, `Feedback with ID ${req.params.id} not found`);
         }
 
         const result = feedback.toJSON();
@@ -47,6 +42,7 @@ let getFeedbackById = async (req, res, next) => {
 }
 
 let addFeedback = async (req, res, next) => {
+  
     /**
      * Add a new feedback
      */

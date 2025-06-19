@@ -1,8 +1,8 @@
 import api from '@/api/api'
 
 export default {
-    allCollectionPoints() {
-        return api().get("collection-points");
+    allCollectionPoints({route_type}) {
+        return api().get("collection-points", {params: {route_type}});
     },
 
     getCollectionPoint(collectionPointID) {

@@ -21,6 +21,10 @@ let getAllUsers = async (req, res, next) => {
         // get the user_type
         const {page = 1, limit = 6, order = 'asc'} = req.query;
         
+        if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+            return res.status(401).json({ errorMessage: "No access token provided" });
+        }
+
         if (req.loggedUserRole !== "admin") {
             return res.status(403).json({ success: false,
                 msg: "This request required ADMIN role!"
@@ -76,12 +80,12 @@ let getUserById = async(req, res, next) => {
      * Get each user's profile
      */
     try {
-        //Only the user can access their own profile
-        if (parseInt(req.params.user_id) !== req.loggedUserId) {
-            return res.status(403).json({ success: false, msg: "You are not authorized to access this profile!"})
-        }
 
-        //Find the ID given in the URL as a PK
+        if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+            return res.status(401).json({ errorMessage: "No access token provided" });
+        }
+
+        // Find the ID given in the URL as a PK
         let user = await User.findByPk(req.params.user_id, {
             attributes: ['user_id', 'name', 'tin', 'phone_number', 'email','door_to_door_service', 'user_type'],
             include: [ //include the collection_point info && feedbacks array
@@ -102,12 +106,17 @@ let getUserById = async(req, res, next) => {
             ]
         })
 
-        //If not found, return 404
+        // If not found, return 404
         if (!user) {
             throw new ErrorHandler(404, `Cannot find any USER with ID ${req.params.user_id}.`);
         }
         
-        //convert the user to a plain object
+        // Only the user can access their own profile
+        if (parseInt(req.params.user_id) !== req.loggedUserId) {
+            return res.status(403).json({ success: false, msg: "You are not authorized to access this profile!"})
+        }
+
+        // Convert the user to a plain object
         user = user.toJSON();
         user.links = [
             {rel: "modify", href: `/users/${user.user_id}`, method: "PUT"},
@@ -115,8 +124,6 @@ let getUserById = async(req, res, next) => {
         ]
 
         res.status(200).json(user); //return the found post
-
-        /**COLOCAR ERRO 401 (UNAUTHORIZED) */
     } catch (err) {
         next(err);
     }
@@ -132,30 +139,20 @@ let addUser = async (req, res, next) => {
 
         let error, collection_point_id;
         // Check if the body has the mandatory fields
-        if (name === undefined) {
-            error = new Error(`Missing required field: name`)
-        } else if (tin === undefined) {
-            error = new Error(`Missing required field: TIN`)
-        } else if (password === undefined) {
-            error = new Error(`Missing required field: password`)
-        } else if (phone_number === undefined) {
-            error = new Error(`Missing required field: phone number`)
-        } else if (email === undefined) {
-            error = new Error(`Missing required field: email`)
-        } else if (door_to_door_service === undefined) {
-            error = new Error(`Missing required field: door to door service`)
-        } else if (street_name === undefined) {
-            error = new Error(`Missing required field: street name`)
-        } else if (postal_code === undefined) {
-            error = new Error(`Missing required field: postal code`)
-        } else if (door_number === undefined) {
-            error = new Error(`Missing required field: door number`)
-        } 
 
-        if (error) {
-            error.statusCode = 400;
-            return next(error); // Pass the error to the next middleware
-        }
+        let missingFields = [];
+        if (name === undefined) missingFields.push('Name'); 
+        if (tin === undefined) missingFields.push('TIN') 
+        if (password === undefined) missingFields.push('Password'); 
+        if (phone_number === undefined) missingFields.push('Phone Number');
+        if (email === undefined) missingFields.push('Email'); 
+        if (door_to_door_service === undefined) missingFields.push('Door to Door Service'); 
+        if (street_name === undefined) missingFields.push('Street Name'); 
+        if (postal_code === undefined) missingFields.push('Postal Code'); 
+        if (door_number === undefined) missingFields.push("Door Number");
+
+        if (missingFields.length > 0) 
+           throw new ErrorHandler(400, `Missing required fields: ${missingFields.join(', ')}`);
 
         if (name.length < 6 || name.length > 50) {
             throw new ErrorHandler(400,`Name should have between 6 to 50 characters`);
@@ -170,11 +167,11 @@ let addUser = async (req, res, next) => {
         }
 
         if (password.length < 8 || password.length > 60) {
-            throw new ErrorHandler(400,`Name should have between 8 to 60 characters`);
+            throw new ErrorHandler(400,`Password should have between 8 to 60 characters`);
         }
 
         if (email.length < 10 || email.length > 50) {
-            throw new ErrorHandler(400,`Name should have between 8 to 60 characters`);
+            throw new ErrorHandler(400,`Email should have between 8 to 60 characters`);
         }
 
         if (door_to_door_service !== false && door_to_door_service !== true) {
@@ -292,18 +289,22 @@ let updateUserInfo = async (req, res, next) => {
      * Handles the changes an user can do in their profile
      */
     try {
-        //Only the user can access their own profile
+        if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+            return res.status(401).json({ errorMessage: "No access token provided" });
+        }
+
+        // Find an user by their ID
+        const user = await User.findByPk(req.params.user_id);
+        if (!user) {
+            throw new ErrorHandler(404, `User with ID ${req.params.user_id} wasn't found!`)
+        }
+
+        // Only the user can access their own profile
         if (parseInt(req.params.user_id) !== req.loggedUserId) {
             return res.status(403).json({ success: false, msg: "You are not authorized to change this profile!"})
         }
 
         let {id, name, tin, password, email, phone_number, street_name, postal_code, door_number, door_to_door_service, collection_point_id} = req.body;
-
-        //Find an user by their ID
-        const user = await User.findByPk(req.params.user_id);
-        if (!user) {
-            throw new ErrorHandler(404, `User with ID ${req.params.user_id} wasn't found!`)
-        }
 
         // sequelize update method allows PARTIAL updates, so we NEED to check for missing fields    
         let missingFields = [];
@@ -313,10 +314,10 @@ let updateUserInfo = async (req, res, next) => {
         if (email === undefined) missingFields.push('Email');
         if (phone_number === undefined) missingFields.push('Phone Number');
         if (door_to_door_service === undefined) missingFields.push('Door to Door Service');
-        if (door_number === undefined) missingFields.push("Door Number")
-        if(street_name === undefined) missingFields.push('Street Name')
-        if (postal_code === undefined) missingFields.push('Postal Code')
-        if (collection_point_id === undefined) missingFields.push('Collection Point ID')
+        if (door_number === undefined) missingFields.push("Door Number");
+        if(street_name === undefined) missingFields.push('Street Name');
+        if (postal_code === undefined) missingFields.push('Postal Code');
+        if (collection_point_id === undefined) missingFields.push('Collection Point ID');
 
         if (missingFields.length > 0) 
            throw new ErrorHandler(400, `Missing required fields: ${missingFields.join(', ')}`);
@@ -366,7 +367,7 @@ let updateUserInfo = async (req, res, next) => {
         const collection_point = await Collection_Point.findByPk(collection_point_id);
 
         if (!collection_point) {
-            throw new ErrorHandler(401, "Invalid credentials")
+            throw new ErrorHandler(404, "Collection Point not found")
         }
 
         //Update all parameters for the user
@@ -402,6 +403,10 @@ let deleteUser = async (req, res, next) => {
      * or the user itself deletes their own profile
      */
     try {
+        if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+            return res.status(401).json({ errorMessage: "No access token provided" });
+        }
+
         if (req.loggedUserRole !== "admin") {
             return res.status(403).json({ 
                 success: false,
@@ -417,7 +422,10 @@ let deleteUser = async (req, res, next) => {
         }
 
         // send 204 No Content response
-        res.status(204).json();
+        res.status(200).json({
+            msg: `User with id ${req.params.user_id}  sucessfully deleted.`
+        });
+;
     } catch (err) {
         next(err)
     }

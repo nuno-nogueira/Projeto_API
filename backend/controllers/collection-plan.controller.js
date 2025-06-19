@@ -1,17 +1,32 @@
+const { where } = require('sequelize');
 const db = require('../models/db.js'); // Import the database connection
 const Collection_Plan = db.Collection_Plan;
 const { ErrorHandler } = require("../utils/error.js");
 
 let getPlan = async (req, res, next) => {
     try {
+        if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+            return res.status(401).json({ errorMessage: "No access token provided" });
+        }
         if (req.loggedUserRole !== "admin" && req.loggedUserRole !== "morador") {
             return res.status(403).json({
                 success: false,
                 msg: "This request required ADMIN or CITIZEN role!"
             })
         };
-        const plan = await Collection_Plan.findAll();
-        res.json(plan);
+
+        let plan = await Collection_Plan.findAll({
+            include: [
+                {
+                    model:db.Waste_Type,
+                    atributes: ['waste_type_id','identifying_color','name'],
+                }]
+        });
+
+        //If not found
+        if (!plan) return res.status(404).json({ error: 'collection plan not found' });
+
+        res.status(200).json({plan});
     } catch (error) {
         next(error);
     }
