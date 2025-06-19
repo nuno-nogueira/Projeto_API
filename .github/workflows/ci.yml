@@ -7,7 +7,8 @@ on:
     branches: [ sandra ]
 
 jobs: 
-  test:
+  test-frontend:
+    name: Test Frontend
     runs-on: ubuntu-latest
 
     steps:
@@ -19,11 +20,31 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install dependencies
+      - name: Install dependencies (frontend)
+        working-directory: ./frontend
         run: npm install
 
-      - name: Run tests
+      - name: Run tests (frontend)
+        working-directory: ./frontend
         run: npm test
 
-      - name: Fix Jest permissions
-        run: chmod +x node_modules/.bin/jest
+  test-backend:
+    name: Test Backend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies (backend)
+        working-directory: ./backend
+        run: npm install
+
+      - name: Run tests (backend)
+        working-directory: ./backend
+        run: npm test
