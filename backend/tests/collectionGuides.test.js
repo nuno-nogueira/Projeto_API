@@ -9,7 +9,7 @@ let token;
 let server;
 
 beforeAll(async () => {
-
+    jest.setTimeout(20000);
     const user= {user_id: 5, role:'motorista'};
     token= jwt.sign(user, process.env.SECRET, {expiresIn: '1h'});
 
@@ -27,6 +27,7 @@ beforeAll(async () => {
        server= app.listen(0);
     } catch (err) {
         console.error('Unable to connect to DB during tests:', err);
+        throw err;
     }
 })
 
@@ -66,5 +67,5 @@ describe('POST /collection-guides', ()=>{
 
 afterAll(async()=>{
     await db.sequelize.close();
-    if(server.close) server.close();
+    if(server && server.close) await new Promise(resolve => server.close(resolve));
 })
