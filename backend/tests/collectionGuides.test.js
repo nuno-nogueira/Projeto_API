@@ -7,9 +7,9 @@ const express= require('express');
 
 let token;
 let server;
+jest.setTimeout(20000);
 
 beforeAll(async () => {
-    jest.setTimeout(20000);
     const user= {user_id: 5, role:'motorista'};
     token= jwt.sign(user, process.env.SECRET, {expiresIn: '1h'});
 
@@ -66,6 +66,6 @@ describe('POST /collection-guides', ()=>{
 });
 
 afterAll(async()=>{
-    await db.sequelize.close();
-    if(server && server.close) await new Promise(resolve => server.close(resolve));
+    await sequelize.close();  // <-- Fecha a ligação com a base de dados
+  server.close(); 
 })
