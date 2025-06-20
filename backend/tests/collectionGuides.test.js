@@ -66,6 +66,6 @@ describe('POST /collection-guides', ()=>{
 });
 
 afterAll(async()=>{
-    await sequelize.close();  // <-- Fecha a ligação com a base de dados
+    await db.sequelize.close();  // <-- Fecha a ligação com a base de dados
   server.close(); 
 })
