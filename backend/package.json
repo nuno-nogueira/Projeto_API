@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "cd backend && npm test"
+    "test": "npm test"
   },
   "keywords": [],
   "author": "",
