@@ -53,6 +53,7 @@ jobs:
         run: sleep 20
 
       - name: Fix Jest permissions
+        working-directory: ./backend
         run: chmod +x node_modules/.bin/jest
 
       - name: Run tests (backend)
