@@ -267,171 +267,205 @@
                     </v-row>
                   </template>
                 </v-card>
-              </v-col>
-              <v-col cols="4" md="3">
-                <v-row class="trash-types-container">
-                  <v-col cols="12" md="12">
-                    <v-card elevation="0" class="trash-type">
-                      <v-row class="trash-type-info">
-                        <v-col cols="12" md="3">
-                          <div
-                            class="icon-background"
-                            id="undifferentiated-background"
-                          >
-                            <img
-                              src="../assets/icons/undifferentiated_icon.webp"
-                              alt="Icone para o lixo indiferenciado"
-                            />
-                          </div>
-                        </v-col>
-                        <v-col cols="10" md="8">
-                          <h3 class="font-weight-black">Indiferenciado</h3>
-                          <p>Dados mensais</p>
-                        </v-col>
-                      </v-row>
-                      <v-row class="trash-type-weight">
-                        <v-col cols="12" md="3">
-                          <h3 class="font-weight-black">0 kg</h3>
-                        </v-col>
-                        <v-col
-                          cols="12"
-                          md="8"
-                          class="trash-type-weight-percentage"
-                        >
-                          <p>0.39%</p>
-                          <img src="../assets/icons/arrow_up.webp" alt="" />
-                        </v-col>
-                      </v-row>
-                    </v-card>
-                  </v-col>
-                  <v-col cols="12" md="12">
-                    <v-card elevation="0" class="trash-type">
-                      <v-row class="trash-type-info">
-                        <v-col cols="10" md="3">
-                          <div class="icon-background" id="organic-background">
-                            <img
-                              src="../assets/icons/organic_icon.webp"
-                              alt="Icone para o lixo indiferenciado"
-                            />
-                          </div>
-                        </v-col>
-                        <v-col cols="10" md="8">
-                          <h3 class="font-weight-black">Orgânico</h3>
-                          <p>Dados mensais</p>
-                        </v-col>
-                      </v-row>
-                      <v-row class="trash-type-weight">
-                        <v-col cols="12" md="3">
-                          <h3 class="font-weight-black">0 kg</h3>
-                        </v-col>
-                        <v-col
-                          cols="12"
-                          md="8"
-                          class="trash-type-weight-percentage"
-                        >
-                          <p>0.39%</p>
-                          <img src="../assets/icons/arrow_up.webp" alt="" />
-                        </v-col>
-                      </v-row>
-                    </v-card>
-                  </v-col>
-                  <v-col cols="12" md="12">
-                    <v-card elevation="0" class="trash-type">
-                      <v-row class="trash-type-info">
-                        <v-col cols="12" md="3">
-                          <div class="icon-background" id="paper-background">
-                            <img
-                              src="../assets/icons/paper_icon.webp"
-                              alt="Icone para o lixo indiferenciado"
-                            />
-                          </div>
-                        </v-col>
-                        <v-col cols="10" md="8">
-                          <h3 class="font-weight-black">Papel / Cartão</h3>
-                          <p>Dados mensais</p>
-                        </v-col>
-                      </v-row>
-                      <v-row class="trash-type-weight">
-                        <v-col cols="12" md="3">
-                          <h3 class="font-weight-black">0 kg</h3>
-                        </v-col>
-                        <v-col
-                          cols="12"
-                          md="8"
-                          class="trash-type-weight-percentage"
-                        >
-                          <p>0.39%</p>
-                          <img src="../assets/icons/arrow_up.webp" alt="" />
-                        </v-col>
-                      </v-row>
-                    </v-card>
-                  </v-col>
-                </v-row>
-                <v-row class="trash-types-container py-4">
-                  <v-col cols="12" md="12">
-                    <v-card elevation="0" class="trash-type">
-                      <v-row class="trash-type-info">
-                        <v-col cols="12" md="3">
-                          <div class="icon-background" id="glass-background">
-                            <img
-                              src="../assets/icons/glass_icon.webp"
-                              alt="Icone para o vidro"
-                            />
-                          </div>
-                        </v-col>
-                        <v-col cols="10" md="8">
-                          <h3 class="font-weight-black">Vidro</h3>
-                          <p>Dados mensais</p>
-                        </v-col>
-                      </v-row>
-                      <v-row class="trash-type-weight">
-                        <v-col cols="12" md="3">
-                          <h3 class="font-weight-black">0 kg</h3>
-                        </v-col>
-                        <v-col
-                          cols="12"
-                          md="8"
-                          class="trash-type-weight-percentage"
-                        >
-                          <p>0.39%</p>
-                          <img src="../assets/icons/arrow_up.webp" alt="" />
-                        </v-col>
-                      </v-row>
-                    </v-card>
-                  </v-col>
-                  <v-col cols="12" md="12">
-                    <v-card elevation="0" class="trash-type">
-                      <v-row class="trash-type-info">
-                        <v-col cols="10" md="3">
-                          <div class="icon-background" id="plastic-background">
-                            <img
-                              src="../assets/icons/plastic_icon.webp"
-                              alt="Icone para o plastico"
-                            />
-                          </div>
-                        </v-col>
-                        <v-col cols="10" md="8">
-                          <h3 class="font-weight-black">Plástico / Metal</h3>
-                          <p>Dados mensais</p>
-                        </v-col>
-                      </v-row>
-                      <v-row class="trash-type-weight">
-                        <v-col cols="12" md="3">
-                          <h3 class="font-weight-black">0 kg</h3>
-                        </v-col>
-                        <v-col
-                          cols="12"
-                          md="8"
-                          class="trash-type-weight-percentage"
-                        >
-                          <p>0.39%</p>
-                          <img src="../assets/icons/arrow_up.webp" alt="" />
-                        </v-col>
-                      </v-row>
-                    </v-card>
-                  </v-col>
-                </v-row>
-              </v-col>
+                <v-card class="mx-auto px-6 py-8" 
+                max-width="90%" 
+                v-if="door_to_door_service">
+                    <v-container>
+                        <v-row>
+                            <v-col cols="4" md="4">
+                                <v-card elevation="0">
+                                    <template v-slot:title>
+                                        <span style="margin-left: 15px;" class="font-weight-black">Taxa de lixo mensal</span>
+                                        <v-card-text>
+                                            <p>Estimativa com base na produção mensal de <br>resíduos indiferenciados.</p>
+                                        </v-card-text>
+                                        <v-row>
+                                            <v-col cols="12" md="4">
+                                                <h2 class="tax">13,70€</h2>
+                                            </v-col>
+                                            <v-col cols="12" md="4">
+                                                <img class="trash_icon" src="../assets/icons/trash_icon.webp" alt="">
+                                            </v-col>
+                                        </v-row>
+                                    </template>
+                                </v-card>
+                            </v-col>
+                            <v-col cols="4" md="8" sm="8">
+                                <apex-chart
+                                type="line"
+                                height="300"
+                                :options="chartOptions"
+                                :series="chartSeries"></apex-chart>
+                            </v-col>
+                            <!-- <v-col cols="4" md="3">
+                                <v-row class="trash-types-container">
+                                    <v-col cols="12" md="12">
+                                        <v-card elevation="0" class="trash-type">
+                                            <v-row class="trash-type-info">
+                                                <v-col cols="12" md="3">
+                                                    <div class="icon-background" id="undifferentiated-background">
+                                                        <img src="../assets/icons/undifferentiated_icon.webp" alt="Icone para o lixo indiferenciado">
+                                                    </div>                                        
+                                                </v-col>
+                                                <v-col cols="10" md="8">
+                                                    <h3 class="font-weight-black">Indiferenciado</h3>
+                                                    <p>Dados mensais</p>
+                                                </v-col>
+                                            </v-row>
+                                            <v-row class="trash-type-weight">
+                                                <v-col cols="12" md="3">
+                                                    <h3 class="font-weight-black">0 kg</h3>
+                                                </v-col>
+                                                <v-col cols="12" md="8" class="trash-type-weight-percentage">
+                                                    <p>0.39%</p>
+                                                    <img src="../assets/icons/arrow_up.webp" alt="">
+                                                </v-col>
+                                            </v-row>
+                                        </v-card>
+                                    </v-col>
+                                    <v-col cols="12" md="12">
+                                        <v-card elevation="0" class="trash-type">
+                                            <v-row class="trash-type-info">
+                                                <v-col cols="10" md="3">
+                                                    <div class="icon-background" id="organic-background">
+                                                        <img src="../assets/icons/organic_icon.webp" alt="Icone para o lixo indiferenciado">
+                                                    </div>                                        
+                                                </v-col>
+                                                <v-col cols="10" md="8">
+                                                    <h3 class="font-weight-black">Orgânico</h3>
+                                                    <p>Dados mensais</p>
+                                                </v-col>
+                                            </v-row>
+                                            <v-row class="trash-type-weight">
+                                                <v-col cols="12" md="3">
+                                                    <h3 class="font-weight-black">0 kg</h3>
+                                                </v-col>
+                                                <v-col cols="12" md="8" class="trash-type-weight-percentage">
+                                                    <p>0.39%</p>
+                                                    <img src="../assets/icons/arrow_up.webp" alt="">
+                                                </v-col>
+                                            </v-row>
+                                        </v-card>
+                                    </v-col>
+                                    <v-col cols="12" md="12">
+                                        <v-card elevation="0" class="trash-type">
+                                            <v-row class="trash-type-info">
+                                                <v-col cols="12" md="3">
+                                                    <div class="icon-background" id="paper-background">
+                                                        <img src="../assets/icons/paper_icon.webp" alt="Icone para o lixo indiferenciado">
+                                                    </div>                                        
+                                                </v-col>
+                                                <v-col cols="10" md="8">
+                                                    <h3 class="font-weight-black">Papel / Cartão</h3>
+                                                    <p>Dados mensais</p>
+                                                </v-col>
+                                            </v-row>
+                                            <v-row class="trash-type-weight">
+                                                <v-col cols="12" md="3">
+                                                    <h3 class="font-weight-black">0 kg</h3>
+                                                </v-col>
+                                                <v-col cols="12" md="8" class="trash-type-weight-percentage">
+                                                    <p>0.39%</p>
+                                                    <img src="../assets/icons/arrow_up.webp" alt="">
+                                                </v-col>
+                                            </v-row>
+                                        </v-card>
+                                    </v-col>
+                                </v-row>
+                                <v-row class="trash-types-container py-4" >
+                                    <v-col cols="12" md="12">
+                                        <v-card elevation="0" class="trash-type">
+                                            <v-row class="trash-type-info">
+                                                <v-col cols="12" md="3">
+                                                    <div class="icon-background" id="glass-background">
+                                                        <img src="../assets/icons/glass_icon.webp" alt="Icone para o vidro">
+                                                    </div>                                        
+                                                </v-col>
+                                                <v-col cols="10" md="8">
+                                                    <h3 class="font-weight-black">Vidro</h3>
+                                                    <p>Dados mensais</p>
+                                                </v-col>
+                                            </v-row>
+                                            <v-row class="trash-type-weight">
+                                                <v-col cols="12" md="3">
+                                                    <h3 class="font-weight-black">0 kg</h3>
+                                                </v-col>
+                                                <v-col cols="12" md="8" class="trash-type-weight-percentage">
+                                                    <p>0.39%</p>
+                                                    <img src="../assets/icons/arrow_up.webp" alt="">
+                                                </v-col>
+                                            </v-row>
+                                        </v-card>
+                                    </v-col>
+                                    <v-col cols="12" md="12">
+                                        <v-card elevation="0" class="trash-type">
+                                            <v-row class="trash-type-info">
+                                                <v-col cols="10" md="3">
+                                                    <div class="icon-background" id="plastic-background">
+                                                        <img src="../assets/icons/plastic_icon.webp" alt="Icone para o plastico">
+                                                    </div>                                        
+                                                </v-col>
+                                                <v-col cols="10" md="8">
+                                                    <h3 class="font-weight-black">Plástico / Metal</h3>
+                                                    <p>Dados mensais</p>
+                                                </v-col>
+                                            </v-row>
+                                            <v-row class="trash-type-weight">
+                                                <v-col cols="12" md="3">
+                                                    <h3 class="font-weight-black">0 kg</h3>
+                                                </v-col>
+                                                <v-col cols="12" md="8" class="trash-type-weight-percentage">
+                                                    <p>0.39%</p>
+                                                    <img src="../assets/icons/arrow_up.webp" alt="">
+                                                </v-col>
+                                            </v-row>
+                                        </v-card>
+                                    </v-col>
+                                </v-row>
+                            </v-col> -->
+                        </v-row>
+                    </v-container>
+                    <v-container>
+                        <h3>Meus Feedbacks</h3>
+                        <v-table>
+                            <thead>
+                                <tr>
+                                    <th class="text-left">DESCRIÇÃO</th>
+                                    <th class="text-left">TIPO</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="feedback in feedbacks" :key="feedback.feedback_id">
+                                    <td>
+                                        {{feedback.feedback_date.slice(0, 10).replaceAll("-", "/")}} - {{ feedback.collection_point.street_name }}<br>
+                                        {{feedback.description}}
+                                    </td>
+                                    <td>{{feedback.feedback_type}}</td>
+                                </tr>
+                            </tbody>
+                        </v-table>
+                    </v-container>
+                </v-card>
+            </v-tabs-window-item>
+            <v-tabs-window-item value="3">
+            </v-tabs-window-item>
+        </v-tabs-window>
+    </div>
+    <div style="margin-top: 100px;" v-if="user.user_type == 'admin'">
+        <v-card class="px-6 py-8 welcome-card" max-width="90%">
+            <v-row>
+                <v-col cols="4" md="3" class="image-column">
+                    <img src="../assets/icons/robot-icon.webp" style="width: 250px; height: 250px;" alt="Icone de robo" srcset="">
+                </v-col>
+                <v-col cols="12" md="6" class="welcome-column">
+                    <h1>Bem Vindo <br> {{ user.name }}</h1>
+                    <h3>Gere ecopontos, guias, utilizadores e o nosso plano anual – tudo à distância de um clique! </h3>
+                </v-col>
+                <v-col cols="4" md="3" class="image-column">
+                    <img src="../assets/icons/calendar-icon.webp" style="width: 250px; height: 200px;" alt="Icone de robo" srcset="">
+                </v-col>
+
+
             </v-row>
           </v-container>
           <v-container>
@@ -1015,6 +1049,68 @@ export default {
             icon: wt.icon || "",
             color: wt.identifying_color,
           };
+
+            user: null,
+            tab: 1,
+            admin_tab: 1,
+            form: false,
+            visible1: false,
+            visible2: false,
+            id: 0,
+            cp_id: 0,
+            name: '',
+            surname: '',
+            tin: '',
+            oldPassword: '',
+            newPassword: '',
+            phone_number: '',
+            email: '',
+            address: '',
+            postal_code: '',
+            door_number: '',
+            user_type: '',
+            door_to_door_service: false,
+            feedbacks: [],
+            users: [],
+            readings: [],
+            page: 1,
+            totalPages: 1,
+            orderBy: "(A-Z)",
+            colors: ["#37474F", "#6F4439", "#446DEB", "#14AE5C", "#FFC727"],
+            icons: {
+                user_icon: "mdi-account",
+                cg_icon: "mdi-paperclip",
+                cp_icon: "mdi-cached",
+                annual_plan_icon: "mdi-calendar" 
+            },
+            chartSeries: [],
+            chartOptions: {
+                chart: {
+                    type: 'line'
+                },
+                stroke: {
+                    curve: 'smooth',
+                    width: 3
+                },
+                xaxis: {},
+                yaxis: {
+                    text: "Quantidade de lixo (kg)"
+                },
+                tooltip: {
+                    x: {
+                        format: 'dd/MM/yyyy'
+                    }
+                },
+                colors: ["#FFC727",
+                "#14AE5C",
+                "#446DEB",
+                "#37474F",
+                "#6F4439"],
+                legend: {
+                    position: 'top'
+                }
+            }
+
         }
       });
       this.wasteTypes = Object.values(wasteTypeMap);
@@ -1025,68 +1121,134 @@ export default {
     }
   },
 
-  methods: {
-    async submitChanges() {
-      //starts the validation for all form inputs
-      if (this.newPassword) {
-        this.oldPassword = this.newPassword;
-      }
+    methods: {
+        async submitChanges() {
+            //starts the validation for all form inputs            
+            if (this.newPassword) {
+                this.oldPassword = this.newPassword
+            }
 
-      const result = await this.v$.$validate();
+            const result = await this.v$.$validate();
 
-      if (result) {
-        const userInfo = {
-          id: this.id,
-          name: this.name + " " + this.surname,
-          tin: this.tin,
-          password: this.oldPassword,
-          email: this.email,
-          phone_number: this.phone_number,
-          street_name: this.address,
-          postal_code: this.postal_code,
-          door_number: this.door_number,
-          door_to_door_service: this.door_to_door_service,
-          collection_point_id: this.cp_id,
-        };
+            if (result) {
+                const userInfo = {
+                    id: this.id,
+                    name: this.name + " " + this.surname,
+                    tin: this.tin,
+                    password: this.oldPassword,
+                    email: this.email,
+                    phone_number: this.phone_number,
+                    street_name: this.address,
+                    postal_code: this.postal_code,
+                    door_number: this.door_number,
+                    door_to_door_service: this.door_to_door_service,
+                    collection_point_id: this.cp_id
+                }
+                console.log('teste');
+                
+                try {
+                    const res = await Users.editProfile(userInfo)
+                } catch (err) {
+                    console.error(err.response?.data)
+                    alert('Erro ao editar perfil: ' + (err.response?.data.error || error.message))
+                }
+            }
+        },
 
-        try {
-          const res = await Users.editProfile(userInfo);
-        } catch (err) {
-          console.error(err.response?.data);
-          alert(
-            "Erro ao editar perfil: " +
-              (err.response?.data.error || error.message)
-          );
+        async fetchUsers(page) {
+            try {
+                const res = await Users.allUsers({
+                    page, 
+                    limit: 6,
+                    order: this.checkOrderBy
+                });
+
+                this.users = res.data.data  
+                this.page = res.data.currentPage
+                this.totalPages = res.data.totalPages
+                
+            } catch (err) {
+                console.error("Erro:", err);
+                
+            }
+        },
+
+        async deleteUser(userId) {
+            try {
+                await Users.deleteUser(userId);
+                this.fetchUsers(this.page)
+            } catch (err) {
+                console.error(err.response?.data)
+                    alert('Erro ao editar perfil: ' + (err.response?.data.error || err.message))
+            }
+        },
+
+        activateService() {
+            this.door_to_door_service = true;
+            this.submitChanges;
+        },
+
+        citizenInfo() {
+            this.address = this.user.collection_point.street_name;
+            this.postal_code = this.user.collection_point.postal_code;
+            this.door_number = this.user.collection_point.door_number;
+            this.door_to_door_service = this.user.door_to_door_service === "sim" ? true : false;
+            this.cp_id = this.user.collection_point.collection_point_id;
+            this.feedbacks = this.user.feedbacks; 
+        },
+
+        groupByMonth() {
+            const readingValues = {};
+            this.chartSeries = [];
+
+            const months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            
+
+            // Separate the data by waste type, and then add the weight collected for each month
+            this.readings.data.forEach(reading => {
+
+                // Put the date in the (DD-MM-YYY) format
+                const date = reading.reading_date.substring(8, 10) + '/' + reading.reading_date.substring(5, 7) + '/' + reading.reading_date.substring(0, 4)
+                const month = date.substring(3, 5);
+
+                // Get the waste type & weight collected
+                const waste_type = reading.container.waste_type.name
+                const weight = reading.weight_collected || 0;
+
+                if (!readingValues[waste_type]) {
+                    readingValues[waste_type] = {};
+                } 
+                                
+                if (!readingValues[waste_type][month]) {
+                    readingValues[waste_type][month] = 0;
+                }
+
+                readingValues[waste_type][month] += weight;
+            })             
+
+            for (const type in readingValues) {
+                // Get the values from each month
+                const values = readingValues[type]
+                
+                // Fill the data for each month to render the graph
+                const monthlyData = months.map(month => {
+                    return values[month] || 0;
+                });
+
+                // Add the data into the chartSeries
+                this.chartSeries.push({
+                    name: type.trim(),
+                    data: monthlyData
+                })
+            }
+
+            // Add the month names into the x axis
+            this.chartOptions.xaxis = {
+                type: "category",
+                categories: monthNames
+            }
         }
-      }
-    },
-
-    async fetchUsers(page) {
-      try {
-        const res = await Users.allUsers({
-          page,
-          limit: 6,
-          order: this.checkOrderBy,
-        });
-
-        this.users = res.data.data;
-        this.page = res.data.currentPage;
-        this.totalPages = res.data.totalPages;
-      } catch (err) {
-        console.error("Erro:", err);
-      }
-    },
-
-    async deleteUser(userId) {
-      try {
-        await Users.deleteUser(userId);
-        this.fetchUsers(this.page);
-      } catch (err) {
-        console.error(err.response?.data);
-        alert(
-          "Erro ao editar perfil: " + (err.response?.data.error || err.message)
-        );
-      }
     },
 
     activateService() {
