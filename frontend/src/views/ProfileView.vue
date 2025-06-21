@@ -446,29 +446,14 @@
                         </v-table>
                     </v-container>
                 </v-card>
+                </v-col>
+            </v-row>    
+        </v-container>
+        </v-card>
             </v-tabs-window-item>
             <v-tabs-window-item value="3">
             </v-tabs-window-item>
         </v-tabs-window>
-    </div>
-    <div style="margin-top: 100px;" v-if="user.user_type == 'admin'">
-        <v-card class="px-6 py-8 welcome-card" max-width="90%">
-            <v-row>
-                <v-col cols="4" md="3" class="image-column">
-                    <img src="../assets/icons/robot-icon.webp" style="width: 250px; height: 250px;" alt="Icone de robo" srcset="">
-                </v-col>
-                <v-col cols="12" md="6" class="welcome-column">
-                    <h1>Bem Vindo <br> {{ user.name }}</h1>
-                    <h3>Gere ecopontos, guias, utilizadores e o nosso plano anual – tudo à distância de um clique! </h3>
-                </v-col>
-                <v-col cols="4" md="3" class="image-column">
-                    <img src="../assets/icons/calendar-icon.webp" style="width: 250px; height: 200px;" alt="Icone de robo" srcset="">
-                </v-col>
-
-
-            </v-row>
-          </v-container>
-        </v-card>
     </div>
   <div style="margin-top: 100px" v-if="user.user_type == 'admin'">
     <v-card class="px-6 py-8 welcome-card" max-width="90%">
@@ -526,7 +511,6 @@
           :prepend-icon="icons.cg_icon"
           text="Guias de Recolha"
           :to="{ name: 'guide-list' }" value="3"
-          value="3"
         ></v-tab>
         <v-tab
           class="admin-custom-tab"
@@ -798,6 +782,8 @@
               variant="outlined"
             ></v-select>
           </div>
+          <v-col>
+          <v-row>
             <v-container>
               <v-table>
                 <thead>
@@ -826,6 +812,7 @@
               </v-table>
             </v-container>
           </v-row>
+          </v-col>
           <v-pagination v-model="page" :length="totalPages" rounded="circle" />
         </v-tabs-window-item>
       </v-tabs-window>
@@ -909,7 +896,34 @@ export default {
         cp_icon: "mdi-cached",
         annual_plan_icon: "mdi-calendar",
       },
-
+      
+        chartSeries: [],
+        chartOptions: {
+            chart: {
+                type: 'line'
+            },
+            stroke: {
+                curve: 'smooth',
+                width: 3
+            },
+            xaxis: {},
+            yaxis: {
+                text: "Quantidade de lixo (kg)"
+            },
+            tooltip: {
+                x: {
+                    format: 'dd/MM/yyyy'
+                }
+            },
+            colors: ["#FFC727",
+            "#14AE5C",
+            "#446DEB",
+            "#37474F",
+            "#6F4439"],
+            legend: {
+                position: 'top'
+            }
+        },
       // --
       newPoint: {
         street_name: "",
@@ -952,35 +966,35 @@ export default {
     this.user_type = this.user.user_type;
     if (this.user_type === "morador") {
       this.citizenInfo();
+
+      // -------
+        this.collectionPoint = this.cp_id;
+
+        console.log(this.collection_point_id);
+
+        const pointInfo = await CollectionPoints.getCollectionPoint(
+            this.collection_point_id
+        );
+
+        this.collection_point_id = this.collectionPoint.collection_point_id;
+        this.collection_point_type = this.collectionPoint.collection_point_type;
+        this.collection_point_coordinates =
+        this.collectionPoint.collection_point_coordinates;
+        this.collection_point_opening_hours =
+        this.collectionPoint.collection_point_opening_hours;
+        this.collection_point_street_name = this.collectionPoint.street_name;
+        this.collection_point_postal_code = this.collectionPoint.postal_code;
+    this.collection_point_door_number = this.collectionPoint.door_number;
     } else if (this.user_type === "admin") {
       this.fetchUsers(this.page);
       this.fetchPoints(this.page);
     }
 
     // -------
-    console.log(this.collection_point_id);
-
-    const pointInfo = await CollectionPoints.getCollectionPoint(
-      this.collection_point_id
-    );
-    this.collectionPoint = pointInfo.data;
-
-    this.collection_point_id = this.collectionPoint.collection_point_id;
-    this.collection_point_type = this.collectionPoint.collection_point_type;
-    this.collection_point_coordinates =
-      this.collectionPoint.collection_point_coordinates;
-    this.collection_point_opening_hours =
-      this.collectionPoint.collection_point_opening_hours;
-    this.collection_point_street_name = this.collectionPoint.street_name;
-    this.collection_point_postal_code = this.collectionPoint.postal_code;
-    this.collection_point_door_number = this.collectionPoint.door_number;
-
-    // -------
 
     try {
       const res = await collectionPlan.getPlan();
       const planArray = res.data;
-      // console.log(planArray);
       this.wasteSchedule = planArray.map((schedule) => {
         return {
           id: schedule.plan_id,
@@ -1000,71 +1014,10 @@ export default {
             name: wt.name,
             icon: wt.icon || "",
             color: wt.identifying_color,
-          };
-
-            user: null,
-            tab: 1,
-            admin_tab: 1,
-            form: false,
-            visible1: false,
-            visible2: false,
-            id: 0,
-            cp_id: 0,
-            name: '',
-            surname: '',
-            tin: '',
-            oldPassword: '',
-            newPassword: '',
-            phone_number: '',
-            email: '',
-            address: '',
-            postal_code: '',
-            door_number: '',
-            user_type: '',
-            door_to_door_service: false,
-            feedbacks: [],
-            users: [],
-            readings: [],
-            page: 1,
-            totalPages: 1,
-            orderBy: "(A-Z)",
-            colors: ["#37474F", "#6F4439", "#446DEB", "#14AE5C", "#FFC727"],
-            icons: {
-                user_icon: "mdi-account",
-                cg_icon: "mdi-paperclip",
-                cp_icon: "mdi-cached",
-                annual_plan_icon: "mdi-calendar" 
-            },
-            chartSeries: [],
-            chartOptions: {
-                chart: {
-                    type: 'line'
-                },
-                stroke: {
-                    curve: 'smooth',
-                    width: 3
-                },
-                xaxis: {},
-                yaxis: {
-                    text: "Quantidade de lixo (kg)"
-                },
-                tooltip: {
-                    x: {
-                        format: 'dd/MM/yyyy'
-                    }
-                },
-                colors: ["#FFC727",
-                "#14AE5C",
-                "#446DEB",
-                "#37474F",
-                "#6F4439"],
-                legend: {
-                    position: 'top'
-                }
             }
-
         }
-      });
+        });
+            
       this.wasteTypes = Object.values(wasteTypeMap);
 
       // console.log(this.wasteSchedule, this.wasteTypes);
@@ -1200,8 +1153,7 @@ export default {
                 type: "category",
                 categories: monthNames
             }
-        }
-    },
+        },
 
     activateService() {
       this.door_to_door_service = true;
@@ -1224,6 +1176,7 @@ export default {
           page,
           limit: 6,
           order: this.checkOrderBy,
+          route_type: "admin"
         });
 
         this.collection_points = res.data.data;
@@ -1289,9 +1242,8 @@ export default {
 // numero de leiruras de lixo indiferenciado associadas ao morador X um valor tabelado ex:1.05€
     async wasteTaxes(){
 
-    }
-  },
-
+    },
+},
   validations() {
     return {
       name: { required, maxLengthValue: maxLength(12), alpha },
