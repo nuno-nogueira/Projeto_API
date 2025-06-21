@@ -186,8 +186,8 @@ let addUser = async (req, res, next) => {
             throw new ErrorHandler(400,`Postal Code should be 8 characters long`);
         }
 
-        if (door_number <= 1 || door_number > 80) {
-            throw new ErrorHandler(400,`Door Number should be between 1 and 50`);
+        if (door_number < 0) {
+            throw new ErrorHandler(400,`Door Number must be greater than 0`);
         }
         
         const count_all_points = await Collection_Point.count({}) 
@@ -422,7 +422,9 @@ let deleteUser = async (req, res, next) => {
         }
 
         // send 204 No Content response
-        res.status(204).json();
+        res.status(200).json({
+            msg: `User with id ${req.params.user_id}  sucessfully deleted.`
+        });
     } catch (err) {
         next(err)
     }

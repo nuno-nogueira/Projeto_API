@@ -1,5 +1,5 @@
 // Selenium script to test the simple login form without fixed ChromeDriver
-const { Builder, By, Key, until } = require('selenium-webdriver');
+const { Builder, By } = require('selenium-webdriver');
 const chrome = require("selenium-webdriver/chrome");
 
 (async function testUserProfile() {
@@ -20,9 +20,8 @@ const chrome = require("selenium-webdriver/chrome");
 
         // Fill in credentials
         await driver.findElement(By.id('tin-input')).sendKeys(251234567);
-        await driver.findElement(By.id('pass-input')).sendKeys('maria123');
+        await driver.findElement(By.id('pass-input')).sendKeys('maria12345');
         await driver.findElement(By.className('confirm-login')).click();
-
         console.log('✅ Login done successfully');
 
         await driver.sleep(1500);
