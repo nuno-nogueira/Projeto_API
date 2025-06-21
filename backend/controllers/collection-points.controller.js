@@ -12,15 +12,15 @@ let getAllPoints = async (req, res, next) => {
      */
     try {
         //Pagination - 6 Collection Points per page
-        let {page = 1, limit = 6, route_type = "map"} = req.query;
+        let { page = 1, limit = 20, route_type = "admin" } = req.query;
         let collection_points;
         // validate page and limit values
-        if (isNaN(page) || page < 1) 
+        if (isNaN(page) || page < 1)
             throw new ErrorHandler(400, `Invalid value for page: ${page}. It should be a positive integer.`);
-        
-        if (isNaN(limit) || limit < 1) 
-            throw new ErrorHandler(400, `Invalid value for limit: ${limit}. It should be a positive integer.`);           
-        
+
+        if (isNaN(limit) || limit < 1)
+            throw new ErrorHandler(400, `Invalid value for limit: ${limit}. It should be a positive integer.`);
+
         //Iterate through all collection points to put all links
 
         if (route_type == 'map') {
@@ -33,31 +33,32 @@ let getAllPoints = async (req, res, next) => {
                 },
                 limit: +limit
             })
-            
+
             return res.status(200).json({
                 data: collection_points,
             });
 
         } else if (route_type == 'admin') {           
             if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
-            return res.status(401).json({ errorMessage: "No access token provided" });
-        }
+                return res.status(401).json({ errorMessage: "No access token provided" });
+            }
             authController.verifyToken(); 
 
             if (req.loggedUserRole !== "admin") {
-                return res.status(403).json({ success: false,
+                return res.status(403).json({
+                    success: false,
                     msg: "This request required ADMIN role!"
                 })
-            } 
+            }
             // Find all collection points
             collection_points = await Collection_Point.findAndCountAll({
                 limit: +limit
             })
 
             collection_points.rows.forEach(collection_point => {
-            collection_point.links = [
-                {rel: "delete", href: `/collection_points/${collection_point.collection_point_id}, method: "DELETE`},
-                {rel: "modify", href: `/collection_points/${collection_point.collection_point_id}, method: "PUT`}
+                collection_point.links = [
+                    { rel: "delete", href: `/collection_points/${collection_point.collection_point_id}, method: "DELETE` },
+                    { rel: "modify", href: `/collection_points/${collection_point.collection_point_id}, method: "PUT` }
                 ]
             });
 
@@ -77,7 +78,7 @@ let getAllPoints = async (req, res, next) => {
         } else {
             throw new ErrorHandler(400, `Invalid value for route type: ${route_type}. It should be either 'map' or 'admin'.`);
         }
-    } catch (err) {        
+    } catch (err) {
         next(err);
     }
 }
@@ -104,21 +105,21 @@ let getPointById = async (req, res, next) => {
 
 let addPoint = async (req, res, next) => {
     if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
-            return res.status(401).json({ errorMessage: "No access token provided" });
-        }
+        return res.status(401).json({ errorMessage: "No access token provided" });
+    }
     /**
      * Add a new Collection Point
      */
     try {
         if (req.loggedUserRole !== "admin") {
-            return res.status(403).json({ 
+            return res.status(403).json({
                 success: false,
                 msg: "This request require ADMIN role!"
             })
         };
 
         //Gather all parameters
-        const {collection_point_type, postal_code, opening_hours, geographical_coordinates, street_name, door_number} = req.body;
+        const { collection_point_type, postal_code, opening_hours, geographical_coordinates, street_name, door_number } = req.body;
 
         // sequelize update method allows PARTIAL updates, so we NEED to check for missing fields    
         let missingFields = [];
@@ -135,23 +136,23 @@ let addPoint = async (req, res, next) => {
         }
 
         if (opening_hours.length < 5 || opening_hours.length > 45) {
-            throw new ErrorHandler(400,`Opening hours should be between 5 and 45 characters`);
+            throw new ErrorHandler(400, `Opening hours should be between 5 and 45 characters`);
         }
 
         if (street_name.length < 10 || street_name.length > 100) {
-            throw new ErrorHandler(400,`Street Name should be between 10 and 100 characters`);
+            throw new ErrorHandler(400, `Street Name should be between 10 and 100 characters`);
         }
 
         if (postal_code.length !== 8) {
-            throw new ErrorHandler(400,`Postal Code should be 8 characters long`);
+            throw new ErrorHandler(400, `Postal Code should be 8 characters long`);
         }
 
-        if (door_number <= 1 || door_number > 80) {
-            throw new ErrorHandler(400,`Door Number should be between 1 and 50`);
+        if (door_number <= 1 || door_number > 1000) {
+            throw new ErrorHandler(400, `Door Number should be between 1 and 1000`);
         }
 
         //INSERT QUERY
-        const count_all_points = await Collection_Point.count({}) 
+        const count_all_points = await Collection_Point.count({})
         collection_point_id = count_all_points + 1
 
         const collection_point = await Collection_Point.create({
@@ -168,11 +169,11 @@ let addPoint = async (req, res, next) => {
         res.status(201).json({
             msg: "Collection Point sucessfully created.",
             links: [
-                {rel: "self", href: `/collection-points/${collection_point.collection_point_id}}`, method: "GET"}
+                { rel: "self", href: `/collection-points/${collection_point.collection_point_id}}`, method: "GET" }
             ]
         })
     } catch (err) {
-        next (err);
+        next(err);
     }
 }
 
@@ -182,14 +183,14 @@ let updateCollectionPoint = async (req, res, next) => {
      */
 
     if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
-            return res.status(401).json({ errorMessage: "No access token provided" });
-        }
+        return res.status(401).json({ errorMessage: "No access token provided" });
+    }
     try {
         if (parseInt(req.params.user_id) !== req.loggedUserId && req.loggedUserRole !== "admin") {
-            return res.status(403).json({ success: false, msg: "You are not authorized to change this collection point!"})
+            return res.status(403).json({ success: false, msg: "You are not authorized to change this collection point!" })
         }
 
-        const {collection_point_type, postal_code, opening_hours, geographical_coordinates, street_name, door_number} = req.body;
+        const { collection_point_type, postal_code, opening_hours, geographical_coordinates, street_name, door_number } = req.body;
 
         const collection_point = await Collection_Point.findByPk(req.params.id);
         if (!collection_point) {
@@ -205,23 +206,23 @@ let updateCollectionPoint = async (req, res, next) => {
         if (postal_code === undefined) missingFields.push('Postal Code');
         if (door_number === undefined) missingFields.push('Door Number');
 
-        if (missingFields.length > 0) 
+        if (missingFields.length > 0)
             throw new ErrorHandler(400, `Missing required fields: ${missingFields.join(', ')}`);
 
         if (opening_hours.length < 5 || opening_hours.length > 45) {
-            throw new ErrorHandler(400,`Opening hours should be between 5 and 45 characters`);
+            throw new ErrorHandler(400, `Opening hours should be between 5 and 45 characters`);
         }
 
         if (street_name.length < 10 || street_name.length > 100) {
-            throw new ErrorHandler(400,`Street Name should be between 10 and 100 characters`);
+            throw new ErrorHandler(400, `Street Name should be between 10 and 100 characters`);
         }
 
         if (postal_code.length !== 8) {
-            throw new ErrorHandler(400,`Postal Code should be 8 characters long`);
+            throw new ErrorHandler(400, `Postal Code should be 8 characters long`);
         }
 
         if (door_number <= 1 || door_number > 80) {
-            throw new ErrorHandler(400,`Door Number should be between 1 and 50`);
+            throw new ErrorHandler(400, `Door Number should be between 1 and 50`);
         }
 
         const updates = {
@@ -236,7 +237,7 @@ let updateCollectionPoint = async (req, res, next) => {
             msg: "Collection Point updated sucessfully",
             data: result
         })
-    } catch (error) {        
+    } catch (error) {
         next(error);
     }
 }
@@ -252,17 +253,17 @@ let deletePoint = async (req, res, next) => {
         }
 
         if (req.loggedUserRole !== "admin") {
-            return res.status(403).json({ 
+            return res.status(403).json({
                 success: false,
                 msg: "This request require ADMIN role!"
             })
         };
 
         //delete an user in DB given its id
-        let result = await Collection_Point.destroy({where: {collection_point_id: req.params.id}});
+        let result = await Collection_Point.destroy({ where: { collection_point_id: req.params.id } });
         // the promise returns the number of deleted rows
         if (result === 0) {
-            throw new ErrorHandler(404,`Cannot find any COLLECTION POINT with ID ${req.params.id}.`);
+            throw new ErrorHandler(404, `Cannot find any COLLECTION POINT with ID ${req.params.id}.`);
         }
 
         // send 204 No Content response
