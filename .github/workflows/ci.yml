@@ -57,7 +57,7 @@ jobs:
         run: |
           until mysqladmin ping -h 127.0.0.1 -uroot -proot --silent; do
             echo "Waiting for MySQL to be ready..."
-            sleep 5
+            sleep 10
           done
 
       - name: Fix Jest permissions
