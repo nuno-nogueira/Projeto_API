@@ -101,14 +101,22 @@
 
             const token = res.data.accessToken;
             const userId = res.data.data.user_id;
+            const user_type = res.data.data.user_type;
+            
 
             localStorage.setItem('token', token);
-            localStorage.setItem('userId', userId)
+            localStorage.setItem('userId', userId);
+            localStorage.setItem('userRole', user_type);
 
             this.authStore.setToken(token);
-            this.authStore.setUserId(userId)
+            this.authStore.setUserId(userId);
+            this.authStore.setUserRole(user_type);
             
-            this.$router.push({ name: 'profile', params: { userId } });
+            if (user_type !== "motorista") {
+              this.$router.push({ name: 'profile', params: { userId } });
+            } else {
+              this.$router.push({ name: 'guide-list'});
+            }
           } catch (error) {
             alert(error.response?.data.msg || 'Erro no login');
             console.error("Login falhou:", error);

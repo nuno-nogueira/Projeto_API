@@ -6,7 +6,7 @@ const router = express.Router();
 const collection_points_controller = require("../controllers/collection-points.controller.js");
 const authController = require("../controllers/auth.controller.js")
 
-router.get("/", authController.verifyToken, collection_points_controller.getAllPoints);
+router.get("/", collection_points_controller.getAllPoints);
 router.get("/:id", collection_points_controller.getPointById);
 
 router.post("/", authController.verifyToken, collection_points_controller.addPoint);

@@ -468,34 +468,8 @@
 
             </v-row>
           </v-container>
-          <v-container>
-            <h3>Meus Feedbacks</h3>
-            <v-table>
-              <thead>
-                <tr>
-                  <th class="text-left">DESCRIÇÃO</th>
-                  <th class="text-left">TIPO</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="feedback in feedbacks" :key="feedback.feedback_id">
-                  <td>
-                    {{
-                      feedback.feedback_date.slice(0, 10).replaceAll("-", "/")
-                    }}
-                    - {{ feedback.collection_point.street_name }}<br />
-                    {{ feedback.description }}
-                  </td>
-                  <td>{{ feedback.feedback_type }}</td>
-                </tr>
-              </tbody>
-            </v-table>
-          </v-container>
         </v-card>
-      </v-tabs-window-item>
-      <v-tabs-window-item value="3"> </v-tabs-window-item>
-    </v-tabs-window>
-  </div>
+    </div>
   <div style="margin-top: 100px" v-if="user.user_type == 'admin'">
     <v-card class="px-6 py-8 welcome-card" max-width="90%">
       <v-row>
@@ -551,6 +525,7 @@
           class="admin-custom-tab"
           :prepend-icon="icons.cg_icon"
           text="Guias de Recolha"
+          :to="{ name: 'guide-list' }" value="3"
           value="3"
         ></v-tab>
         <v-tab
@@ -823,29 +798,6 @@
               variant="outlined"
             ></v-select>
           </div>
-          <v-row>
-            <!-- <v-col
-                        v-for="user in users"
-                        :key="user.user_id"
-                        cols="6"
-                        md="4">
-                            <v-card :variant="outlined"
-                            class="mx-auto"
-                            background-color="white"
-                            max-width="250"
-                            :title="user.name"
-                            :subtitle="user.collection_point.street_name">
-                                <template v-slot:actions>
-                                    <div justify-end>
-                                        <v-btn color="white" 
-                                        rounded="2" 
-                                        style="background-color: #ED6868;"
-                                        @click="deleteUser(user.user_id)">
-                                        Remover Utilizador</v-btn>
-                                    </div>
-                                </template>
-                            </v-card>
-                        </v-col> -->
             <v-container>
               <v-table>
                 <thead>
@@ -1141,11 +1093,11 @@ export default {
                     street_name: this.address,
                     postal_code: this.postal_code,
                     door_number: this.door_number,
-                    door_to_door_service: this.door_to_door_service,
+                    door_to_door_service: this.door_to_door_service === true ? "sim" : 'não',
                     collection_point_id: this.cp_id
                 }
-                console.log('teste');
                 
+                alert('Alterações feitas!')
                 try {
                     const res = await Users.editProfile(userInfo)
                 } catch (err) {

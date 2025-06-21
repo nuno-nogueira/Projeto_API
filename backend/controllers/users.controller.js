@@ -271,7 +271,8 @@ let loginUser = async (req, res, next) => {
                 name: user.name,
                 user_type: user.user_type,
                 door_to_door: user.door_to_door_service,
-                address_point_id: user.address_point_id
+                address_point_id: user.address_point_id,
+                user_type: user.user_type
             },
             links: [
                 {rel: "self", href: `/users/${user.user_id}, method: "GET`}
@@ -346,7 +347,8 @@ let updateUserInfo = async (req, res, next) => {
         if (email.length < 10 || email.length > 50) {
             throw new ErrorHandler(400,`Name should have between 8 to 60 characters`);
         }
-
+        console.log(door_to_door_service);
+        
         if (door_to_door_service !== "sim" && door_to_door_service !== "não") {
             throw new ErrorHandler(400,`Option must be yes or no`);
         }
