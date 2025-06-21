@@ -135,11 +135,11 @@
 
                   <v-col cols="12" md="6">
                     <v-text-field
-                    v-model="apartment_floor"
-                    :error-messages="v$.apartment_floor.$errors.map(e => e.$message)"
+                    v-model="door_number"
+                    :error-messages="v$.door_number.$errors.map(e => e.$message)"
                     variant="outlined"
                     class="mb-2 form-input"
-                    label="Andar"
+                    label="Nº da porta"
                     clearable
                     >
                     </v-text-field>
@@ -192,7 +192,7 @@
                     <p><span class="font-weight-black">Email: </span>{{ this.email }}</p>
                     <p><span class="font-weight-black">Morada: </span>{{ this.address }}</p>
                     <p><span class="font-weight-black">Código Postal: </span>{{ this.postal_code }}</p>
-                    <p><span class="font-weight-black">Andar: </span>{{ this.apartment_floor }}</p>
+                    <p><span class="font-weight-black">Andar: </span>{{ this.door_number }}</p>
                     <p v-if="door_to_door_service"><span class="font-weight-black">Serviço Porta a Porta: </span>Sim</p>
                     <p v-else><span class="font-weight-black">Serviço Porta a Porta: </span>Não</p>
                   </v-card-text>
@@ -240,7 +240,7 @@ import Users from '@/api/users'
         email:  '',
         address: '',
         postal_code: '',
-        apartment_floor: '',
+        door_number: '',
         door_to_door_service: false,
         visible1: false,
         visible2: false,
@@ -267,7 +267,7 @@ import Users from '@/api/users'
             phone_number: this.phone_number,
             street_name: this.address,
             postal_code: this.postal_code,
-            door_number: this.apartment_floor,
+            door_number: this.door_number,
             door_to_door_service: this.door_to_door_service
           }
 
@@ -293,7 +293,7 @@ import Users from '@/api/users'
             email: 2,
             address: 2,
             postal_code: 2,
-            apartment_floor: 2
+            door_number: 2
           }
 
           // finds the invalid inputs
@@ -347,8 +347,8 @@ import Users from '@/api/users'
           minLengthValue: minLength(8),
           maxLengthValue: maxLength(8)
          },
-        apartment_floor: { required,
-          maxLengthValue: maxLength(2),
+        door_number: { required,
+          maxLengthValue: minLength(1),
           numeric
          } 
       }
@@ -395,6 +395,6 @@ import Users from '@/api/users'
   .recyle-icon{
     width: 150px;
     height: 190px;
-    margin-left: 30px;
+    margin-left: 70px;
   }
 </style>

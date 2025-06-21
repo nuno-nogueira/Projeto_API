@@ -164,6 +164,6 @@
   .recyle-icon{
     width: 150px;
     height: 190px;
-    margin-left: 30px;
+    margin-left: 70px;
   }
 </style>

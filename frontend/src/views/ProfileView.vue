@@ -217,7 +217,7 @@
                                 type="line"
                                 height="300"
                                 :options="chartOptions"
-                                :series="[{name: 'Lixo Recolhido', data: chartSeries}]"></apex-chart>
+                                :series="chartSeries"></apex-chart>
                             </v-col>
                             <!-- <v-col cols="4" md="3">
                                 <v-row class="trash-types-container">
@@ -530,6 +530,7 @@ export default {
             page: 1,
             totalPages: 1,
             orderBy: "(A-Z)",
+            colors: ["#37474F", "#6F4439", "#446DEB", "#14AE5C", "#FFC727"],
             icons: {
                 user_icon: "mdi-account",
                 cg_icon: "mdi-paperclip",
@@ -542,7 +543,8 @@ export default {
                     type: 'line'
                 },
                 stroke: {
-                    curve: 'smooth'
+                    curve: 'smooth',
+                    width: 3
                 },
                 xaxis: {},
                 yaxis: {
@@ -552,6 +554,14 @@ export default {
                     x: {
                         format: 'dd/MM/yyyy'
                     }
+                },
+                colors: ["#FFC727",
+                "#14AE5C",
+                "#446DEB",
+                "#37474F",
+                "#6F4439"],
+                legend: {
+                    position: 'top'
                 }
             }
         }
@@ -604,7 +614,8 @@ export default {
                     door_to_door_service: this.door_to_door_service,
                     collection_point_id: this.cp_id
                 }
-
+                console.log('teste');
+                
                 try {
                     const res = await Users.editProfile(userInfo)
                 } catch (err) {
@@ -642,27 +653,9 @@ export default {
             }
         },
 
-        async fetchMap() {
-            try {
-                const res = await CPs.allCollectionPoints({route_type: 'map'})
-                console.log("Fetch Map ->", res.data);   
-            } catch (error) {
-                
-            }
-        },
-
-        async fetchAdmin() {
-            try {
-                const res = await CPs.allCollectionPoints({route_type: 'admin'})
-                console.log("Fetch Admin ->", res.data);   
-            } catch (error) {
-                
-            }
-        },
-
         activateService() {
             this.door_to_door_service = true;
-            this.submitChanges()
+            this.submitChanges;
         },
 
         citizenInfo() {
@@ -678,39 +671,53 @@ export default {
             const readingValues = {};
             this.chartSeries = [];
 
-            console.log(this.readings);
+            const months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
             
-            // In order to put the data in the graph, the reading dates need to be in a specific format (DD-MM-YYYY)
+
+            // Separate the data by waste type, and then add the weight collected for each month
             this.readings.data.forEach(reading => {
+
+                // Put the date in the (DD-MM-YYY) format
                 const date = reading.reading_date.substring(8, 10) + '/' + reading.reading_date.substring(5, 7) + '/' + reading.reading_date.substring(0, 4)
                 const month = date.substring(3, 5);
 
+                // Get the waste type & weight collected
+                const waste_type = reading.container.waste_type.name
                 const weight = reading.weight_collected || 0;
 
-                if (!readingValues[month]) {
-                    readingValues[month] = 0;
+                if (!readingValues[waste_type]) {
+                    readingValues[waste_type] = {};
+                } 
+                                
+                if (!readingValues[waste_type][month]) {
+                    readingValues[waste_type][month] = 0;
                 }
 
-                readingValues[month] += weight;
-            }) 
+                readingValues[waste_type][month] += weight;
+            })             
 
-            // Iterate through each month to add the weight collected of that month
-            Object.keys(readingValues).sort().forEach(month => {
-                    this.chartSeries.push({x: month, y: readingValues[month]})
-            })
+            for (const type in readingValues) {
+                // Get the values from each month
+                const values = readingValues[type]
+                
+                // Fill the data for each month to render the graph
+                const monthlyData = months.map(month => {
+                    return values[month] || 0;
+                });
 
-            // Add the category names for the x axis
-            this.chartOptions.xaxis = {
-                type: 'category',
-                categories: Object.keys(readingValues).map(m =>{
-                    const months = ['Jan', 'Feb', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-                    return months[m -1]
+                // Add the data into the chartSeries
+                this.chartSeries.push({
+                    name: type.trim(),
+                    data: monthlyData
                 })
             }
-            console.log(this.chartSeries);
-            console.log(this.chartOptions.xaxis);
-            
-            
+
+            // Add the month names into the x axis
+            this.chartOptions.xaxis = {
+                type: "category",
+                categories: monthNames
+            }
         }
     },
 
