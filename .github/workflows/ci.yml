@@ -49,10 +49,6 @@ jobs:
         working-directory: ./backend
         run: npm ci
 
-      - name: Run DB migrations
-        working-directory: ./backend
-        run: npx sequelize-cli db:migrate
-
       - name: Wait for MySQL to be ready
         run: |
           until mysqladmin ping -h 127.0.0.1 -uroot -proot --silent; do
