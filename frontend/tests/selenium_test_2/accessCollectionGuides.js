@@ -30,10 +30,24 @@ const chrome = require("selenium-webdriver/chrome");
         await driver.get('http://localhost:5173/guide-list');
         console.log('✅ Collection Guides List page loaded successfully');
 
+        await driver.sleep(2000);
+
         // Choose a collection guide
-        await driver.findElement(By.xpath('//*[@id="app"]/div[2]/div[1]/table/tbody/tr[1]/td[6]/a/span[3]'));
+        await driver.findElement(By.xpath('//*[@id="app"]/div[2]/div[1]/table/tbody/tr[1]/td[6]/a/span[3]')).click();
         console.log('✅ Collection Guide chosen');
 
+        await driver.sleep(1500);
+
+        // Insert a reading
+        await driver.findElement(By.xpath('//*[@id="input-v-31"]')).sendKeys(15);
+        console.log('✅ Reading added');
+
+        // Confirm changes
+        await driver.findElement(By.xpath('//*[@id="app"]/div[2]/div/div[1]/div/div/div[1]/button')).click();
+        console.log('✅ Changes updated');
+
+        console.log('🎉 Test done successfully!');
+        
     } catch (error) {
         console.error("❌ Erro no teste:", error);
     } finally {

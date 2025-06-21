@@ -11,7 +11,7 @@
           <v-sheet class="form" rounded>
             <v-card class="mx-auto px-6 py-8 form-card" max-width="450" elevation="0">
               <h1>Criar uma conta</h1>
-              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. </p>
+
               <v-text-field
                 v-model="name"
                 :counter="12"
@@ -87,7 +87,7 @@
         <v-sheet class="form" rounded>
           <v-card class="mx-auto px-6 py-8 form-card" max-width="450" elevation="0">
             <h1>Criar Conta</h1>
-              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. </p>
+
               <v-text-field
               v-model="phone_number"
               :error-messages="v$.phone_number.$errors.map(e => e.$message)"
@@ -159,7 +159,6 @@
       <template v-slot:item.3>
           <v-card class="mx-auto px-6 py-8 form-card" max-width="450" elevation="0">
             <h1>Confirmar dados</h1>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. </p>
   
           </v-card>
           <v-container class="mb-6">
@@ -169,13 +168,13 @@
                 prepend-icon="mdi-account"
                 width="450"  elevation="0">
                   <template v-slot:title>
-                    <span class="font-weight-black">Dados Pessoais</span>
+                    <span class="font-weight-bold">Dados Pessoais</span>
                   </template>
                 
                   <v-card-text>
-                    <p><span class="font-weight-black">Nome: </span>{{ this.name }}</p>
-                    <p><span class="font-weight-black">Sobrenome: </span>{{ this.surname }}</p>
-                    <p><span class="font-weight-black">NIF: </span>{{ this.tin }}</p>
+                    <p><span class="font-weight-bold">Nome: </span>{{ this.name }}</p>
+                    <p><span class="font-weight-bold">Sobrenome: </span>{{ this.surname }}</p>
+                    <p><span class="font-weight-bold">NIF: </span>{{ this.tin }}</p>
                   </v-card-text>
                 </v-card>
               </v-col>
@@ -184,17 +183,17 @@
                 prepend-icon="mdi-information"
                 width="450"  elevation="0">
                   <template v-slot:title>
-                    <span class="font-weight-black">Informações da morada</span>
+                    <span class="font-weight-bold">Informações da morada</span>
                   </template>
                 
                   <v-card-text>
-                    <p><span class="font-weight-black">Telefone: </span>{{ this.phone_number }}</p>
-                    <p><span class="font-weight-black">Email: </span>{{ this.email }}</p>
-                    <p><span class="font-weight-black">Morada: </span>{{ this.address }}</p>
-                    <p><span class="font-weight-black">Código Postal: </span>{{ this.postal_code }}</p>
-                    <p><span class="font-weight-black">Andar: </span>{{ this.door_number }}</p>
-                    <p v-if="door_to_door_service"><span class="font-weight-black">Serviço Porta a Porta: </span>Sim</p>
-                    <p v-else><span class="font-weight-black">Serviço Porta a Porta: </span>Não</p>
+                    <p><span class="font-weight-bold">Telefone: </span>{{ this.phone_number }}</p>
+                    <p><span class="font-weight-bold">Email: </span>{{ this.email }}</p>
+                    <p><span class="font-weight-bold">Morada: </span>{{ this.address }}</p>
+                    <p><span class="font-weight-bold">Código Postal: </span>{{ this.postal_code }}</p>
+                    <p><span class="font-weight-bold">Andar: </span>{{ this.door_number }}</p>
+                    <p v-if="door_to_door_service"><span class="font-weight-bold">Serviço Porta a Porta: </span>Sim</p>
+                    <p v-else><span class="font-weight-bold">Serviço Porta a Porta: </span>Não</p>
                   </v-card-text>
                 </v-card>
               </v-col>

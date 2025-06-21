@@ -61,7 +61,10 @@
 
                 <template v-else>
                     <v-btn icon color="#fff">
-                        <RouterLink :to="{name: 'profile', params: {userId: authStore.userId}}">
+                        <RouterLink v-if="authStore.userRole !== 'motorista'" :to="{name: 'profile', params: {userId: authStore.userId}}">
+                            <v-icon color="#043601">mdi-account</v-icon>
+                        </RouterLink>
+                        <RouterLink v-else :to="{name: 'guide-list'}">
                             <v-icon color="#043601">mdi-account</v-icon>
                         </RouterLink>
                     </v-btn>
@@ -69,21 +72,6 @@
                 </template>
             </div>
         </div>
-        <!-- logged -->
-        <!-- <div class="navbar">
-            <div class="navbar-left">
-                <a href=""><img src="@/assets/icons/logo.svg" alt=""></a>
-                <a href="">Serviços</a>
-                <a href="">Mapa</a>
-                <a href="">Contactos</a>
-            </div>
-            <div class="navbar-right">
-                <v-btn icon color="#fff">
-                    <v-icon color="#043601">mdi-account</v-icon>
-                </v-btn>
-                <v-btn color="#09A129">Sair</v-btn>
-            </div>
-        </div> -->
 </template>
 <script>
 import { RouterLink } from 'vue-router';

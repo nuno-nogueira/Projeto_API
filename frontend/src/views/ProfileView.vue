@@ -398,7 +398,7 @@
             justify-center>
                 <v-tab class="admin-custom-tab" :prepend-icon="icons.cp_icon" text="Pontos de Recolha" value="1"></v-tab>
                 <v-tab class="admin-custom-tab" :prepend-icon="icons.user_icon" text="Utilizadores" value="2"></v-tab>
-                <v-tab class="admin-custom-tab" :prepend-icon="icons.cg_icon" text="Guias de Recolha" value="3"></v-tab>
+                <v-tab class="admin-custom-tab" :prepend-icon="icons.cg_icon" text="Guias de Recolha" :to="{ name: 'guide-list' }" value="3"></v-tab>
                 <v-tab class="admin-custom-tab" :prepend-icon="icons.annual_plan_icon" text="Plano de Recolha" value="4"></v-tab>
             </v-tabs>
 
@@ -611,11 +611,11 @@ export default {
                     street_name: this.address,
                     postal_code: this.postal_code,
                     door_number: this.door_number,
-                    door_to_door_service: this.door_to_door_service,
+                    door_to_door_service: this.door_to_door_service === true ? "sim" : 'não',
                     collection_point_id: this.cp_id
                 }
-                console.log('teste');
                 
+                alert('Alterações feitas!')
                 try {
                     const res = await Users.editProfile(userInfo)
                 } catch (err) {
