@@ -9,15 +9,15 @@ export default {
         return api().get(`collection-points/${collectionPointID}`);
     },
 
-    createCollectionPoint(collectionPointID) {
-        return api().post("collection-points/", collectionPointID)
+    createCollectionPoint(collectionPointData) {
+        return api().post("collection-points/", collectionPointData)
     },
 
-    updateCollectionPoints(collectionPointID) {
+    updateCollectionPoint(collectionPointID) {
         return api().patch(`collection-points/${collectionPointID}`);
     },
 
-    deleteCollectionPoints(collectionPointID) {
+    deleteCollectionPoint(collectionPointID) {
         return api().delete(`collection-points/${collectionPointID}`);
     }
 }

@@ -19,6 +19,7 @@
     "selenium-webdriver": "^4.33.0",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0",
+    "vue3-apexcharts": "^1.8.0",
     "vuelidate": "^0.7.7",
     "vuetify": "^3.8.4"
   },
