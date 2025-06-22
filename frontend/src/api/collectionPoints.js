@@ -1,23 +1,23 @@
 import api from '@/api/api'
 
 export default {
-    allCollectionPoints({route_type}) {
-        return api().get("collection-points", {params: {route_type}});
+    allCollectionPoints({page = 1, limit = 6, order, route_type}) {
+        return api().get("collection-points", {params: {page, limit, order, route_type}});
     },
 
     getCollectionPoint(collectionPointID) {
         return api().get(`collection-points/${collectionPointID}`);
     },
 
-    createCollectionPoint(collectionPointID) {
-        return api().post("collection-points/", collectionPointID)
+    createCollectionPoint(collectionPointData) {
+        return api().post("collection-points/", collectionPointData)
     },
 
-    updateCollectionPoints(collectionPointID) {
+    updateCollectionPoint(collectionPointID) {
         return api().patch(`collection-points/${collectionPointID}`);
     },
 
-    deleteCollectionPoints(collectionPointID) {
+    deleteCollectionPoint(collectionPointID) {
         return api().delete(`collection-points/${collectionPointID}`);
     }
 }

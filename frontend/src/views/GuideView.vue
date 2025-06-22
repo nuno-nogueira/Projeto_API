@@ -97,7 +97,19 @@ export default {
 		async fetchGuide() {
 			try {
 				const guideID = this.$route.params.id; // Access the id parameter through the parameters defined in the route path -> /guide/:id
-				const guideResponse = await axios.get(`http://localhost:3000/collection-guides/${guideID}`); // Get the guide data from the backend
+
+				const token = localStorage.getItem('token');
+
+				if (!token) {
+					throw new Error('Token não encontrado. Faça login primeiro!');
+				}
+
+				// Get the guide data from the backend
+				const guideResponse = await axios.get(`http://localhost:3000/collection-guides/${guideID}`, {
+					headers: {
+					Authorization: `Bearer ${token}`
+					},
+				}); 
 				this.guide = guideResponse.data; // Save the guide data to the component's state
 				// console.log('Guide carregado:', this.guide);
 

@@ -186,8 +186,8 @@ let addUser = async (req, res, next) => {
             throw new ErrorHandler(400,`Postal Code should be 8 characters long`);
         }
 
-        if (door_number <= 1 || door_number > 80) {
-            throw new ErrorHandler(400,`Door Number should be between 1 and 50`);
+        if (door_number < 0) {
+            throw new ErrorHandler(400,`Door Number must be greater than 0`);
         }
         
         const count_all_points = await Collection_Point.count({}) 
@@ -271,7 +271,8 @@ let loginUser = async (req, res, next) => {
                 name: user.name,
                 user_type: user.user_type,
                 door_to_door: user.door_to_door_service,
-                address_point_id: user.address_point_id
+                address_point_id: user.address_point_id,
+                user_type: user.user_type
             },
             links: [
                 {rel: "self", href: `/users/${user.user_id}, method: "GET`}
@@ -346,7 +347,8 @@ let updateUserInfo = async (req, res, next) => {
         if (email.length < 10 || email.length > 50) {
             throw new ErrorHandler(400,`Name should have between 8 to 60 characters`);
         }
-
+        console.log(door_to_door_service);
+        
         if (door_to_door_service !== "sim" && door_to_door_service !== "não") {
             throw new ErrorHandler(400,`Option must be yes or no`);
         }
@@ -425,7 +427,6 @@ let deleteUser = async (req, res, next) => {
         res.status(200).json({
             msg: `User with id ${req.params.user_id}  sucessfully deleted.`
         });
-;
     } catch (err) {
         next(err)
     }

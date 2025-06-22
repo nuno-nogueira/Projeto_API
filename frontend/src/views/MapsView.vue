@@ -1,5 +1,6 @@
 <template>
   <GoogleMap
+    :key="mapKey"
     :center="{ lat: 41.3662, lng: -8.7418871 }"
     :zoom="15"
     :markers="collectionPointsArray"
@@ -21,6 +22,13 @@ export default {
       selectedMarker: null,
     };
   },
+
+  computed: {
+    mapKey() {
+      return this.collectionPointsArray.length;
+    }
+  },
+
   async created() {
     try {
       const res = await collectionPoints.allCollectionPoints({route_type: 'map'})

@@ -13,7 +13,7 @@ const port = process.env.PORT;	// use environment variables
 const host = process.env.HOST;
 
 app.use(cors({
-  origin: 'http://localhost:5173'
+    origin: 'http://localhost:5173'
 }));
 
 app.use(express.json());

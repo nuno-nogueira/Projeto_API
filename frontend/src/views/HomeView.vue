@@ -8,7 +8,7 @@
       <div class="overlay"></div>
       <div class="content-overlay">
           <h1>Ajude a tornar a sua cidade mais limpa</h1>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, sapien nec tincidunt fringilla</p>
+          <p>Mantenha a cidade livre de lixo: pequenos gestos diários fazem toda a diferença!</p>
           <v-btn color="#09A129">Saber mais</v-btn>
       </div>
   </div>
