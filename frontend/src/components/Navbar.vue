@@ -155,6 +155,7 @@ a,span {
 }
 .link-white {
   color: var(--color-White);
+
 }
 
 .v-btn--variant-elevated, .v-btn--variant-flat, .v-btn,button, input, optgroup, select, textarea{
@@ -165,5 +166,6 @@ a,span {
 .v-list-item{
   gap: 2px;
 }
+
 </style>
 

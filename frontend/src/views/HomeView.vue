@@ -7,8 +7,10 @@
       </v-carousel>
       <div class="overlay"></div>
       <div class="content-overlay">
-          <h1>Ajude a tornar a sua cidade mais limpa</h1>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, sapien nec tincidunt fringilla</p>
+          <h1>Ajude a tornar a sua cidade num lugar mais limpo</h1>
+         
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. <br>Sed euismod, sapien nec tincidunt fringilla</p>
+           <br>
           <v-btn color="#09A129">Saber mais</v-btn>
       </div>
   </div>
@@ -112,7 +114,7 @@ import img3 from '@/assets/images/carousel_3.webp'
       left: 0;
       width: 100vw;
       height: 100%;
-      background-color: rgba(3, 54, 24, 0.6);
+      background-color: rgba(3, 38, 18, 0.8);
       z-index: 1;
       pointer-events: none;
   }
@@ -124,6 +126,13 @@ import img3 from '@/assets/images/carousel_3.webp'
       color: "white";
       text-align: center;
       z-index: 2;
+  }
+  .content-overlay h1{
+    font-family: var( --font-inter);
+    font-weight: 800;
+    font-size: 2.5rem;
+      line-height: 1.2;
+  
   }
   .statistics {
       display: flex;
