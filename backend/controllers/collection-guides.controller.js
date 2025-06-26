@@ -84,24 +84,6 @@ let getAllGuides = async (req, res, next) => {
                 }
             ] 
         })
-        
-
-        
-        // /** 
-        //  * Get all unique driver IDs from the guides associated routes
-        //  * The IDs will be used to get the corresponding driver details from the database
-        //  */
-        // const driverIDs = guides //list of unique IDs from the drivers
-        // .map(g => g.Route?.driver_id) //gwt driver_id from each guide's route (if it exists)
-        // .filter((id, i, arr) => id && arr.indexOf(id) === i); // remove duplicados and nulls to keep only the first id from the list
-        
-        // const drivers = await db.User.findAll({
-        // where: {
-        //     user_id: driverIDs, //only get drivers that were used
-        //     user_type: 'motorista' 
-        // },
-        // attributes: ['user_id', 'name', 'user_type'] 
-        // });
 
 
         /** 
@@ -165,7 +147,7 @@ let getGuideById = async (req, res, next) => {
                 include: [
                     {
                         model: db.Collection_Point,
-                        attributes: ['street_name', 'collection_point_type'],
+                        attributes: ['collection_point_id', 'street_name', 'collection_point_type'],
                         include: [
                             {
                                 model: db.Container,
