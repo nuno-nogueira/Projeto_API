@@ -15,7 +15,7 @@
           class="mb-2 sign-up-input"
           id="tin-input"
           label="NIF"
-          type="number"
+          type="text"
           clearable
         ></v-text-field>
 
@@ -127,10 +127,7 @@
     
     validations() {
       return {
-        tin: {required,
-          betweenValue: between(100000000, 999999999),
-          numeric
-        },
+        tin: {required},
         password: {required}
       }
     },
