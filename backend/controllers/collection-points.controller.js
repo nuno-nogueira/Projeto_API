@@ -119,8 +119,8 @@ let addPoint = async (req, res, next) => {
         };
 
         //Gather all parameters
-        const { collection_point_type, postal_code, opening_hours, geographical_coordinates, street_name, door_number } = req.body;
-
+        const { collection_point_type, postal_code, opening_hours, geographical_coordinates, street_name, door_number } = req.query;
+        
         // sequelize update method allows PARTIAL updates, so we NEED to check for missing fields    
         let missingFields = [];
         let collection_point_id;
@@ -186,7 +186,7 @@ let updateCollectionPoint = async (req, res, next) => {
         return res.status(401).json({ errorMessage: "No access token provided" });
     }
     try {
-        if (parseInt(req.params.user_id) !== req.loggedUserId && req.loggedUserRole !== "admin") {
+        if (req.loggedUserRole !== "admin") {
             return res.status(403).json({ success: false, msg: "You are not authorized to change this collection point!" })
         }
 
@@ -219,10 +219,6 @@ let updateCollectionPoint = async (req, res, next) => {
 
         if (postal_code.length !== 8) {
             throw new ErrorHandler(400, `Postal Code should be 8 characters long`);
-        }
-
-        if (door_number <= 1 || door_number > 80) {
-            throw new ErrorHandler(400, `Door Number should be between 1 and 50`);
         }
 
         const updates = {
