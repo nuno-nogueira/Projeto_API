@@ -13,8 +13,8 @@ export default {
         return api().post("collection-points/", collectionPointData)
     },
 
-    updateCollectionPoint(collectionPointID) {
-        return api().patch(`collection-points/${collectionPointID}`);
+    updateCollectionPoint(collectionPointID,data) {
+        return api().put(`collection-points/${collectionPointID}`,data);
     },
 
     deleteCollectionPoint(collectionPointID) {

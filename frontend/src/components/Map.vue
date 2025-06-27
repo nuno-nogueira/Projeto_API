@@ -24,32 +24,26 @@ export default {
   mounted() {
     this.initializeMap();
     console.log("Markers recebidos:", this.markers);
-
   },
   methods: {
     async initializeMap() {
-      // 1) Usa props.apiKey em vez de uma string fixa
       const loader = new Loader({
         apiKey: "AIzaSyBWDBV60KO4k505pCU0ltRqyDNCG08vu1s",
         version: "weekly",
       });
 
-      // 2) load the Google Maps JavaScript API
       const google = await loader.load();
 
-      // 3) initialize the map
       const map = new google.maps.Map(this.$refs.mapDiv, {
         center: this.center,
         zoom: this.zoom,
       });
-      //4) create an info window
+
       const infoWindow = new google.maps.InfoWindow({ maxWidth: 300 });
 
-      // 5) Adiciona os marcadores
       this.markers.forEach((marker) => {
         console.log("Adicionando marcador:", marker);
         console.log("Todos marcadores recebidos:", this.markers);
-
 
         const markerInstance = new google.maps.Marker({
           position: marker.position,
@@ -69,6 +63,7 @@ export default {
           },
         });
         markerInstance.addListener("click", () => {
+          const buttonId = `report-btn-${marker.id}`;
           const content = `
             <div class="info-window">
               <h1>${marker.type.toUpperCase()}</h1>
@@ -76,11 +71,17 @@ export default {
               <h3>${marker.title}</h3>
               <p class="info-window-address">${marker.address}</p>
               <p>${marker.description}</p>
-              <button class="btn btn-primary" @click="$emit('select-marker', marker.id)">Reportar problema</button>
+              <button id="${buttonId}" class="btn btn-primary">Reportar problema</button>
             </div>
           `;
           infoWindow.setContent(content);
           infoWindow.open(map, markerInstance);
+
+          google.maps.event.addListenerOnce(infoWindow, "domready", () => {
+            document.getElementById(buttonId).addEventListener("click", () => {
+              this.$emit("select-marker", marker.id);
+            });
+          });
         });
       });
     },
