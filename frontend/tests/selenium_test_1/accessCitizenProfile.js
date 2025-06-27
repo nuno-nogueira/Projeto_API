@@ -24,17 +24,17 @@ const chrome = require("selenium-webdriver/chrome");
         await driver.findElement(By.className('confirm-login')).click();
         console.log('✅ Login done successfully');
 
-        await driver.sleep(1500);
+        await driver.sleep(2000);
 
         // Activate door to door service
-        await driver.findElement(By.className('activate-service')).click();
+        await driver.findElement(By.xpath('//*[@id="app"]/div[2]/div[2]/div/div[2]/div/div[2]/div/button')).click();
         console.log('✅ Door to Door service activated');
 
         // Logout
          await driver.findElement(By.className('logout-button')).click();
          console.log('✅ Logout done');
 
-         console.log('✅ Test done successfully');
+         console.log('🎉 Test done successfully');
          
     } catch (error) {
         console.error("❌ Erro no teste:", error);

@@ -1,0 +1,5 @@
+{ 
+  "scripts": {
+    "test": "cd backend && npx jest"
+  }
+}

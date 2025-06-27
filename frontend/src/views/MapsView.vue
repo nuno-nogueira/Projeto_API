@@ -1,4 +1,11 @@
 <template>
+
+  <GoogleMap
+    :key="mapKey"
+    :center="{ lat: 41.3662, lng: -8.7418871 }"
+    :zoom="15"
+    :markers="collectionPointsArray"
+  />
   <div class="map-page">
     <GoogleMap
       :center="{ lat: 41.3662, lng: -8.7418871 }"
@@ -71,6 +78,13 @@ export default {
       drawer: true,
     };
   },
+
+  computed: {
+    mapKey() {
+      return this.collectionPointsArray.length;
+    }
+  },
+
   async created() {
     try {
       const res = await collectionPoints.allCollectionPoints({

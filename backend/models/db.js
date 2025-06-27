@@ -4,9 +4,16 @@
 
 
 const path = require('path');
- require('dotenv').config({
-  path: path.resolve(__dirname, '../.env')  // sobe uma pasta e aponta para o .env na raiz do backend
-});
+//  require('dotenv').config({
+//   path: path.resolve(__dirname, '../.env')  // sobe uma pasta e aponta para o .env na raiz do backend
+// });
+
+const dotenv = require('dotenv');
+if (process.env.NODE_ENV !== 'test') {
+  dotenv.config({ path: path.resolve(__dirname, '../.env') });
+} else {
+  dotenv.config(); // deixa o dotenv procurar automaticamente (ou ignora se não existir)
+}
         
  const { Sequelize } = require('sequelize');
 

@@ -1,0 +1,65 @@
+name: Run Tests
+
+on:
+  push:
+    branches: [ sandra ]
+  pull_request:
+    branches: [ sandra ]
+jobs: 
+  test-backend:
+    name: Test Backend
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_DATABASE: ${{ secrets.DB_NAME }}
+          MYSQL_USER: ${{ secrets.DB_USER }}
+          MYSQL_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    env:  
+      DB_HOST: 127.0.0.1
+      DB_USER: ${{ secrets.DB_USER }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_NAME: ${{ secrets.DB_NAME }}
+      DB_DIALECT: mysql
+      PORT: 3000
+      HOST: localhost
+      NODE_ENV: test
+      SECRET: ${{ secrets.SECRET }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Clear npm cache
+        run: npm cache clean --force
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install backend dependencies
+        working-directory: ./backend
+        run: npm ci
+
+      - name: Wait for MySQL to be ready
+        run: |
+          until mysqladmin ping -h 127.0.0.1 -uroot -proot --silent; do
+            echo "Waiting for MySQL to be ready..."
+            sleep 10
+          done
+
+      - name: Fix Jest permissions
+        working-directory: ./backend
+        run: chmod +x node_modules/.bin/jest
+
+      - name: Run tests (backend)
+        working-directory: ./backend
+        run: npx jest

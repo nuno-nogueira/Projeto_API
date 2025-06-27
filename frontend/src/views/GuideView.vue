@@ -3,13 +3,13 @@
 		<h2>Guia de Recolha NGID0{{ guide?.collection_guide_id }}</h2> 
 		<!-- or <h2 v-if="guide">Guia de Recolha NGID0{{ guide.collection_guide_id }}</h2> -->
 		 <!-- Without "?" Vue could try to access guide.collection_guide_id before it is uploaded and it would give an error. With "guide?.collection_guide_id", it only tries to access the guide when it is already defined -->
-		<p class="subtitle"><strong>Estado:</strong> {{ guide?.collection_status }}</p>
+		<!-- <p class="subtitle"><strong>Estado:</strong> {{ guide?.collection_status }}</p> -->
+		<p class="subtitle"><strong>Estado:</strong> {{ collStatus }}</p>
 		<p class="subtitle"><strong>Rota:</strong> {{ guide?.route_id }}</p>
 
 
 		<div v-if="guide">
 			<div v-for="(point, i) in guide.route.collection_points" :key="i" class="collection-point">
-				<p v-if="filteredContainers(point.containers).length === 0">Sem contentores neste ponto.</p>
 				<v-timeline side="end">
 					<v-timeline-item
 						v-for="container in filteredContainers(point.containers)" 
@@ -47,12 +47,12 @@
 							<v-checkbox
 								v-model="guideChanges[container.container_id].status"
 								label="Recolha confirmada"
-								@change="checkIfGuideIsCompleted"
+								@change="checkGuideStatus"
 							/>	
 							
 						</div>
 						<v-textarea
-								v-model="guideChanges[container.container_id].report"
+								v-model="guideChanges[container.container_id].feedback"
 								label="Reportar ocorrências"
 								rows="1"
 								auto-grow
@@ -77,21 +77,36 @@ export default {
 				route: {
 					collection_points: [] 
 				}
-			},
+			}, 
+			containers: [],
 			guideChanges: {}, // Where the values from backend are going to be inserted but also where the new values are being stored
-			selectedWasteType: null // Save the type of waste selected by the user
+			selectedWasteType: '', // Save the type of waste selected by the user
+			collStatus: ''
 		}
 	},
+
 	methods: {
-		filteredContainers(containers) { // v-for will call this function 
-			// console.log('Containers recebidos:', containers);
-			if (!this.selectedWasteType) return containers; // If there is no filter selected, return all containers
-			const filtrados = containers.filter(
-				container => container.waste_type.name.trim() === this.selectedWasteType.trim()
-			);
-			// console.log('Containers filtrados:', filtrados);
-			return filtrados;
+		filteredContainers(containers, guide) {
+			if (!this.selectedWasteType && !guide) return containers;
+
+			let filtered = containers;
+
+			if (this.selectedWasteType) {
+				const filtro = this.selectedWasteType.trim().toLowerCase();
+				filtered = filtered.filter(container =>
+				container.waste_type.name.trim().toLowerCase() === filtro
+				);
+			}
+
+			if (guide) {
+				filtered = filtered.filter(container =>
+				container.collection_guide_id === guide.collection_guide_id
+				);
+			}
+
+			return filtered;
 		},
+
 
 		// This function fetches the guide and the rfid readings data:
 		async fetchGuide() {
@@ -111,8 +126,7 @@ export default {
 					},
 				}); 
 				this.guide = guideResponse.data; // Save the guide data to the component's state
-				// console.log('Guide carregado:', this.guide);
-
+				// console.log('Guide:', this.guide);
 				// Get the existing data from the backend and insert it into guideChanges (the fields or initialize them)
 				this.guide.route.collection_points.forEach(point => { 
 					point.containers = point.containers || [];
@@ -121,7 +135,7 @@ export default {
 							this.guideChanges[container.container_id] = {
 								weight: 0,
 								status: false,
-								report: 'yellow',
+								feedback: '',
 								readingID: null
 							};
 						}
@@ -129,7 +143,10 @@ export default {
 				});
 
 				// Return the readings data for the guide which includes the "weight_collected" and the "rfid_reading_id":
-				const readingsResponse = await axios.get(`http://localhost:3000/readings/collection-guides/${guideID}`); 
+				const readingsResponse = await axios.get(`http://localhost:3000/readings/collection-guides/${guideID}`, {
+					headers: {Authorization:`Bearer ${token}`}
+					}
+				); 
 				// This data will be used to update the guideChanges object with the current weight and reading ID for each container
 				readingsResponse.data.forEach(reading => {
 					if (this.guideChanges[reading.container_id]) {
@@ -138,6 +155,7 @@ export default {
 						this.guideChanges[reading.container_id].readingID = reading.rfid_reading_id;
 					}
 				});
+				this.checkGuideStatus();
 
 			} catch (error) {
 				console.error('Erro ao carregar guia:', error);
@@ -150,80 +168,196 @@ export default {
 			if (!change) return;
 
 			try {
+				const token = localStorage.getItem('token');
+
+				const config = {
+					headers: {
+						Authorization: `Bearer ${token}`,
+						'Content-Type': 'application/json',
+					}
+				}
+
 				if (change.readingID) {
-					// Update existing reading
 					await axios.patch(`http://localhost:3000/readings/${change.readingID}`, {
 						weight_collected: change.weight,
-						collection_status: change.status ? 1 : 0
-					});
+						collection_status: change.status ? 1 : 0,
+						feedback: change.feedback
+					}, config);
 				} else {
-					console.log('Dados enviados para POST /readings:');
-					// Create new reading
 					const response = await axios.post('http://localhost:3000/readings', {
 						container_id: container_id,
 						collection_guide_id: this.guide.collection_guide_id,
 						reading_date: new Date().toISOString(),
 						weight_collected: change.weight,
-						collection_status: change.status
-					});
+						collection_status: change.status ? 1 : 0,
+						feedback: change.feedback
+					}, config);
 
-					//update the reading id on guideChanges with the new one to prevent duplicated saves on the database
 					this.guideChanges[container_id].readingID = response.data.rfid_reading_id;
 				}
-				alert('Dados guardados com sucesso.');
+				
+				//Save feedback
+				if (change.feedback && change.feedback.trim() !== '') {
+					const container = this.guide.route.collection_points
+						.flatMap(cp => cp.containers)
+						.find(c => c.container_id === container_id);
 
+
+					if (!container) {
+						console.warn(`Container with ID ${container_id} not found.`);
+						return
+					}
+
+					let collectionPointId = null;
+
+					for (const cp of this.guide.route.collection_points) {
+						const found = cp.containers.find(c => c.container_id === container_id);
+						if (found) {
+							collectionPointId = cp.collection_point_id;
+							break
+						}
+					}
+
+					const userId = localStorage.getItem('userId');
+
+					console.log('container:', container);
+					console.log('collection_point_id:', collectionPointId);
+					console.log('user_id:', userId);
+
+					if (!userId) {
+						console.warn('User not found in localStorage.');
+						return;
+					}
+
+					if (!collectionPointId) {
+						console.warn('Collection point ID not found in container.');
+						return;
+					}
+
+					const feedbackData = {
+						description: change.feedback,
+						feedback_type: 'recolha',
+						collection_point_id: collectionPointId,
+						user_id: userId,
+						feedback_date: new Date().toISOString()
+					};
+
+					await axios.post('http://localhost:3000/feedbacks', feedbackData, config);
+				}
+
+
+				alert('Dados guardados com sucesso.');
 			} catch (err) {
 				console.error('Erro ao guardar dados:', err);
+				if (err.response) {
+					console.error('Detalhes do erro:', err.response.data);
+				}
 			}
 		},
 
 		async updateGuideStatus(newStatus) {
 			try {
-				const response = await axios.patch(`http://localhost:3000/collection-guides/${this.guide.collection_guide_id}`, {
-					collection_status: newStatus
-				});
-				console.log('Status da guia atualizado:', response.data.collection_status);
-				
-				this.guide.collection_status = response.data.collection_status; // atualizar localmente o estado
+				const token = localStorage.getItem('token');
+				const response = await axios.patch(`http://localhost:3000/collection-guides/${this.guide.collection_guide_id}`, 
+					{
+						collection_status: newStatus
+					},
+					{
+						headers: {
+							Authorization: `Bearer ${token}`
+						}
+					}
+				);				
+				this.guide.collection_status = response.data.collection_status; 
 				console.log('Status guia atualizado para:', newStatus);
 			} catch (error) {
 				console.error('Erro ao atualizar o status da guia:', error);
 			}
 		},
 
-		checkIfGuideIsCompleted() {
+		async checkIfGuideIsCompleted() {
 			const currentWasteId = this.guide.waste_id;
-			
-			//get containers with waste type of guide
+
 			const relevantContainers = [];
 			this.guide.route.collection_points.forEach(point => {
 				point.containers.forEach(container => {
-					if (container.waste_type.id === currentWasteId) {
-						relevantContainers.push(container);
-					}
+				if (container.waste_type.id === currentWasteId) {
+					relevantContainers.push(container);
+				}
 				});
 			});
 
-			//check the status of those containers
-			const completed = relevantContainers.filter(container => 
-				this.guideChanges[container.container_id]?.status
-			).length;
+			console.log('Relevant containers:', relevantContainers);
+
+			const completed = relevantContainers.filter(container => {
+				const status = this.guideChanges[container.container_id]?.status;
+				return status === true || status === 'true' || Number(status) === 1;
+			}).length;
 
 			const total = relevantContainers.length;
-			
+
+			console.log('Completed:', completed, 'of', total);
+
 			let newStatus = 'não iniciada';
-			if (completed === total && total > 0) newStatus = 'concluída';
-			else if (completed > 0) newStatus = 'em execução';
+			if (completed === total && total > 0) {
+				newStatus = 'concluída';
+			} else if (completed > 0) {
+				newStatus = 'em execução';
+			}
 
 			if (this.guide.collection_status !== newStatus) {
-				this.guide.collection_status = newStatus;
-				this.updateGuideStatus(newStatus);
+				try {
+				await this.updateGuideStatus(newStatus);
+				} catch (error) {
+				console.error(error);
+				}
+			}
+		},
+  
+		checkGuideStatus() {
+		const total = Object.keys(this.guideChanges).length;
+		if (total === 0) {
+			this.collStatus = 'não iniciada';
+			return
+		}
+
+		let marked = 0;
+		Object.values(this.guideChanges).forEach(change => {
+			if (change.status) {
+				marked++;
+			}
+		});
+
+		if (marked === 0) {
+			this.collStatus = 'não iniciada';
+		} else if (marked === total) {
+			this.collStatus = 'concluída';
+		} else {
+			this.collStatus = 'em execução';
+		}
+	},
+
+		addFeedback() {
+			try {
+
+			} catch (error) {
+				console.error('Erro ao atualizar o status da guia:', error);
 			}
 		}
 	},
-	mounted() {
-		this.fetchGuide();
+
+	async mounted() {
+		await this.fetchGuide();
 		this.selectedWasteType = this.$route.params.wasteType; // Get the waste type from the route parameters
+	},
+
+	watch: {
+		guideChanges: {
+			deep: true,
+			handler() {
+			this.checkGuideStatus();
+			}
+		}
 	}
 }
 </script>

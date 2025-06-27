@@ -4,6 +4,7 @@ const Collection_Point = db.Collection_Point; // Import the User model from the 
 const { Op } = require('sequelize'); // necessary operators for Sequelize 
 
 const { ErrorHandler } = require("../utils/error.js"); // Import the ErrorHandler class for error handling
+const authController = require("../controllers/auth.controller.js")
 
 let getAllPoints = async (req, res, next) => {
     /**
@@ -11,7 +12,7 @@ let getAllPoints = async (req, res, next) => {
      */
     try {
         //Pagination - 6 Collection Points per page
-        let { page = 1, limit = 20, route_type = "admin" } = req.query;
+        let { page = 1, limit = 20, order = 'asc', route_type = "admin" } = req.query;
         let collection_points;
         // validate page and limit values
         if (isNaN(page) || page < 1)
@@ -37,16 +38,18 @@ let getAllPoints = async (req, res, next) => {
                 data: collection_points,
             });
 
-        } else if (route_type == 'admin') {
+        } else if (route_type == 'admin') {           
             if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
                 return res.status(401).json({ errorMessage: "No access token provided" });
             }
+
             if (req.loggedUserRole !== "admin") {
                 return res.status(403).json({
                     success: false,
                     msg: "This request required ADMIN role!"
                 })
             }
+
             // Find all collection points
             collection_points = await Collection_Point.findAndCountAll({
                 limit: +limit
@@ -54,8 +57,8 @@ let getAllPoints = async (req, res, next) => {
 
             collection_points.rows.forEach(collection_point => {
                 collection_point.links = [
-                    { rel: "delete", href: `/collection_points/${collection_point.collection_point_id}, method: "DELETE` },
-                    { rel: "modify", href: `/collection_points/${collection_point.collection_point_id}, method: "PUT` }
+                    { rel: "delete", href: `/collection-points/${collection_point.collection_point_id}, method: "DELETE` },
+                    { rel: "modify", href: `/collection-points/${collection_point.collection_point_id}, method: "PUT` }
                 ]
             });
 
