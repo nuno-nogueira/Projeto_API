@@ -240,259 +240,92 @@
         >
           <v-container>
             <v-row>
-
               <v-col cols="4" md="12">
-                <v-card class="mx-auto px-6 py-8" 
-                max-width="90%" 
-                v-if="door_to_door_service">
-                    <v-container>
-                        <v-row>
-                            <v-col cols="4" md="4">
-                                <v-card elevation="0">
-                                    <template v-slot:title>
-                                        <span style="margin-left: 15px;" class="font-weight-black">Taxa de lixo mensal</span>
-                                        <v-card-text>
-                                            <p>Estimativa com base na produção mensal de <br>resíduos indiferenciados.</p>
-                                        </v-card-text>
-                                        <v-row>
-                                            <v-col cols="12" md="4">
-                                                <h2 class="tax">13,70€</h2>
-                                            </v-col>
-                                            <v-col cols="12" md="4">
-                                                <img class="trash_icon" src="../assets/icons/trash_icon.webp" alt="">
-                                            </v-col>
-                                        </v-row>
-                                    </template>
-                                </v-card>
-                            </v-col>
-                            <v-col cols="4" md="8" sm="8">
-                                <apex-chart
-                                type="line"
-                                height="300"
-                                :options="chartOptions"
-                                :series="chartSeries"></apex-chart>
-                            </v-col>
-                        </v-row>
-                    </v-container>
-                    <v-container>
-                        <h3>Meus Feedbacks</h3>
-                        <v-table>
-                            <thead>
-                                <tr>
-                                    <th class="text-left">DESCRIÇÃO</th>
-                                    <th class="text-left">TIPO</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="feedback in feedbacks" :key="feedback.feedback_id">
-                                    <td>
-                                        {{feedback.feedback_date.slice(0, 10).replaceAll("-", "/")}} - {{ feedback.collection_point.street_name }}<br>
-                                        {{feedback.description}}
-                                    </td>
-                                    <td>{{feedback.feedback_type}}</td>
-                                </tr>
-                            </tbody>
-                        </v-table>
-                    </v-container>
-                </v-card>
-                </v-col>
-            </v-row>    
-        </v-container>
-        </v-card>
-            </v-tabs-window-item>
-            <v-tabs-window-item value="3">
-            </v-tabs-window-item>
-        </v-tabs-window>
-    </div>
-   <v-col cols="4" md="4">
-                <v-card elevation="0">
-                  <template v-slot:title>
-                    <span style="margin-left: 15px" class="font-weight-black"
-                      >Taxa de lixo mensal</span
-                    >
-                    <v-card-text>
-                      <p>
-                        Estimativa com base na produção mensal de <br />resíduos
-                        indiferenciados.
-                      </p>
-                    </v-card-text>
+                <v-card
+                  class="mx-auto px-6 py-8"
+                  max-width="90%"
+                  v-if="door_to_door_service"
+                >
+                  <v-container>
                     <v-row>
-                      <v-col cols="12" md="4">
-                        <h2 class="tax">{{ calcTaxes(currentMonth) }}€</h2>
+                      <v-col cols="4" md="4">
+                        <v-card elevation="0">
+                          <template v-slot:title>
+                            <span
+                              style="margin-left: 15px"
+                              class="font-weight-black"
+                              >Taxa de lixo mensal</span
+                            >
+                            <v-card-text>
+                              <p>
+                                Estimativa com base na produção mensal de
+                                <br />resíduos indiferenciados.
+                              </p>
+                            </v-card-text>
+                            <v-row>
+                              <v-col cols="12" md="4">
+                                <h2 class="tax">
+                                  {{ calcTaxes(currentMonth) }}€
+                                </h2>
+                              </v-col>
+                              <v-col cols="12" md="4">
+                                <img
+                                  class="trash_icon"
+                                  src="../assets/icons/wasteIcon.svg"
+                                  alt=""
+                                />
+                              </v-col>
+                            </v-row>
+                          </template>
+                        </v-card>
                       </v-col>
-                      <v-col cols="12" md="4">
-                        <img
-                          class="trash_icon"
-                          src="../assets/icons/wasteIcon.svg"
-                          alt=""
-                        />
+                      <v-col cols="4" md="8" sm="8">
+                        <apex-chart
+                          type="line"
+                          height="300"
+                          :options="chartOptions"
+                          :series="chartSeries"
+                        ></apex-chart>
                       </v-col>
                     </v-row>
-                  </template>
+                  </v-container>
+                  <v-container>
+                    <h3>Meus Feedbacks</h3>
+                    <v-table>
+                      <thead>
+                        <tr>
+                          <th class="text-left">DESCRIÇÃO</th>
+                          <th class="text-left">TIPO</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr
+                          v-for="feedback in feedbacks"
+                          :key="feedback.feedback_id"
+                        >
+                          <td>
+                            {{
+                              feedback.feedback_date
+                                .slice(0, 10)
+                                .replaceAll("-", "/")
+                            }}
+                            - {{ feedback.collection_point.street_name }}<br />
+                            {{ feedback.description }}
+                          </td>
+                          <td>{{ feedback.feedback_type }}</td>
+                        </tr>
+                      </tbody>
+                    </v-table>
+                  </v-container>
                 </v-card>
               </v-col>
-              <v-col cols="4" md="8" sm="8">
-                <apex-chart
-                  type="line"
-                  height="300"
-                  :options="chartOptions"
-                  :series="chartSeries"
-                ></apex-chart>
-              </v-col>
-              <!-- <v-col cols="4" md="3">
-                                <v-row class="trash-types-container">
-                                    <v-col cols="12" md="12">
-                                        <v-card elevation="0" class="trash-type">
-                                            <v-row class="trash-type-info">
-                                                <v-col cols="12" md="3">
-                                                    <div class="icon-background" id="undifferentiated-background">
-                                                        <img src="../assets/icons/undifferentiated_icon.webp" alt="Icone para o lixo indiferenciado">
-                                                    </div>                                        
-                                                </v-col>
-                                                <v-col cols="10" md="8">
-                                                    <h3 class="font-weight-black">Indiferenciado</h3>
-                                                    <p>Dados mensais</p>
-                                                </v-col>
-                                            </v-row>
-                                            <v-row class="trash-type-weight">
-                                                <v-col cols="12" md="3">
-                                                    <h3 class="font-weight-black">0 kg</h3>
-                                                </v-col>
-                                                <v-col cols="12" md="8" class="trash-type-weight-percentage">
-                                                    <p>0.39%</p>
-                                                    <img src="../assets/icons/arrow_up.webp" alt="">
-                                                </v-col>
-                                            </v-row>
-                                        </v-card>
-                                    </v-col>
-                                    <v-col cols="12" md="12">
-                                        <v-card elevation="0" class="trash-type">
-                                            <v-row class="trash-type-info">
-                                                <v-col cols="10" md="3">
-                                                    <div class="icon-background" id="organic-background">
-                                                        <img src="../assets/icons/organic_icon.webp" alt="Icone para o lixo indiferenciado">
-                                                    </div>                                        
-                                                </v-col>
-                                                <v-col cols="10" md="8">
-                                                    <h3 class="font-weight-black">Orgânico</h3>
-                                                    <p>Dados mensais</p>
-                                                </v-col>
-                                            </v-row>
-                                            <v-row class="trash-type-weight">
-                                                <v-col cols="12" md="3">
-                                                    <h3 class="font-weight-black">0 kg</h3>
-                                                </v-col>
-                                                <v-col cols="12" md="8" class="trash-type-weight-percentage">
-                                                    <p>0.39%</p>
-                                                    <img src="../assets/icons/arrow_up.webp" alt="">
-                                                </v-col>
-                                            </v-row>
-                                        </v-card>
-                                    </v-col>
-                                    <v-col cols="12" md="12">
-                                        <v-card elevation="0" class="trash-type">
-                                            <v-row class="trash-type-info">
-                                                <v-col cols="12" md="3">
-                                                    <div class="icon-background" id="paper-background">
-                                                        <img src="../assets/icons/paper_icon.webp" alt="Icone para o lixo indiferenciado">
-                                                    </div>                                        
-                                                </v-col>
-                                                <v-col cols="10" md="8">
-                                                    <h3 class="font-weight-black">Papel / Cartão</h3>
-                                                    <p>Dados mensais</p>
-                                                </v-col>
-                                            </v-row>
-                                            <v-row class="trash-type-weight">
-                                                <v-col cols="12" md="3">
-                                                    <h3 class="font-weight-black">0 kg</h3>
-                                                </v-col>
-                                                <v-col cols="12" md="8" class="trash-type-weight-percentage">
-                                                    <p>0.39%</p>
-                                                    <img src="../assets/icons/arrow_up.webp" alt="">
-                                                </v-col>
-                                            </v-row>
-                                        </v-card>
-                                    </v-col>
-                                </v-row>
-                                <v-row class="trash-types-container py-4" >
-                                    <v-col cols="12" md="12">
-                                        <v-card elevation="0" class="trash-type">
-                                            <v-row class="trash-type-info">
-                                                <v-col cols="12" md="3">
-                                                    <div class="icon-background" id="glass-background">
-                                                        <img src="../assets/icons/glass_icon.webp" alt="Icone para o vidro">
-                                                    </div>                                        
-                                                </v-col>
-                                                <v-col cols="10" md="8">
-                                                    <h3 class="font-weight-black">Vidro</h3>
-                                                    <p>Dados mensais</p>
-                                                </v-col>
-                                            </v-row>
-                                            <v-row class="trash-type-weight">
-                                                <v-col cols="12" md="3">
-                                                    <h3 class="font-weight-black">0 kg</h3>
-                                                </v-col>
-                                                <v-col cols="12" md="8" class="trash-type-weight-percentage">
-                                                    <p>0.39%</p>
-                                                    <img src="../assets/icons/arrow_up.webp" alt="">
-                                                </v-col>
-                                            </v-row>
-                                        </v-card>
-                                    </v-col>
-                                    <v-col cols="12" md="12">
-                                        <v-card elevation="0" class="trash-type">
-                                            <v-row class="trash-type-info">
-                                                <v-col cols="10" md="3">
-                                                    <div class="icon-background" id="plastic-background">
-                                                        <img src="../assets/icons/plastic_icon.webp" alt="Icone para o plastico">
-                                                    </div>                                        
-                                                </v-col>
-                                                <v-col cols="10" md="8">
-                                                    <h3 class="font-weight-black">Plástico / Metal</h3>
-                                                    <p>Dados mensais</p>
-                                                </v-col>
-                                            </v-row>
-                                            <v-row class="trash-type-weight">
-                                                <v-col cols="12" md="3">
-                                                    <h3 class="font-weight-black">0 kg</h3>
-                                                </v-col>
-                                                <v-col cols="12" md="8" class="trash-type-weight-percentage">
-                                                    <p>0.39%</p>
-                                                    <img src="../assets/icons/arrow_up.webp" alt="">
-                                                </v-col>
-                                            </v-row>
-                                        </v-card>
-                                    </v-col>
-                                </v-row>
-                            </v-col> -->
             </v-row>
-          </v-container>
-          <v-container>
-            <h3>Meus Feedbacks</h3>
-            <v-table>
-              <thead>
-                <tr>
-                  <th class="text-left">DESCRIÇÃO</th>
-                  <th class="text-left">TIPO</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="feedback in feedbacks" :key="feedback.feedback_id">
-                  <td>
-                    {{
-                      feedback.feedback_date.slice(0, 10).replaceAll("-", "/")
-                    }}
-                    - {{ feedback.collection_point.street_name }}<br />
-                    {{ feedback.description }}
-                  </td>
-                  <td>{{ feedback.feedback_type }}</td>
-                </tr>
-              </tbody>
-            </v-table>
           </v-container>
         </v-card>
       </v-tabs-window-item>
-      <v-tabs-window-item value="3"> </v-tabs-window-item>
+      <v-tabs-window-item value="3">
+        <Calendar :waste-schedule="wasteSchedule" :waste-types="wasteTypes" />
+      </v-tabs-window-item>
     </v-tabs-window>
   </div>
   <div style="margin-top: 100px" v-if="user.user_type == 'admin'">
@@ -550,7 +383,8 @@
           class="admin-custom-tab"
           :prepend-icon="icons.cg_icon"
           text="Guias de Recolha"
-          :to="{ name: 'guide-list' }" value="3"
+          :to="{ name: 'guide-list' }"
+          value="3"
         ></v-tab>
         <v-tab
           class="admin-custom-tab"
@@ -659,7 +493,6 @@
             </template>
           </v-data-table>
 
-          <!-- Dialog para criar/editar ponto -->
           <v-dialog v-model="dialog" max-width="500">
             <v-card :title="isEditing ? 'Editar Ponto' : 'Adicionar Ponto'">
               <v-card-text>
@@ -721,8 +554,6 @@
           </v-dialog>
         </v-tabs-window-item>
 
-        <!-- --------- -->
-
         <v-tabs-window-item value="2" class="admin-tab-window" id="tab-window2">
           <div class="window-header">
             <h2>Lista de Utilizadores</h2>
@@ -736,35 +567,35 @@
             ></v-select>
           </div>
           <v-col>
-          <v-row>
-            <v-container>
-              <v-table>
-                <thead>
-                  <tr>
-                    <th class="text-left">NOME</th>
-                    <th class="text-left">MORADA</th>
-                    <th class="text-left">AÇÕES</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="user in users" :key="user.user_id">
-                    <td>{{ user.name }}</td>
-                    <td>{{ user.collection_point.street_name }}</td>
-                    <td>
-                      <v-btn
-                        color="white"
-                        rounded="2"
-                        style="background-color: #ed6868"
-                        @click="deleteUser(user.user_id)"
-                      >
-                        Remover Utilizador</v-btn
-                      >
-                    </td>
-                  </tr>
-                </tbody>
-              </v-table>
-            </v-container>
-          </v-row>
+            <v-row>
+              <v-container>
+                <v-table>
+                  <thead>
+                    <tr>
+                      <th class="text-left">NOME</th>
+                      <th class="text-left">MORADA</th>
+                      <th class="text-left">AÇÕES</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="user in users" :key="user.user_id">
+                      <td>{{ user.name }}</td>
+                      <td>{{ user.collection_point.street_name }}</td>
+                      <td>
+                        <v-btn
+                          color="white"
+                          rounded="2"
+                          style="background-color: #ed6868"
+                          @click="deleteUser(user.user_id)"
+                        >
+                          Remover Utilizador</v-btn
+                        >
+                      </td>
+                    </tr>
+                  </tbody>
+                </v-table>
+              </v-container>
+            </v-row>
           </v-col>
           <v-pagination v-model="page" :length="totalPages" rounded="circle" />
         </v-tabs-window-item>
@@ -796,7 +627,6 @@ import Readings from "@/api/readings";
 import CollectionPlan from "@/api/collectionPlan";
 import CollectionPoints from "@/api/collectionPoints";
 import Calendar from "@/components/Calendar.vue";
-
 
 export default {
   components: {
@@ -917,21 +747,19 @@ export default {
       this.groupByMonth();
 
       // -------
-        this.collectionPoint = this.cp_id;
+      this.collectionPoint = this.cp_id;
 
-        const pointInfo = await CollectionPoints.getCollectionPoint(
-            this.cp_id
-        );
+      const pointInfo = await CollectionPoints.getCollectionPoint(this.cp_id);
 
-        this.collection_point_id = this.collectionPoint.collection_point_id;
-        this.collection_point_type = this.collectionPoint.collection_point_type;
-        this.collection_point_coordinates =
+      this.collection_point_id = this.collectionPoint.collection_point_id;
+      this.collection_point_type = this.collectionPoint.collection_point_type;
+      this.collection_point_coordinates =
         this.collectionPoint.collection_point_coordinates;
-        this.collection_point_opening_hours =
+      this.collection_point_opening_hours =
         this.collectionPoint.collection_point_opening_hours;
-        this.collection_point_street_name = this.collectionPoint.street_name;
-        this.collection_point_postal_code = this.collectionPoint.postal_code;
-    this.collection_point_door_number = this.collectionPoint.door_number;
+      this.collection_point_street_name = this.collectionPoint.street_name;
+      this.collection_point_postal_code = this.collectionPoint.postal_code;
+      this.collection_point_door_number = this.collectionPoint.door_number;
     } else if (this.user_type === "admin") {
       this.fetchUsers(this.page);
       this.fetchPoints(this.page);
@@ -964,7 +792,7 @@ export default {
     //         }
     //     }
     //     });
-            
+
     //   this.wasteTypes = Object.values(wasteTypeMap);
 
     //   // console.log(this.wasteSchedule, this.wasteTypes);
@@ -973,68 +801,12 @@ export default {
     // }
   },
 
-    methods: {
-        async submitChanges() {
-            //starts the validation for all form inputs            
-            if (this.newPassword) {
-                this.oldPassword = this.newPassword
-            }
-
-            const result = await this.v$.$validate();
-
-            if (result) {
-                const userInfo = {
-                    id: this.id,
-                    name: this.name + " " + this.surname,
-                    tin: this.tin,
-                    password: this.oldPassword,
-                    email: this.email,
-                    phone_number: this.phone_number,
-                    street_name: this.address,
-                    postal_code: this.postal_code,
-                    door_number: this.door_number,
-                    door_to_door_service: this.door_to_door_service === true ? "sim" : 'não',
-                    collection_point_id: this.cp_id
-                }
-                
-                alert('Alterações feitas!')
-                try {
-                    const res = await Users.editProfile(userInfo)
-                } catch (err) {
-                    console.error(err.response?.data)
-                    alert('Erro ao editar perfil: ' + (err.response?.data.error || error.message))
-                }
-            }
-        },
-
-        async fetchUsers(page) {
-            try {
-                const res = await Users.allUsers({
-                    page, 
-                    limit: 6,
-                    order: this.checkOrderBy
-                });
-
-                this.users = res.data.data  
-                this.page = res.data.currentPage
-                this.totalPages = res.data.totalPages
-                
-            } catch (err) {
-                console.error("Erro:", err);
-                
-            }
-        },
-
-        async deleteUser(userId) {
-            try {
-                await Users.deleteUser(userId);
-                this.fetchUsers(this.page)
-            } catch (err) {
-                console.error(err.response?.data)
-                    alert('Erro ao editar perfil: ' + (err.response?.data.error || err.message))
-            }
-        },
-  },
+  methods: {
+    async submitChanges() {
+      //starts the validation for all form inputs
+      if (this.newPassword) {
+        this.oldPassword = this.newPassword;
+      }
 
       const result = await this.v$.$validate();
 
@@ -1049,11 +821,12 @@ export default {
           street_name: this.address,
           postal_code: this.postal_code,
           door_number: this.door_number,
-          door_to_door_service: this.door_to_door_service,
+          door_to_door_service:
+            this.door_to_door_service === true ? "sim" : "não",
           collection_point_id: this.cp_id,
         };
-        console.log("teste");
 
+        alert("Alterações feitas!");
         try {
           const res = await Users.editProfile(userInfo);
         } catch (err) {
@@ -1073,63 +846,6 @@ export default {
           limit: 6,
           order: this.checkOrderBy,
         });
-        groupByMonth() {
-            const readingValues = {};
-            this.chartSeries = [];
-
-            const months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
-            const monthNames = ['Jan', 'Feb', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-            
-            console.log(this.readings.data);
-            
-            // Separate the data by waste type, and then add the weight collected for each month
-            this.readings.data.forEach(reading => {
-
-                // Put the date in the (DD-MM-YYY) format
-                const date = reading.reading_date.substring(8, 10) + '/' + reading.reading_date.substring(5, 7) + '/' + reading.reading_date.substring(0, 4)
-                const month = date.substring(3, 5);
-
-                // Get the waste type & weight collected
-                const waste_type = reading.container.waste_type.name
-                const weight = reading.weight_collected || 0;
-
-                if (!readingValues[waste_type]) {
-                    readingValues[waste_type] = {};
-                } 
-                                
-                if (!readingValues[waste_type][month]) {
-                    readingValues[waste_type][month] = 0;
-                }
-
-                readingValues[waste_type][month] += weight;
-            })             
-
-            for (const type in readingValues) {
-                // Get the values from each month
-                const values = readingValues[type]
-                
-                // Fill the data for each month to render the graph
-                const monthlyData = months.map(month => {
-                    return values[month] || 0;
-                });
-
-                // Add the data into the chartSeries
-                this.chartSeries.push({
-                    name: type.trim(),
-                    data: monthlyData
-                })
-            }
-
-            // Add the month names into the x axis
-            this.chartOptions.xaxis = {
-                type: "category",
-                categories: monthNames
-            }
-            console.log(123);
-            
-            console.log(this.chartOptions.xaxis);
-            
-        },
 
         this.users = res.data.data;
         this.page = res.data.currentPage;
@@ -1138,6 +854,7 @@ export default {
         console.error("Erro:", err);
       }
     },
+
     async deleteUser(userId) {
       try {
         await Users.deleteUser(userId);
@@ -1269,7 +986,7 @@ export default {
           page,
           limit: 6,
           order: this.checkOrderBy,
-          route_type: "admin"
+          route_type: "admin",
         });
 
         this.collection_points = res.data.data;
@@ -1279,6 +996,7 @@ export default {
         console.error("Erro:", err);
       }
     },
+
     async deletePoint(pointId) {
       try {
         await CollectionPoints.deleteCollectionPoint(pointId);
@@ -1352,7 +1070,7 @@ export default {
           wasteTYpeMap[plan.Waste_id] = {
             id: plan.Waste_id,
             name: plan.waste_type.name,
-            color:this.getColorFromName(plan.waste_type.identifying_color),
+            color: this.getColorFromName(plan.waste_type.identifying_color),
             icon: this.getWasteIcon(plan.waste_type.name),
           };
           this.wasteTypes.push(wasteTYpeMap[plan.Waste_id]);
@@ -1368,9 +1086,6 @@ export default {
         console.error("Erro ao carregar os planos:", error);
       }
     },
-
-    },
-},
 
     getWasteIcon(name) {
       switch (name.toLowerCase()) {
