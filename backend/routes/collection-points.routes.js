@@ -12,6 +12,6 @@ router.get("/:id", collection_points_controller.getPointById);
 router.post("/", authController.verifyToken, collection_points_controller.addPoint);
 
 router.put("/:id", authController.verifyToken, collection_points_controller.updateCollectionPoint);
-
+//router.patch("/:id", authController.verifyToken, collection_points_controller.updateCollectionPoint);
 router.delete("/:id", authController.verifyToken, collection_points_controller.deletePoint);
 module.exports = router;

@@ -238,9 +238,9 @@
           max-width="90%"
           v-if="door_to_door_service"
         >
-        <!-- Taxa lixo -->
           <v-container>
             <v-row>
+
               <v-col cols="4" md="12">
                 <v-card class="mx-auto px-6 py-8" 
                 max-width="90%" 
@@ -304,6 +304,197 @@
             </v-tabs-window-item>
         </v-tabs-window>
     </div>
+   <v-col cols="4" md="4">
+                <v-card elevation="0">
+                  <template v-slot:title>
+                    <span style="margin-left: 15px" class="font-weight-black"
+                      >Taxa de lixo mensal</span
+                    >
+                    <v-card-text>
+                      <p>
+                        Estimativa com base na produção mensal de <br />resíduos
+                        indiferenciados.
+                      </p>
+                    </v-card-text>
+                    <v-row>
+                      <v-col cols="12" md="4">
+                        <h2 class="tax">{{ calcTaxes(currentMonth) }}€</h2>
+                      </v-col>
+                      <v-col cols="12" md="4">
+                        <img
+                          class="trash_icon"
+                          src="../assets/icons/wasteIcon.svg"
+                          alt=""
+                        />
+                      </v-col>
+                    </v-row>
+                  </template>
+                </v-card>
+              </v-col>
+              <v-col cols="4" md="8" sm="8">
+                <apex-chart
+                  type="line"
+                  height="300"
+                  :options="chartOptions"
+                  :series="chartSeries"
+                ></apex-chart>
+              </v-col>
+              <!-- <v-col cols="4" md="3">
+                                <v-row class="trash-types-container">
+                                    <v-col cols="12" md="12">
+                                        <v-card elevation="0" class="trash-type">
+                                            <v-row class="trash-type-info">
+                                                <v-col cols="12" md="3">
+                                                    <div class="icon-background" id="undifferentiated-background">
+                                                        <img src="../assets/icons/undifferentiated_icon.webp" alt="Icone para o lixo indiferenciado">
+                                                    </div>                                        
+                                                </v-col>
+                                                <v-col cols="10" md="8">
+                                                    <h3 class="font-weight-black">Indiferenciado</h3>
+                                                    <p>Dados mensais</p>
+                                                </v-col>
+                                            </v-row>
+                                            <v-row class="trash-type-weight">
+                                                <v-col cols="12" md="3">
+                                                    <h3 class="font-weight-black">0 kg</h3>
+                                                </v-col>
+                                                <v-col cols="12" md="8" class="trash-type-weight-percentage">
+                                                    <p>0.39%</p>
+                                                    <img src="../assets/icons/arrow_up.webp" alt="">
+                                                </v-col>
+                                            </v-row>
+                                        </v-card>
+                                    </v-col>
+                                    <v-col cols="12" md="12">
+                                        <v-card elevation="0" class="trash-type">
+                                            <v-row class="trash-type-info">
+                                                <v-col cols="10" md="3">
+                                                    <div class="icon-background" id="organic-background">
+                                                        <img src="../assets/icons/organic_icon.webp" alt="Icone para o lixo indiferenciado">
+                                                    </div>                                        
+                                                </v-col>
+                                                <v-col cols="10" md="8">
+                                                    <h3 class="font-weight-black">Orgânico</h3>
+                                                    <p>Dados mensais</p>
+                                                </v-col>
+                                            </v-row>
+                                            <v-row class="trash-type-weight">
+                                                <v-col cols="12" md="3">
+                                                    <h3 class="font-weight-black">0 kg</h3>
+                                                </v-col>
+                                                <v-col cols="12" md="8" class="trash-type-weight-percentage">
+                                                    <p>0.39%</p>
+                                                    <img src="../assets/icons/arrow_up.webp" alt="">
+                                                </v-col>
+                                            </v-row>
+                                        </v-card>
+                                    </v-col>
+                                    <v-col cols="12" md="12">
+                                        <v-card elevation="0" class="trash-type">
+                                            <v-row class="trash-type-info">
+                                                <v-col cols="12" md="3">
+                                                    <div class="icon-background" id="paper-background">
+                                                        <img src="../assets/icons/paper_icon.webp" alt="Icone para o lixo indiferenciado">
+                                                    </div>                                        
+                                                </v-col>
+                                                <v-col cols="10" md="8">
+                                                    <h3 class="font-weight-black">Papel / Cartão</h3>
+                                                    <p>Dados mensais</p>
+                                                </v-col>
+                                            </v-row>
+                                            <v-row class="trash-type-weight">
+                                                <v-col cols="12" md="3">
+                                                    <h3 class="font-weight-black">0 kg</h3>
+                                                </v-col>
+                                                <v-col cols="12" md="8" class="trash-type-weight-percentage">
+                                                    <p>0.39%</p>
+                                                    <img src="../assets/icons/arrow_up.webp" alt="">
+                                                </v-col>
+                                            </v-row>
+                                        </v-card>
+                                    </v-col>
+                                </v-row>
+                                <v-row class="trash-types-container py-4" >
+                                    <v-col cols="12" md="12">
+                                        <v-card elevation="0" class="trash-type">
+                                            <v-row class="trash-type-info">
+                                                <v-col cols="12" md="3">
+                                                    <div class="icon-background" id="glass-background">
+                                                        <img src="../assets/icons/glass_icon.webp" alt="Icone para o vidro">
+                                                    </div>                                        
+                                                </v-col>
+                                                <v-col cols="10" md="8">
+                                                    <h3 class="font-weight-black">Vidro</h3>
+                                                    <p>Dados mensais</p>
+                                                </v-col>
+                                            </v-row>
+                                            <v-row class="trash-type-weight">
+                                                <v-col cols="12" md="3">
+                                                    <h3 class="font-weight-black">0 kg</h3>
+                                                </v-col>
+                                                <v-col cols="12" md="8" class="trash-type-weight-percentage">
+                                                    <p>0.39%</p>
+                                                    <img src="../assets/icons/arrow_up.webp" alt="">
+                                                </v-col>
+                                            </v-row>
+                                        </v-card>
+                                    </v-col>
+                                    <v-col cols="12" md="12">
+                                        <v-card elevation="0" class="trash-type">
+                                            <v-row class="trash-type-info">
+                                                <v-col cols="10" md="3">
+                                                    <div class="icon-background" id="plastic-background">
+                                                        <img src="../assets/icons/plastic_icon.webp" alt="Icone para o plastico">
+                                                    </div>                                        
+                                                </v-col>
+                                                <v-col cols="10" md="8">
+                                                    <h3 class="font-weight-black">Plástico / Metal</h3>
+                                                    <p>Dados mensais</p>
+                                                </v-col>
+                                            </v-row>
+                                            <v-row class="trash-type-weight">
+                                                <v-col cols="12" md="3">
+                                                    <h3 class="font-weight-black">0 kg</h3>
+                                                </v-col>
+                                                <v-col cols="12" md="8" class="trash-type-weight-percentage">
+                                                    <p>0.39%</p>
+                                                    <img src="../assets/icons/arrow_up.webp" alt="">
+                                                </v-col>
+                                            </v-row>
+                                        </v-card>
+                                    </v-col>
+                                </v-row>
+                            </v-col> -->
+            </v-row>
+          </v-container>
+          <v-container>
+            <h3>Meus Feedbacks</h3>
+            <v-table>
+              <thead>
+                <tr>
+                  <th class="text-left">DESCRIÇÃO</th>
+                  <th class="text-left">TIPO</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="feedback in feedbacks" :key="feedback.feedback_id">
+                  <td>
+                    {{
+                      feedback.feedback_date.slice(0, 10).replaceAll("-", "/")
+                    }}
+                    - {{ feedback.collection_point.street_name }}<br />
+                    {{ feedback.description }}
+                  </td>
+                  <td>{{ feedback.feedback_type }}</td>
+                </tr>
+              </tbody>
+            </v-table>
+          </v-container>
+        </v-card>
+      </v-tabs-window-item>
+      <v-tabs-window-item value="3"> </v-tabs-window-item>
+    </v-tabs-window>
+  </div>
   <div style="margin-top: 100px" v-if="user.user_type == 'admin'">
     <v-card class="px-6 py-8 welcome-card" max-width="90%">
       <v-row>
@@ -368,257 +559,170 @@
           value="4"
         ></v-tab>
       </v-tabs>
-
       <v-tabs-window v-model="admin_tab">
         <v-tabs-window-item value="1" class="admin-tab-window" id="tab-window1">
           <div class="window-header">
-            <br /><br />
-            <h2>Lista de Pontos de Recolha</h2>
+            <h2>Lista de Pontos de recolha</h2>
+            <v-select
+              v-model="orderBy"
+              label="Ordenar por nome"
+              density="compact"
+              :items="['(A-Z)', '(Z-A)']"
+              variant="outlined"
+            ></v-select>
+            <v-btn
+              class="ms-4"
+              variant="outlined"
+              prepend-icon="mdi-plus"
+              text="Adicionar Ponto"
+              @click="openDialog()"
+            ></v-btn>
+          </div>
 
-            <div class="d-flex justify-end align-center toolsPointsDiv">
-              <v-select
-                v-model="orderBy"
-                label="Ordenar por nome"
-                density="compact"
-                :items="['(A-Z)', '(Z-A)']"
-                variant="outlined"
-              ></v-select>
-
+          <v-data-table
+            :headers="cpHeaders"
+            :items="collection_points"
+            item-value="collection_point_id"
+            show-expand
+            class="mb-4"
+            :items-per-page="6"
+            :page="page"
+            @update:page="page = $event"
+            :footer-props="{ itemsPerPageOptions: [6] }"
+          >
+            <template
+              v-slot:item.data-table-expand="{
+                internalItem,
+                isExpanded,
+                toggleExpand,
+              }"
+            >
               <v-btn
-                color="white"
-                rounded="2"
-                style="background-color: #043601"
-                @click="showCreatePointForm = !showCreatePointForm"
-              >
-                <v-icon>mdi-plus</v-icon>
-                ADD</v-btn
-              >
-            </div>
-          </div>
-          <div>
-            <v-form
-              v-if="showCreatePointForm"
-              ref="createPointForm"
-              class="pointForm"
-              v-model="form"
-              @submit.prevent="createPoint"
-            >
-              <v-card class="px-6 py-8 form-card pointFormCard" elevation="0">
-                <v-row>
-                  <v-col cols="12" md="6">
-                    <v-text-field
-                      v-model="newPoint.street_name"
-                      label="Morada"
-                      variant="outlined"
-                      class="mb-2 form-input"
-                      clearable
-                      placeholder="Rua Exemplo"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="6" md="3">
-                    <v-text-field
-                      v-model="newPoint.postal_code"
-                      label="Código Postal"
-                      variant="outlined"
-                      class="mb-2 form-input"
-                      clearable
-                      placeholder="000-000"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="6" md="3">
-                    <v-text-field
-                      v-model="newPoint.door_number"
-                      label="Nº Porta"
-                      variant="outlined"
-                      class="mb-2 form-input"
-                      clearable
-                      placeholder="123"
-                    ></v-text-field>
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col cols="12" md="6">
-                    <v-select
-                      v-model="newPoint.collection_point_type"
-                      :items="['ecoponto', 'ecocentro']"
-                      label="Tipo de Ponto"
-                      variant="outlined"
-                      class="mb-2 form-input"
-                      clearable
-                    ></v-select>
-                  </v-col>
-                  <v-col cols="12" md="3">
-                    <v-text-field
-                      v-model="newPoint.opening_hours"
-                      label="Horário de Funcionamento"
-                      variant="outlined"
-                      class="mb-2 form-input"
-                      clearable
-                      placeholder="9h - 18h"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12" md="3">
-                    <v-text-field
-                      v-model="newPoint.geographical_coordinates"
-                      label="Coordenadas geograficas"
-                      variant="outlined"
-                      class="mb-2 form-input"
-                      clearable
-                      placeholder="40.7128, -74.0060"
-                    ></v-text-field>
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col cols="12" md="12">
-                    <v-btn
-                      color="success"
-                      size="large"
-                      type="submit"
-                      variant="elevated"
-                      @click="createPoint"
-                      block
-                    >
-                      Criar Ponto de Recolha
-                    </v-btn>
-                  </v-col>
-                </v-row>
-              </v-card>
-            </v-form>
-          </div>
-          <div>
-            <v-form
-              v-if="showupdatePointForm"
-              ref="updatePointForm"
-              class="pointForm"
-              v-model="form"
-              @submit.prevent="updatePoint(point)"
-            >
-              <v-card class="px-6 py-8 form-card pointFormCard" elevation="0">
-                <v-row>
-                  <v-col cols="12" md="6">
-                    <v-text-field
-                      v-model="newPoint.street_name"
-                      label="Morada"
-                      variant="outlined"
-                      class="mb-2 form-input"
-                      clearable
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="6" md="3">
-                    <v-text-field
-                      v-model="newPoint.postal_code"
-                      label="Código Postal"
-                      variant="outlined"
-                      class="mb-2 form-input"
-                      clearable
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="6" md="3">
-                    <v-text-field
-                      v-model="newPoint.door_number"
-                      label="Nº Porta"
-                      variant="outlined"
-                      class="mb-2 form-input"
-                      clearable
-                    ></v-text-field>
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col cols="12" md="6">
-                    <v-select
-                      v-model="newPoint.collection_point_type"
-                      :items="['ecoponto', 'ecocentro']"
-                      label="Tipo de Ponto"
-                      variant="outlined"
-                      class="mb-2 form-input"
-                      clearable
-                    ></v-select>
-                  </v-col>
-                  <v-col cols="12" md="6">
-                    <v-text-field
-                      v-model="newPoint.opening_hours"
-                      label="Horário de Funcionamento"
-                      variant="outlined"
-                      class="mb-2 form-input"
-                      clearable
-                    ></v-text-field>
-                  </v-col>
-                </v-row>
-                <v-row class="formBtnsSubmit">
-                  <v-col cols="12" md="12">
-                    <v-btn
-                      color="success"
-                      size="large"
-                      type="submit"
-                      variant="elevated"
-                      block
-                    >
-                      Submeter Alterações
-                    </v-btn>
-                    <!-- <v-btn
-                        color="white"
-                        rounded="2"
-                        style="background-color: #ed6868"
-                      >
-                        cancelar</v-btn
-                      > -->
-                  </v-col>
-                </v-row>
-              </v-card>
-            </v-form>
-          </div>
-          <v-row>
-            <v-container>
-              <v-table>
-                <thead>
-                  <tr>
-                    <th class="text-left">MORADA</th>
-                    <th class="text-left">TIPO</th>
-                    <th class="text-left">EDITAR</th>
-                    <th class="text-left">REMOVER</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr
-                    v-for="point in collection_points"
-                    :key="point.collection_point_id"
-                  >
-                    <td>
-                      {{
-                        ` ${point.street_name}, ${point.postal_code}, nº ${point.door_number}`
-                      }}
-                    </td>
-                    <td>{{ point.collection_point_type }}</td>
-                    <td>
-                      <v-btn
-                        @click="showupdatePointForm = !showupdatePointForm"
-                        color="white"
-                        rounded="2"
-                        style="background-color: #ed6868"
-                      >
-                        Editar Ponto</v-btn
-                      >
-                    </td>
-                    <td>
-                      <v-btn
-                        color="white"
-                        rounded="2"
-                        style="background-color: #ed6868"
-                        @click="deletePoint(point.collection_point_id)"
-                      >
-                        Remover Ponto</v-btn
-                      >
-                    </td>
-                  </tr>
-                </tbody>
-              </v-table>
-            </v-container>
-          </v-row>
-          <v-pagination v-model="page" :length="totalPages" rounded="circle" />
-        </v-tabs-window-item>
-      </v-tabs-window>
+                :append-icon="
+                  isExpanded(internalItem)
+                    ? 'mdi-chevron-up'
+                    : 'mdi-chevron-down'
+                "
+                :text="isExpanded(internalItem) ? 'Fechar' : 'Mais info'"
+                class="text-none"
+                color="medium-emphasis"
+                size="small"
+                variant="text"
+                border
+                slim
+                @click="toggleExpand(internalItem)"
+              ></v-btn>
+            </template>
+            <template v-slot:item.actions="{ item }">
+              <div class="d-flex ga-2 justify-end">
+                <v-icon
+                  color="primary"
+                  icon="mdi-pencil"
+                  size="small"
+                  @click="openDialog(item)"
+                ></v-icon>
+                <v-icon
+                  color="error"
+                  icon="mdi-delete"
+                  size="small"
+                  @click="deletePoint(item.collection_point_id)"
+                ></v-icon>
+              </div>
+            </template>
+            <template v-slot:expanded-row="{ columns, item }">
+              <tr>
+                <td :colspan="columns.length" class="py-2">
+                  <v-sheet rounded="lg" border>
+                    <v-table density="compact">
+                      <tbody>
+                        <tr>
+                          <th>Morada</th>
+                          <th>Horário</th>
+                          <th>Coordenadas</th>
+                        </tr>
+                        <tr>
+                          <td>
+                            {{
+                              `${item.street_name}  nº ${
+                                item.door_number || null
+                              }, ${item.postal_code}`
+                            }}
+                          </td>
+                          <td>{{ item.opening_hours }}</td>
+                          <td>{{ item.geographical_coordinates }}</td>
+                        </tr>
+                      </tbody>
+                    </v-table>
+                  </v-sheet>
+                </td>
+              </tr>
+            </template>
+          </v-data-table>
 
-      <v-tabs-window v-model="admin_tab">
+          <!-- Dialog para criar/editar ponto -->
+          <v-dialog v-model="dialog" max-width="500">
+            <v-card :title="isEditing ? 'Editar Ponto' : 'Adicionar Ponto'">
+              <v-card-text>
+                <v-form @submit.prevent="savePoint">
+                  <v-text-field
+                    v-model="PointData.street_name"
+                    label="Morada"
+                    :error-messages="
+                      v$.PointData.street_name.$errors.map((e) => e.$message)
+                    "
+                  ></v-text-field>
+                  <v-text-field
+                    v-model="PointData.postal_code"
+                    label="Código Postal"
+                    :error-messages="
+                      v$.PointData.postal_code.$errors.map((e) => e.$message)
+                    "
+                  ></v-text-field>
+                  <v-text-field
+                    v-model="PointData.door_number"
+                    label="Nº Porta"
+                  ></v-text-field>
+                  <v-select
+                    v-model="PointData.collection_point_type"
+                    :items="['Ecoponto', 'Ecocentro']"
+                    label="Tipo"
+                    :error-messages="
+                      v$.PointData.collection_point_type.$errors.map(
+                        (e) => e.$message
+                      )
+                    "
+                  ></v-select>
+                  <v-text-field
+                    v-model="PointData.opening_hours"
+                    label="Horário"
+                  ></v-text-field>
+                  <v-text-field
+                    v-model="PointData.geographical_coordinates"
+                    label="Coordenadas"
+                    :error-messages="
+                      v$.PointData.geographical_coordinates.$errors.map(
+                        (e) => e.$message
+                      )
+                    "
+                  ></v-text-field>
+                </v-form>
+              </v-card-text>
+              <v-divider></v-divider>
+              <v-card-actions>
+                <v-btn
+                  text="Cancelar"
+                  variant="plain"
+                  @click="dialog = false"
+                ></v-btn>
+                <v-spacer></v-spacer>
+                <v-btn text="Guardar" @click="savePoint"></v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+        </v-tabs-window-item>
+
+        <!-- --------- -->
+
         <v-tabs-window-item value="2" class="admin-tab-window" id="tab-window2">
           <div class="window-header">
             <h2>Lista de Utilizadores</h2>
@@ -664,22 +768,12 @@
           </v-col>
           <v-pagination v-model="page" :length="totalPages" rounded="circle" />
         </v-tabs-window-item>
-      </v-tabs-window>
 
-      <v-tabs-window v-model="admin_tab">
         <v-tabs-window-item value="3" class="admin-tab-window" id="tab-window3">
         </v-tabs-window-item>
-      </v-tabs-window>
 
-      <v-tabs-window
-        v-model="admin_tab"
-        class="admin-tab-window"
-        id="tab-window4"
-      >
         <v-tabs-window-item value="4">
-          <div class="min-h-screen bg-gray-50">
-            <Calendar :wasteSchedule="schedule" :wasteTypes="wasteTypes" />
-          </div>
+          <Calendar :waste-schedule="wasteSchedule" :waste-types="wasteTypes" />
         </v-tabs-window-item>
       </v-tabs-window>
     </v-card>
@@ -688,7 +782,6 @@
 
 <script>
 import { useVuelidate } from "@vuelidate/core";
-import Calendar from "../components/Calendar.vue";
 import {
   required,
   minLength,
@@ -699,9 +792,11 @@ import {
   numeric,
 } from "@vuelidate/validators";
 import Users from "@/api/users";
-import collectionPlan from "@/api/collectionPlan";
-import CollectionPoints from "@/api/collectionPoints";
 import Readings from "@/api/readings";
+import CollectionPlan from "@/api/collectionPlan";
+import CollectionPoints from "@/api/collectionPoints";
+import Calendar from "@/components/Calendar.vue";
+
 
 export default {
   components: {
@@ -737,65 +832,65 @@ export default {
       door_to_door_service: false,
       feedbacks: [],
       users: [],
+      readings: [],
       page: 1,
       totalPages: 1,
       orderBy: "(A-Z)",
+      colors: ["#37474F", "#6F4439", "#446DEB", "#14AE5C", "#FFC727"],
       icons: {
         user_icon: "mdi-account",
         cg_icon: "mdi-paperclip",
         cp_icon: "mdi-cached",
         annual_plan_icon: "mdi-calendar",
       },
-      
-        chartSeries: [],
-        chartOptions: {
-            chart: {
-                type: 'line'
-            },
-            stroke: {
-                curve: 'smooth',
-                width: 3
-            },
-            xaxis: {},
-            yaxis: {
-                text: "Quantidade de lixo (kg)"
-            },
-            tooltip: {
-                x: {
-                    format: 'dd/MM/yyyy'
-                }
-            },
-            colors: ["#FFC727",
-            "#14AE5C",
-            "#446DEB",
-            "#37474F",
-            "#6F4439"],
-            legend: {
-                position: 'top'
-            }
+      chartSeries: [],
+      chartOptions: {
+        chart: {
+          type: "line",
         },
-      // --
-      newPoint: {
+        stroke: {
+          curve: "smooth",
+          width: 3,
+        },
+        xaxis: {},
+        yaxis: {
+          text: "Quantidade de lixo (kg)",
+        },
+        tooltip: {
+          x: {
+            format: "dd/MM/yyyy",
+          },
+        },
+        colors: ["#FFC727", "#14AE5C", "#446DEB", "#37474F", "#6F4439"],
+        legend: {
+          position: "top",
+        },
+      },
+
+      // -----Collection points
+
+      collection_points: [],
+
+      cpHeaders: [
+        { title: "ID", key: "collection_point_id", align: "start" },
+        { title: "Tipo", key: "collection_point_type" },
+        { title: "Ações", key: "actions", align: "end", sortable: false },
+        { title: "", key: "data-table-expand", sortable: false },
+      ],
+      dialog: false,
+      isEditing: false,
+      PointData: {
+        collection_point_id: null,
+
         street_name: "",
         postal_code: "",
         door_number: "",
-        collection_point_type: "".toLowerCase(),
+        collection_point_type: "",
         opening_hours: "",
         geographical_coordinates: "",
       },
-      showupdatePointForm: false,
-      showCreatePointForm: false,
-      collectionPoint: null,
-      collection_points: [],
-      collection_point_id: null,
-      collection_point_type: "",
-      collection_point_coordinates: "",
-      collection_point_opening_hours: "",
-      collection_point_street_name: "",
-      collection_point_postal_code: "",
-      collection_point_door_number: "",
 
-      // --
+      // -----Collection plan
 
       wasteSchedule: [],
       wasteTypes: [],
@@ -808,7 +903,6 @@ export default {
 
     this.user = userInfo.data;
     this.readings = readingsInfo.data;
-
     this.id = this.user.user_id;
     const nameSplit = this.user.name.split(" ");
     this.name = nameSplit[0];
@@ -817,6 +911,7 @@ export default {
     this.phone_number = this.user.phone_number;
     this.email = this.user.email;
     this.user_type = this.user.user_type;
+    this.fetchPlan();
     if (this.user_type === "morador") {
       this.citizenInfo();
       this.groupByMonth();
@@ -939,21 +1034,45 @@ export default {
                     alert('Erro ao editar perfil: ' + (err.response?.data.error || err.message))
             }
         },
+  },
 
-        activateService() {
-            this.door_to_door_service = true;
-            this.submitChanges;
-        },
+      const result = await this.v$.$validate();
 
-        citizenInfo() {
-            this.address = this.user.collection_point.street_name;
-            this.postal_code = this.user.collection_point.postal_code;
-            this.door_number = this.user.collection_point.door_number;
-            this.door_to_door_service = this.user.door_to_door_service === "sim" ? true : false;
-            this.cp_id = this.user.collection_point.collection_point_id;
-            this.feedbacks = this.user.feedbacks; 
-        },
+      if (result) {
+        const userInfo = {
+          id: this.id,
+          name: this.name + " " + this.surname,
+          tin: this.tin,
+          password: this.oldPassword,
+          email: this.email,
+          phone_number: this.phone_number,
+          street_name: this.address,
+          postal_code: this.postal_code,
+          door_number: this.door_number,
+          door_to_door_service: this.door_to_door_service,
+          collection_point_id: this.cp_id,
+        };
+        console.log("teste");
 
+        try {
+          const res = await Users.editProfile(userInfo);
+        } catch (err) {
+          console.error(err.response?.data);
+          alert(
+            "Erro ao editar perfil: " +
+              (err.response?.data.error || error.message)
+          );
+        }
+      }
+    },
+
+    async fetchUsers(page) {
+      try {
+        const res = await Users.allUsers({
+          page,
+          limit: 6,
+          order: this.checkOrderBy,
+        });
         groupByMonth() {
             const readingValues = {};
             this.chartSeries = [];
@@ -1012,9 +1131,28 @@ export default {
             
         },
 
+        this.users = res.data.data;
+        this.page = res.data.currentPage;
+        this.totalPages = res.data.totalPages;
+      } catch (err) {
+        console.error("Erro:", err);
+      }
+    },
+    async deleteUser(userId) {
+      try {
+        await Users.deleteUser(userId);
+        this.fetchUsers(this.page);
+      } catch (err) {
+        console.error(err.response?.data);
+        alert(
+          "Erro ao editar perfil: " + (err.response?.data.error || err.message)
+        );
+      }
+    },
+
     activateService() {
       this.door_to_door_service = true;
-      this.submitChanges();
+      this.submitChanges;
     },
 
     citizenInfo() {
@@ -1025,6 +1163,104 @@ export default {
         this.user.door_to_door_service === "sim" ? true : false;
       this.cp_id = this.user.collection_point.collection_point_id;
       this.feedbacks = this.user.feedbacks;
+    },
+
+    groupByMonth() {
+      const readingValues = {};
+      this.chartSeries = [];
+
+      const months = [
+        "01",
+        "02",
+        "03",
+        "04",
+        "05",
+        "06",
+        "07",
+        "08",
+        "09",
+        "10",
+        "11",
+        "12",
+      ];
+      const monthNames = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Abr",
+        "Mai",
+        "Jun",
+        "Jul",
+        "Ago",
+        "Set",
+        "Out",
+        "Nov",
+        "Dez",
+      ];
+
+      // Separate the data by waste type, and then add the weight collected for each month
+      this.readings.data.forEach((reading) => {
+        // Put the date in the (DD-MM-YYY) format
+        const date =
+          reading.reading_date.substring(8, 10) +
+          "/" +
+          reading.reading_date.substring(5, 7) +
+          "/" +
+          reading.reading_date.substring(0, 4);
+        const month = date.substring(3, 5);
+
+        // Get the waste type & weight collected
+        const waste_type = reading.container.waste_type.name;
+        const weight = reading.weight_collected || 0;
+
+        if (!readingValues[waste_type]) {
+          readingValues[waste_type] = {};
+        }
+
+        if (!readingValues[waste_type][month]) {
+          readingValues[waste_type][month] = 0;
+        }
+
+        readingValues[waste_type][month] += weight;
+      });
+
+      for (const type in readingValues) {
+        // Get the values from each month
+        const values = readingValues[type];
+
+        // Fill the data for each month to render the graph
+        const monthlyData = months.map((month) => {
+          return values[month] || 0;
+        });
+
+        // Add the data into the chartSeries
+        this.chartSeries.push({
+          name: type.trim(),
+          data: monthlyData,
+        });
+      }
+
+      // Add the month names into the x axis
+      this.chartOptions.xaxis = {
+        type: "category",
+        categories: monthNames,
+      };
+    },
+
+    calcTaxes(month, pricePerKg = 0.0179) {
+      if (!this.readings || !this.readings.data) return 0;
+
+      const totalWeight = this.readings.data
+        .filter((reading) => {
+          const waste_type = reading.container.waste_type.name
+            .trim()
+            .toLowerCase();
+          const readingMonth = reading.reading_date?.substring(5, 7);
+          return waste_type === "indiferenciado" && readingMonth === month;
+        })
+        .reduce((sum, reading) => sum + (reading.weight_collected || 0), 0);
+
+      return (totalWeight * pricePerKg).toFixed(2);
     },
 
     async fetchPoints(page) {
@@ -1042,9 +1278,7 @@ export default {
       } catch (err) {
         console.error("Erro:", err);
       }
-      console.log(this.collection_points);
     },
-
     async deletePoint(pointId) {
       try {
         await CollectionPoints.deleteCollectionPoint(pointId);
@@ -1052,55 +1286,123 @@ export default {
       } catch (err) {
         console.error(err.response?.data);
         alert(
-          "Erro ao editar perfil: " + (err.response?.data.error || err.message)
-        );
-      }
-    },
-
-    async updatePoint(pointId) {
-      try {
-        await CollectionPoints.updateCollectionPoint(pointId);
-        this.fetchPoints(this.page);
-        alert("Ponto de recolha atualizado com sucesso");
-      } catch (err) {
-        console.error(err.response?.data);
-        alert(
-          "Erro ao editar ponto de recolha: " +
+          "Erro ao deletar ponto de recolha: " +
             (err.response?.data.error || err.message)
         );
       }
     },
 
-    async createPoint() {
-      try {
-        await CollectionPoints.createCollectionPoint(this.newPoint);
-        this.fetchPoints(this.page);
-        alert(`Ponto de recolha ${this.newPoint} criado com sucesso`);
-
-        this.newPoint = {
+    openDialog(item = null) {
+      this.isEditing = !!item;
+      if (item) {
+        this.PointData = { ...item };
+      } else {
+        this.PointData = {
+          collection_point_id: null,
           street_name: "",
-          postal_code: "",
+          postal_code: "".trim(),
           door_number: "",
           collection_point_type: "",
           opening_hours: "",
           geographical_coordinates: "",
         };
+      }
+      this.dialog = true;
+    },
+    async savePoint() {
+      const valid = await this.v$.PointData.$validate();
+      if (!valid) return;
+      if (this.isEditing) {
+        try {
+          console.log(this.PointData);
+          await CollectionPoints.updateCollectionPoint(
+            this.PointData.collection_point_id,
+            this.PointData
+          );
+        } catch (err) {
+          console.error(err.response?.data);
+          alert(
+            "Erro ao editar ponto de recolha: " +
+              (err.response?.data.error || err.message)
+          );
+        }
+      } else {
+        try {
+          console.log(this.PointData);
+          await CollectionPoints.createCollectionPoint(this.pointData);
+        } catch (err) {
+          console.error(err.response?.data);
+          alert(
+            "Erro ao adicinar ponto de recolha: " +
+              (err.response?.data.error || err.message)
+          );
+        }
+      }
+      this.dialog = false;
+      this.fetchPoints();
+    },
 
-        console.log(this.newPoint);
-        this.showCreatePointForm = false;
-      } catch (err) {
-        console.error(err.response?.data);
-        alert(
-          "Erro ao criar ponto de recolha: " +
-            (err.response?.data.error || err.message)
-        );
+    async fetchPlan() {
+      try {
+        const res = await CollectionPlan.getPlan();
+        const plans = res.data.plan;
+
+        const wasteTYpeMap = {};
+        plans.forEach((plan) => {
+          wasteTYpeMap[plan.Waste_id] = {
+            id: plan.Waste_id,
+            name: plan.waste_type.name,
+            color:this.getColorFromName(plan.waste_type.identifying_color),
+            icon: this.getWasteIcon(plan.waste_type.name),
+          };
+          this.wasteTypes.push(wasteTYpeMap[plan.Waste_id]);
+        });
+
+        this.wasteSchedule = plans.map((plan) => ({
+          wasteId: plan.Waste_id,
+          weekDays: plan.Collection_days.split(","),
+        }));
+
+        console.log(plans, this.wasteTypes, this.wasteSchedule);
+      } catch (error) {
+        console.error("Erro ao carregar os planos:", error);
       }
     },
-// numero de leiruras de lixo indiferenciado associadas ao morador X um valor tabelado ex:1.05€
-    async wasteTaxes(){
 
     },
 },
+
+    getWasteIcon(name) {
+      switch (name.toLowerCase()) {
+        case "plástico":
+          return "mdi-bottle-soda";
+        case "papel":
+          return "mdi-file-document";
+        case "vidro":
+          return "mdi-glass-fragile";
+        case "orgânico":
+          return "mdi-food-apple";
+        case "indiferenciado":
+          return "mdi-delete";
+        default:
+          return "mdi-trash-can";
+      }
+    },
+
+    getColorFromName(name) {
+      const colorMap = {
+        Amarelo: "#FFC727",
+        Verde: "#09A129",
+        Azul: "#446DEB",
+        Castanho: "#6F4439",
+        Cinza: "#666666",
+        Vermelho: "#FF5252",
+        // Adiciona mais se precisares
+      };
+      return colorMap[name] || "#CCCCCC"; // cor default
+    },
+  },
+
   validations() {
     return {
       name: { required, maxLengthValue: maxLength(12), alpha },
@@ -1135,10 +1437,18 @@ export default {
         minLengthValue: minLength(8),
         maxLengthValue: maxLength(8),
       },
-      door_number: { required, maxLengthValue: maxLength(3), numeric },
-      street_name: { required },
-      collection_point_type: { required },
-      geographical_coordinates: { required },
+      door_number: { required, maxLengthValue: maxLength(2), numeric },
+
+      PointData: {
+        street_name: { required },
+        postal_code: {
+          required,
+          minLengthValue: minLength(8),
+          maxLengthValue: maxLength(8),
+        },
+        collection_point_type: { required },
+        geographical_coordinates: { required },
+      },
     };
   },
 
@@ -1154,29 +1464,24 @@ export default {
     checkOrderBy() {
       return this.orderBy === "(A-Z)" ? "asc" : "desc";
     },
+    currentMonth() {
+      return new Date().toISOString().substring(5, 7);
+    },
   },
 
   watch: {
     page(newPage, oldPage) {
-      // when a new page is selected, it will fetch the user's info or point info from that page
+      // when a new page is selected, it will fetch the user's info from that page
       if (newPage !== oldPage) {
-        if (this.admin_tab === 1) {
-          this.fetchPoints(newPage);
-        } else if (this.admin_tab === 2) {
-          this.fetchUsers(newPage);
-        }
+        this.fetchUsers(newPage);
       }
     },
 
     orderBy(newOrder, oldOrder) {
       if (newOrder !== oldOrder) {
-        //  this.page = 1;
-        // when a new order by is selected, it automatically goes to the selected page
-        if (this.admin_tab === 1) {
-          this.fetchPoints(this.page);
-        } else if (this.admin_tab === 2) {
-          this.fetchUsers(this.page);
-        }
+        // when a new order by is selected, it automatically goes to page 1
+        this.page = 1;
+        this.fetchUsers(this.page);
       }
     },
   },
@@ -1214,7 +1519,7 @@ p {
 
 .tax {
   color: #09a129;
-  margin-left: 15px;
+  margin: 18px 0 0 15px;
   font-weight: 700;
   font-size: 38px;
 }
@@ -1305,44 +1610,19 @@ p {
   border-top-right-radius: 15px;
 }
 
-// .window-header {
-//   display: flex;
-//   align-items: center;
-//   justify-content: flex-start;
-// }
-
-#tab-window2 .window-header,
-#tab-window1 .window-header {
+.window-header {
   display: flex;
   justify-content: space-between;
-  margin: 20px 30px 50px 30px;
+  margin: 50px 30px 20px 30px;
 }
 
-#tab-window2 .window-header .v-select,
-#tab-window1 .window-header .v-select {
+.window-header .v-select {
   max-width: 150px;
 }
 
-#tab-window2 h2 {
+.window-header h2 {
   font-weight: 650;
   font-size: 24px;
-}
-
-.toolsPointsDiv {
-  width: 600px;
-  gap: 10px;
-  margin-left: auto;
-  align-items: baseline;
-}
-.toolsPointsDiv .v-btn {
-  height: 40px;
-  min-height: 40px;
-  padding-top: 0;
-  padding-bottom: 0;
-  margin-top: 0;
-  margin-bottom: 25px;
-  display: flex;
-  align-items: center;
 }
 
 @media screen and (max-width: 1220px) {
