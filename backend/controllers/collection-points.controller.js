@@ -119,8 +119,8 @@ let addPoint = async (req, res, next) => {
         };
 
         //Gather all parameters
-        const { collection_point_type, postal_code, opening_hours, geographical_coordinates, street_name, door_number } = req.body;
-
+        const { collection_point_type, postal_code, opening_hours, geographical_coordinates, street_name, door_number } = req.query;
+        
         // sequelize update method allows PARTIAL updates, so we NEED to check for missing fields    
         let missingFields = [];
         let collection_point_id;

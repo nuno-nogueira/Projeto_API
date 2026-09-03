@@ -1,13 +1,7 @@
 <template>
-
-  <GoogleMap
-    :key="mapKey"
-    :center="{ lat: 41.3662, lng: -8.7418871 }"
-    :zoom="15"
-    :markers="collectionPointsArray"
-  />
   <div class="map-page">
     <GoogleMap
+      :key="mapKey"
       :center="{ lat: 41.3662, lng: -8.7418871 }"
       :zoom="15"
       :markers="collectionPointsArray"
@@ -91,7 +85,6 @@ export default {
         route_type: "map",
       });
       const points = res.data?.data?.rows ?? [];
-      console.log(points);
       this.collectionPointsArray = points.map((point) => {
         const [lat, lng] = point.geographical_coordinates.split(",");
         return {
@@ -105,8 +98,6 @@ export default {
           id: point.collection_point_id,
         };
       });
-
-      console.log(this.collectionPointsArray, this.selectedMarker);
     } catch (error) {
       console.error("Erro ao carregar os pontos:", error);
     }
@@ -125,11 +116,6 @@ export default {
     },
 
     submitFeedback() {
-      console.log("Feedback enviado:", {
-        id: this.selectedMarker,
-        feedback: this.feedbackText,
-      });
-
       this.closeFeedbackOverlay();
     },
   },
@@ -140,6 +126,10 @@ export default {
         (point) => point.id === this.selectedMarker
       );
     },
+
+    mapKey() {
+      return this.collectionPointsArray.length;
+    }
   },
 };
 </script>
